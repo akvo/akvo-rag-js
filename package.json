@@ -4,10 +4,8 @@
 	"description": "An embeddable chatbot widget for Akvo RAG.",
 	"main": "dist/index.cjs.js",
 	"module": "dist/index.esm.js",
-	"browser": "dist/my-chatbot.js",
-	"files": [
-		"dist"
-	],
+	"browser": "dist/akvo-rag.js",
+	"files": ["dist"],
 	"scripts": {
 		"build": "webpack --mode production",
 		"dev": "webpack serve"
@@ -16,12 +14,7 @@
 		"type": "git",
 		"url": "git+https://github.com/akvo/akvo-rag-js.git"
 	},
-	"keywords": [
-		"chatbot",
-		"widget",
-		"akvo",
-		"rag"
-	],
+	"keywords": ["chatbot", "widget", "akvo", "rag"],
 	"author": "Akvo",
 	"license": "AGPL-3.0",
 	"bugs": {

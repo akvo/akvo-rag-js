@@ -1,7 +1,7 @@
 @use "variables" as v;
 @use "sass:color";
 
-#akvo-rag-chatbot {
+#akvo-rag {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -58,11 +58,11 @@
     height: 40px;
     border-radius: 4px;
 
-    #akvo-rag-chatbot-body {
+    #akvo-rag-body {
       display: none;
     }
 
-    #akvo-rag-chatbot-header {
+    #akvo-rag-header {
       justify-content: center;
       font-size: 14px;
       padding: 8px;

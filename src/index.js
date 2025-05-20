@@ -6,5 +6,5 @@ export { initChat };
 
 // For global usage in browser
 if (typeof window !== "undefined") {
-	window.AkvoRAG = { init: initChat };
+  window.AkvoRAG = { init: initChat };
 }

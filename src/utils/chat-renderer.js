@@ -40,7 +40,7 @@ export function updateStreamingAssistantMessage(
 
   if (!currentAssistantMsgEl.rawText) currentAssistantMsgEl.rawText = "";
 
-  // Parsing dan decode chunk
+  // Parsing and decode chunk
   const match = newChunk.match(/:\s*"(.*)"/);
   let word = match ? match[1] : newChunk;
 
@@ -50,6 +50,12 @@ export function updateStreamingAssistantMessage(
 
   currentAssistantMsgEl.rawText +=
     (currentAssistantMsgEl.rawText ? " " : "") + word;
+
+  // Remove extra quote mark
+  currentAssistantMsgEl.rawText = currentAssistantMsgEl.rawText.replace(
+    /^"\s*/,
+    ""
+  );
 
   const cleanedText = cleanStreamingText(currentAssistantMsgEl.rawText);
   const rawHTML = marked.parse(cleanedText);

@@ -2,17 +2,25 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { cleanStreamingText } from "./text-cleaner.js";
 
-export function appendMessageToBody(role, markdownText) {
+export function appendMessageToBody(role, markdownText, isTyping = false) {
   const body = document.querySelector("#akvo-rag-body");
   if (!body) return;
 
   const msg = document.createElement("div");
   msg.className = `akvo-msg-${role}`;
 
-  const rawHTML = marked.parse(markdownText || "");
-  const safeHTML = DOMPurify.sanitize(rawHTML);
+  if (isTyping) {
+    msg.innerHTML = `
+      <div class="typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+    `;
+  } else {
+    const rawHTML = marked.parse(markdownText || "");
+    const safeHTML = DOMPurify.sanitize(rawHTML);
+    msg.innerHTML = safeHTML;
+  }
 
-  msg.innerHTML = safeHTML;
   body.appendChild(msg);
   body.scrollTop = body.scrollHeight;
 
@@ -25,32 +33,25 @@ export function updateStreamingAssistantMessage(
   currentAssistantMsgEl
 ) {
   const body = document.querySelector("#akvo-rag-body");
-  if (!body || !newChunk) return;
+  if (!body || !newChunk || !currentAssistantMsgEl) return;
 
-  if (!currentAssistantMsgEl) {
-    currentAssistantMsgEl = document.createElement("div");
-    currentAssistantMsgEl.className = "akvo-msg-assistant";
-    currentAssistantMsgEl.id = "streaming-msg";
-    body.appendChild(currentAssistantMsgEl);
-  }
+  // Reset typing animation
+  currentAssistantMsgEl.innerHTML = "";
 
-  // Extract the string after ":" in format like '0:"..."' with quotes
+  if (!currentAssistantMsgEl.rawText) currentAssistantMsgEl.rawText = "";
+
+  // Parsing dan decode chunk
   const match = newChunk.match(/:\s*"(.*)"/);
   let word = match ? match[1] : newChunk;
 
   try {
-    // Decode escape characters from word string with JSON.parse
     word = JSON.parse('"' + word.replace(/"/g, '\\"') + '"');
-  } catch {
-    // If decoding fails, use raw text
-  }
+  } catch {}
 
-  if (!currentAssistantMsgEl.rawText) currentAssistantMsgEl.rawText = "";
   currentAssistantMsgEl.rawText +=
     (currentAssistantMsgEl.rawText ? " " : "") + word;
 
   const cleanedText = cleanStreamingText(currentAssistantMsgEl.rawText);
-
   const rawHTML = marked.parse(cleanedText);
   const safeHTML = DOMPurify.sanitize(rawHTML);
   currentAssistantMsgEl.innerHTML = safeHTML;

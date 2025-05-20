@@ -6,6 +6,7 @@ import {
 
 let socket = null;
 let currentAssistantMsgEl = null;
+let isLoading = false;
 
 export function initChat(options = {}) {
   let container = document.getElementById("akvo-rag");
@@ -25,7 +26,15 @@ export function initChat(options = {}) {
         <p class="akvo-msg-system">Hello! How can I help you today?</p>
       </div>
       <div id="akvo-rag-input-container" class="akvo-rag-input-container">
-        <input type="text" id="akvo-rag-input" placeholder="Type a message..." />
+        <input
+          type="text"
+          id="akvo-rag-input"
+          placeholder="Type a message..."
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
         <button id="akvo-rag-send-btn">Send</button>
       </div>
     `;
@@ -50,13 +59,17 @@ export function initChat(options = {}) {
       if (data.type === "info") {
         appendMessageToBody("system", data.message);
       } else if (data.type === "start") {
-        currentAssistantMsgEl = appendMessageToBody("assistant", "");
+        currentAssistantMsgEl = appendMessageToBody("assistant", "", true);
       } else if (data.type === "response_chunk") {
         updateStreamingAssistantMessage(
           data.content,
           data.citations,
           currentAssistantMsgEl
         );
+      } else if (data.type === "end") {
+        isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = "Send";
       }
     });
 
@@ -68,6 +81,8 @@ export function initChat(options = {}) {
     });
 
     sendBtn.addEventListener("click", () => {
+      if (isLoading) return;
+
       const text = input.value.trim();
       if (!text || socket?.readyState !== WebSocket.OPEN) return;
 
@@ -81,6 +96,9 @@ export function initChat(options = {}) {
       appendMessageToBody("user", text);
       input.value = "";
       currentAssistantMsgEl = null;
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = `<span class="akvo-send-spinner"></span>`;
+      isLoading = true;
     });
   } else {
     container.classList.remove("minimized");

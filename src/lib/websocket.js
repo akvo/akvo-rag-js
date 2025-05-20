@@ -24,6 +24,12 @@ export function connectWebSocket(options, onMessage) {
     }
 
     if (onMessage) {
+      if (data.type === "ping") {
+        socket.send(JSON.stringify({ type: "pong" }));
+        console.log("Pong sent to server");
+        return;
+      }
+
       if (
         data.type === "response_chunk" &&
         data.content.includes("__LLM_RESPONSE__")

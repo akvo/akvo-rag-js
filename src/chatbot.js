@@ -49,8 +49,14 @@ export function initChat(options = {}) {
     socket = connectWebSocket(options, (data) => {
       if (data.type === "info") {
         appendMessageToBody("system", data.message);
+      } else if (data.type === "start") {
+        currentAssistantMsgEl = appendMessageToBody("assistant", "");
       } else if (data.type === "response_chunk") {
-        updateStreamingAssistantMessage(data.content, data.citations);
+        updateStreamingAssistantMessage(
+          data.content,
+          data.citations,
+          currentAssistantMsgEl
+        );
       }
     });
 

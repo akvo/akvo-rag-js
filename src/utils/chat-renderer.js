@@ -2,24 +2,28 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { cleanStreamingText } from "./text-cleaner.js";
 
-let currentAssistantMsgEl = null;
-
 export function appendMessageToBody(role, markdownText) {
   const body = document.querySelector("#akvo-rag-body");
-  if (!body || !markdownText) return;
+  if (!body) return;
 
   const msg = document.createElement("div");
   msg.className = `akvo-msg-${role}`;
 
-  const rawHTML = marked.parse(markdownText);
+  const rawHTML = marked.parse(markdownText || "");
   const safeHTML = DOMPurify.sanitize(rawHTML);
 
   msg.innerHTML = safeHTML;
   body.appendChild(msg);
   body.scrollTop = body.scrollHeight;
+
+  return msg;
 }
 
-export function updateStreamingAssistantMessage(newChunk) {
+export function updateStreamingAssistantMessage(
+  newChunk,
+  citations,
+  currentAssistantMsgEl
+) {
   const body = document.querySelector("#akvo-rag-body");
   if (!body || !newChunk) return;
 

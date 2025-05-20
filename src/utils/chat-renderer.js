@@ -2,11 +2,18 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { cleanStreamingText } from "./text-cleaner.js";
 
-export function appendMessageToBody(role, markdownText, isTyping = false) {
+export function appendMessageToBody(
+  role,
+  markdownText,
+  isTyping = false,
+  messageCounter
+) {
   const body = document.querySelector("#akvo-rag-body");
   if (!body) return;
 
   const msg = document.createElement("div");
+  const msgId = `akvo-msg-${role}-${messageCounter}`;
+  msg.id = msgId;
   msg.className = `akvo-msg-${role}`;
 
   if (isTyping) {
@@ -29,7 +36,6 @@ export function appendMessageToBody(role, markdownText, isTyping = false) {
 
 export function updateStreamingAssistantMessage(
   newChunk,
-  citations,
   currentAssistantMsgEl
 ) {
   const body = document.querySelector("#akvo-rag-body");

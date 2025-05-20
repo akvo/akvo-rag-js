@@ -7,6 +7,8 @@ import {
 let socket = null;
 let currentAssistantMsgEl = null;
 let isLoading = false;
+let citations = [];
+let messageCounter = 0;
 
 export function initChat(options = {}) {
   let container = document.getElementById("akvo-rag");
@@ -17,7 +19,7 @@ export function initChat(options = {}) {
 
     container.innerHTML = `
       <div id="akvo-rag-header">
-        ${options.botName || "Chatbot"}
+        ${options.title || "Chatbot"}
         <button id="akvo-rag-close-btn" class="akvo-rag-close-btn">
           <i class="fa fa-window-minimize" aria-hidden="true"></i>
         </button>
@@ -59,14 +61,26 @@ export function initChat(options = {}) {
       if (data.type === "info") {
         appendMessageToBody("system", data.message);
       } else if (data.type === "start") {
-        currentAssistantMsgEl = appendMessageToBody("assistant", "", true);
-      } else if (data.type === "response_chunk") {
-        updateStreamingAssistantMessage(
-          data.content,
-          data.citations,
-          currentAssistantMsgEl
+        citations = [];
+        messageCounter++;
+        currentAssistantMsgEl = appendMessageToBody(
+          "assistant",
+          "",
+          true,
+          messageCounter
         );
+      } else if (data.type === "response_chunk") {
+        if (data?.citations?.length) {
+          citations = [...citations, ...data.citations];
+        }
+        updateStreamingAssistantMessage(data.content, currentAssistantMsgEl);
       } else if (data.type === "end") {
+        const el = document.querySelector(
+          `#akvo-msg-assistant-${messageCounter}`
+        );
+        if (el) {
+          replaceCitations(el, citations);
+        }
         isLoading = false;
         sendBtn.disabled = false;
         sendBtn.innerHTML = "Send";
@@ -105,4 +119,31 @@ export function initChat(options = {}) {
     const btn = container.querySelector("#akvo-rag-close-btn");
     btn.innerHTML = `<i class="fa fa-window-minimize" aria-hidden="true"></i>`;
   }
+}
+
+function replaceCitations(el, citations) {
+  // TODO :: provide correct popover to show the citation docs
+  if (!el) return;
+
+  let html = el.innerHTML;
+
+  citations.forEach((c) => {
+    const regex = new RegExp(`\\[ citation: ${c.id} \\]`, "g");
+    const linkHTML = `<sup class="citation" data-title="${c.title}" data-url="${
+      c?.url || "#"
+    }">[${c.id}]</sup>`;
+    html = html.replace(regex, linkHTML);
+  });
+
+  el.innerHTML = html;
+
+  // Optional: attach hover popover
+  const citationLinks = el.querySelectorAll(".citation");
+  citationLinks.forEach((node) => {
+    node.style.cursor = "pointer";
+    node.title = node.dataset.title;
+    node.addEventListener("click", () => {
+      window.open(node.dataset.url, "_blank");
+    });
+  });
 }

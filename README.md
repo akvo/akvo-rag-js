@@ -29,6 +29,9 @@ import 'akvo-rag-js/dist/akvo-rag.css';
 
 initChatbot({
   title: 'Support Bot',
+  token: "<auth-token>",
+  kb_id: "<int> of RAG knowledge base id",
+  wsURL: "ws://host/endpoint",
 });
 
 ```
@@ -55,6 +58,9 @@ initChatbot({
 <script>
   AkvoRAG.initChat({
     title: 'Support Bot',
+    token: "<auth-token>",
+    kb_id: "<int> of RAG knowledge base id",
+    wsURL: "ws://host/endpoint",
   });
 </script>
 
@@ -62,16 +68,16 @@ initChatbot({
 </html>
 ```
 
-## 🎨 Styling 
+## 🎨 Styling
 
-All styles are scoped under `#akvo-rag`. You can override CSS variables or extend the SCSS if needed. 
+All styles are scoped under `#akvo-rag`. You can override CSS variables or extend the SCSS if needed.
 
-## 🧱 Development 
+## 🧱 Development
 
-To develop locally: 
+To develop locally:
 
 ```bash
-git clone https://github.com/akvo/akvo-rag-js.git 
+git clone https://github.com/akvo/akvo-rag-js.git
 cd akvo-rag-js
 npm install
 npm run dev
@@ -82,9 +88,9 @@ Build for production:
 npm run build
 ```
 
-## 🤝 Contributing 
+## 🤝 Contributing
 
-Contributions are welcome! Please open an issue or submit a PR. 
+Contributions are welcome! Please open an issue or submit a PR.
 
 ## 📄 License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

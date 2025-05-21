@@ -10,6 +10,43 @@
   }
 }
 
+.citation-popover {
+  max-width: 300px;
+  background: #fdfdfd;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 0.9rem;
+  z-index: 99999 !important;
+  pointer-events: auto;
+  visibility: visible;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+  position: absolute;
+}
+
+.citation-popover .arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.citation-popover.above .arrow {
+  bottom: -8px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #fdfdfd;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+}
+
+.citation-popover.below .arrow {
+  top: -8px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #fdfdfd;
+  filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, 0.1));
+}
+
 #akvo-rag {
   position: fixed;
   bottom: 20px;

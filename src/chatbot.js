@@ -5,7 +5,7 @@ import {
 } from "./utils/chat-renderer.js";
 import { replaceCitations } from "./utils/citations-popover.js";
 
-let socket = null;
+let wsConnection = null;
 let currentAssistantMsgEl = null;
 let isLoading = false;
 let citations = [];
@@ -58,7 +58,7 @@ export function initChat(options = {}) {
 
     document.body.appendChild(container);
 
-    socket = connectWebSocket(options, (data) => {
+    const onMessage = (data) => {
       if (data.type === "info") {
         appendMessageToBody("system", data.message);
       } else if (data.type === "start") {
@@ -86,7 +86,24 @@ export function initChat(options = {}) {
         sendBtn.disabled = false;
         sendBtn.innerHTML = "Send";
       }
-    });
+    };
+
+    const socketCallback = {
+      onReconnect: (attempt) => {
+        console.log(`Reconnecting attempt #${attempt}, resetting isLoading`);
+        isLoading = false;
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = "Send";
+      },
+    };
+
+    // TODO :: autoReconnect can be a param from initChat
+    const autoReconnect = true;
+    wsConnection = connectWebSocket(
+      { ...options, autoReconnect },
+      onMessage,
+      socketCallback
+    );
 
     const input = container.querySelector("#akvo-rag-input");
     const sendBtn = container.querySelector("#akvo-rag-send-btn");
@@ -99,9 +116,9 @@ export function initChat(options = {}) {
       if (isLoading) return;
 
       const text = input.value.trim();
-      if (!text || socket?.readyState !== WebSocket.OPEN) return;
+      if (!text || wsConnection.socket?.readyState !== WebSocket.OPEN) return;
 
-      socket.send(
+      wsConnection.socket.send(
         JSON.stringify({
           type: "chat",
           messages: [{ role: "user", content: text }],
@@ -120,4 +137,8 @@ export function initChat(options = {}) {
     const btn = container.querySelector("#akvo-rag-close-btn");
     btn.innerHTML = `<i class="fa fa-window-minimize" aria-hidden="true"></i>`;
   }
+
+  window.cleanupChat = () => {
+    if (socket) wsConnection.close();
+  };
 }

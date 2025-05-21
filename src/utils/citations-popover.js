@@ -39,11 +39,12 @@ export function replaceCitations(el, citations) {
 }
 
 function showPopover(event) {
+  // delete all popover
+  document.querySelectorAll(".citation-popover").forEach((el) => el.remove());
+
   const node = event.target;
 
-  hidePopover(event);
-
-  // Popover element
+  // popover element
   const popover = document.createElement("div");
   popover.className = "citation-popover";
   popover.innerHTML = `
@@ -58,19 +59,26 @@ function showPopover(event) {
   `;
   document.body.appendChild(popover);
 
+  // popover size
+  const popoverWidth = popover.offsetWidth;
+  const popoverHeight = popover.offsetHeight;
+
   const rect = node.getBoundingClientRect();
-  const popoverWidth = 300;
-  const popoverHeight = popover.offsetHeight || 100;
   const arrowSize = 8;
   const margin = 10;
 
-  // horizontal
+  // horizontal position viewport
   let left = rect.left + window.scrollX - popoverWidth / 2 + rect.width / 2;
-  if (left + popoverWidth > window.innerWidth - margin) {
-    left = window.innerWidth - popoverWidth - margin;
+
+  // right: viewport + scroll
+  const maxLeft = window.scrollX + window.innerWidth - popoverWidth - margin;
+  if (left > maxLeft) {
+    left = maxLeft;
   }
-  if (left < margin) {
-    left = margin;
+  // left: viewport + scroll
+  const minLeft = window.scrollX + margin;
+  if (left < minLeft) {
+    left = minLeft;
   }
 
   // vertical
@@ -79,21 +87,27 @@ function showPopover(event) {
   const showAbove = spaceBelow < popoverHeight + arrowSize + margin;
 
   const top = showAbove
-    ? rect.top + window.scrollY - popover.offsetHeight - arrowSize - 2
+    ? rect.top + window.scrollY - popoverHeight - arrowSize - 2
     : rect.bottom + window.scrollY + arrowSize + 2;
 
+  // popover position
   popover.style.left = `${left}px`;
   popover.style.top = `${top}px`;
   popover.dataset.target = node.dataset.id;
 
-  // Add class based on direction
+  // styling arrow direction
   popover.classList.toggle("above", showAbove);
   popover.classList.toggle("below", !showAbove);
 
-  // Arrow position
+  // arrow position (middle)
   const arrow = popover.querySelector(".arrow");
   const citationCenterX = rect.left + rect.width / 2 + window.scrollX;
-  const arrowLeft = citationCenterX - left - arrowSize;
+  let arrowLeft = citationCenterX - left - arrowSize;
+
+  if (arrowLeft < arrowSize) arrowLeft = arrowSize;
+  if (arrowLeft > popoverWidth - arrowSize * 2)
+    arrowLeft = popoverWidth - arrowSize * 2;
+
   arrow.style.left = `${arrowLeft}px`;
 }
 

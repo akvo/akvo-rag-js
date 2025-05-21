@@ -10,6 +10,10 @@
   }
 }
 
+.citation {
+  color: v.$primary-color;
+}
+
 .citation-popover {
   max-width: 320px;
   width: max-content;
@@ -124,6 +128,7 @@
     background-color: #f9f9f9;
     color: v.$text-color;
     display: block;
+    font-size: 14px;
 
     .akvo-msg-user {
       text-align: right;

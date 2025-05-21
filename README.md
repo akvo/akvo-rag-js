@@ -24,14 +24,14 @@ npm install akvo-rag-js
 Example Usage:
 
 ```javascript
-import { initChat } from 'akvo-rag';
+import { initChat } from 'akvo-rag-js';
 import 'akvo-rag-js/dist/akvo-rag.css';
 
-initChatbot({
+initChat({
   title: 'Support Bot',
   token: "<auth-token>",
-  kb_id: "<int> of RAG knowledge base id",
-  wsURL: "ws://host/endpoint",
+  kb_id: 39,
+  wsURL: "ws://localhost:81/ws/chat",
 });
 
 ```
@@ -47,7 +47,7 @@ initChatbot({
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.0.3/dist/akvo-rag.css" />
   <link
     rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css "
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
   />
 </head>
 <body>
@@ -59,14 +59,27 @@ initChatbot({
   AkvoRAG.initChat({
     title: 'Support Bot',
     token: "<auth-token>",
-    kb_id: "<int> of RAG knowledge base id",
-    wsURL: "ws://host/endpoint",
+    kb_id: 39,
+    wsURL: "ws://localhost:81/ws/chat",
   });
 </script>
 
 </body>
 </html>
 ```
+
+## ⚙️ `initChat` Parameters
+
+The `initChat` function accepts a configuration object to customize the chat widget behavior:
+
+| Parameter | Type     | Required | Description                                              |
+| --------- | -------- | -------- | -------------------------------------------------------- |
+| `title`   | `string` | ✅ Yes    | The title displayed at the top of the chat window.       |
+| `token`   | `string` | ✅ Yes    | JWT or access token used for authenticating the user.    |
+| `kb_id`   | `number` | ✅ Yes    | The Knowledge Base ID to be used in the RAG backend.     |
+| `wsURL`   | `string` | ✅ Yes    | WebSocket endpoint URL for real-time chat communication. |
+
+💡 Additional configuration options may be added in future releases to support themes, positioning, or additional behaviors.
 
 ## 🎨 Styling
 

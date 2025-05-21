@@ -137,8 +137,4 @@ export function initChat(options = {}) {
     const btn = container.querySelector("#akvo-rag-close-btn");
     btn.innerHTML = `<i class="fa fa-window-minimize" aria-hidden="true"></i>`;
   }
-
-  window.cleanupChat = () => {
-    if (socket) wsConnection.close();
-  };
 }

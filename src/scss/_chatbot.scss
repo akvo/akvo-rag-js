@@ -11,18 +11,34 @@
 }
 
 .citation-popover {
-  max-width: 300px;
-  background: #fdfdfd;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
-  font-size: 0.9rem;
+  max-width: 320px;
+  width: max-content;
+  background: #ffffff;
+  color: #1f2937; /* slate-800 */
+  border: 1px solid #e5e7eb; /* slate-200 */
+  padding: 12px 14px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  font-size: 0.875rem;
+  line-height: 1.4;
   z-index: 99999 !important;
-  pointer-events: auto;
-  visibility: visible;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+  font-family: "Inter", "Segoe UI", Tahoma, sans-serif;
   position: absolute;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: 0;
+  transform: translateY(4px);
+  animation: popIn 0.15s ease-out forwards;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .citation-popover .arrow {
@@ -35,16 +51,36 @@
   bottom: -8px;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-top: 8px solid #fdfdfd;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+  border-top: 8px solid #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
 }
 
 .citation-popover.below .arrow {
   top: -8px;
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
-  border-bottom: 8px solid #fdfdfd;
-  filter: drop-shadow(0 -1px 1px rgba(0, 0, 0, 0.1));
+  border-bottom: 8px solid #ffffff;
+  filter: drop-shadow(0 -1px 2px rgba(0, 0, 0, 0.05));
+}
+
+.citation-popover strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #111827; /* slate-900 */
+}
+
+.citation-popover small {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280; /* slate-500 */
+  margin-bottom: 6px;
+}
+
+.citation-popover p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #374151; /* slate-700 */
 }
 
 #akvo-rag {

@@ -1,6 +1,92 @@
 @use "variables" as v;
 @use "sass:color";
 
+// reset style
+* {
+  p {
+    margin: 0;
+    margin-block-start: 10px;
+    margin-block-end: 10px;
+  }
+}
+
+.citation {
+  color: v.$primary-color;
+}
+
+.citation-popover {
+  max-width: 320px;
+  width: max-content;
+  background: #ffffff;
+  color: #1f2937; /* slate-800 */
+  border: 1px solid #e5e7eb; /* slate-200 */
+  padding: 12px 14px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  z-index: 99999 !important;
+  font-family: "Inter", "Segoe UI", Tahoma, sans-serif;
+  position: absolute;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: 0;
+  transform: translateY(4px);
+  animation: popIn 0.15s ease-out forwards;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.citation-popover .arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.citation-popover.above .arrow {
+  bottom: -8px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+.citation-popover.below .arrow {
+  top: -8px;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #ffffff;
+  filter: drop-shadow(0 -1px 2px rgba(0, 0, 0, 0.05));
+}
+
+.citation-popover strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #111827; /* slate-900 */
+}
+
+.citation-popover small {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280; /* slate-500 */
+  margin-bottom: 6px;
+}
+
+.citation-popover p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #374151; /* slate-700 */
+}
+
 #akvo-rag {
   position: fixed;
   bottom: 20px;
@@ -42,6 +128,67 @@
     background-color: #f9f9f9;
     color: v.$text-color;
     display: block;
+    font-size: 14px;
+
+    .akvo-msg-user {
+      text-align: right;
+      background-color: color.adjust(v.$primary-color, $lightness: 40%);
+      color: black;
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+      max-width: 80%;
+      margin-left: auto;
+    }
+
+    .akvo-msg-assistant {
+      text-align: left;
+      background-color: #e6e6e6;
+      color: black;
+      padding: 8px 12px;
+      border-radius: 12px;
+      margin: 10px 0;
+      max-width: 80%;
+      margin-right: auto;
+    }
+
+    .akvo-msg-system {
+      text-align: center;
+      color: gray;
+      font-style: italic;
+      margin: 10px 0;
+    }
+  }
+
+  &-input-container {
+    display: flex;
+    padding: 8px;
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+    flex-shrink: 0;
+
+    input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-left: 8px;
+      padding: 8px 16px;
+      background-color: v.$primary-color;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: color.scale(v.$primary-color, $lightness: -10%);
+      }
+    }
   }
 
   &-close-btn {
@@ -58,14 +205,108 @@
     height: 40px;
     border-radius: 4px;
 
-    #akvo-rag-body {
+    #akvo-rag-body,
+    #akvo-rag-input-container {
       display: none;
     }
 
     #akvo-rag-header {
-      justify-content: center;
       font-size: 14px;
       padding: 8px;
+    }
+  }
+
+  .answer-container {
+    background: #f5f5f5;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    max-width: 80%;
+    font-family: Arial, sans-serif;
+  }
+
+  .answer-content {
+    color: #333;
+    white-space: pre-wrap;
+  }
+
+  .answer-citations {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #666;
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+  }
+
+  .answer-citation {
+    margin-bottom: 6px;
+  }
+
+  .typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 1em;
+  }
+
+  .typing-indicator span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: #ccc;
+    border-radius: 50%;
+    animation: typing-bounce 1.2s infinite ease-in-out;
+  }
+
+  .typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes typing-bounce {
+    0%,
+    80%,
+    100% {
+      transform: scale(0.6);
+      opacity: 0.5;
+    }
+    40% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .akvo-send-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #ffffff;
+    border-top: 2px solid #888888;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  #akvo-rag-send-btn {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:disabled {
+      background-color: #cccccc;
+      color: #666666;
+      cursor: not-allowed;
+      opacity: 0.6;
     }
   }
 }

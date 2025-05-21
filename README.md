@@ -24,11 +24,14 @@ npm install akvo-rag-js
 Example Usage:
 
 ```javascript
-import { initChat } from 'akvo-rag';
+import { initChat } from 'akvo-rag-js';
 import 'akvo-rag-js/dist/akvo-rag.css';
 
-initChatbot({
+initChat({
   title: 'Support Bot',
+  token: "<auth-token>",
+  kb_id: 39,
+  wsURL: "ws://localhost:81/ws/chat",
 });
 
 ```
@@ -53,6 +56,9 @@ initChatbot({
 <script>
   AkvoRAG.initChat({
     title: 'Support Bot',
+    token: "<auth-token>",
+    kb_id: 39,
+    wsURL: "ws://localhost:81/ws/chat",
   });
 </script>
 
@@ -60,16 +66,29 @@ initChatbot({
 </html>
 ```
 
-## 🎨 Styling 
+## ⚙️ `initChat` Parameters
 
-All styles are scoped under `#akvo-rag`. You can override CSS variables or extend the SCSS if needed. 
+The `initChat` function accepts a configuration object to customize the chat widget behavior:
 
-## 🧱 Development 
+| Parameter | Type     | Required | Description                                              |
+| --------- | -------- | -------- | -------------------------------------------------------- |
+| `title`   | `string` | ✅ Yes    | The title displayed at the top of the chat window.       |
+| `token`   | `string` | ✅ Yes    | JWT or access token used for authenticating the user.    |
+| `kb_id`   | `number` | ✅ Yes    | The Knowledge Base ID to be used in the RAG backend.     |
+| `wsURL`   | `string` | ✅ Yes    | WebSocket endpoint URL for real-time chat communication. |
 
-To develop locally: 
+💡 Additional configuration options may be added in future releases to support themes, positioning, or additional behaviors.
+
+## 🎨 Styling
+
+All styles are scoped under `#akvo-rag`. You can override CSS variables or extend the SCSS if needed.
+
+## 🧱 Development
+
+To develop locally:
 
 ```bash
-git clone https://github.com/akvo/akvo-rag-js.git 
+git clone https://github.com/akvo/akvo-rag-js.git
 cd akvo-rag-js
 npm install
 npm run dev
@@ -80,9 +99,9 @@ Build for production:
 npm run build
 ```
 
-## 🤝 Contributing 
+## 🤝 Contributing
 
-Contributions are welcome! Please open an issue or submit a PR. 
+Contributions are welcome! Please open an issue or submit a PR.
 
 ## 📄 License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

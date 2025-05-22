@@ -10,6 +10,8 @@ let currentAssistantMsgEl = null;
 let isLoading = false;
 let citations = [];
 let messageCounter = 0;
+let chatHistory = [];
+const CHAT_HISTORY_SLICE = -10;
 
 export function initChat(options = {}) {
   let container = document.getElementById("akvo-rag");
@@ -81,6 +83,13 @@ export function initChat(options = {}) {
         );
         if (el) {
           replaceCitations(el, citations);
+          if (el?.rawText) {
+            // Save assistant message to history
+            chatHistory.push({
+              role: "assistant",
+              content: el.rawText,
+            });
+          }
         }
         isLoading = false;
         sendBtn.disabled = false;
@@ -118,10 +127,17 @@ export function initChat(options = {}) {
       const text = input.value.trim();
       if (!text || wsConnection.socket?.readyState !== WebSocket.OPEN) return;
 
+      // Add user message to history
+      chatHistory.push({ role: "user", content: text });
+
+      // Limit to last 10
+      const lastMessages = chatHistory.slice(CHAT_HISTORY_SLICE);
+      console.log(lastMessages, "aaa");
+
       wsConnection.socket.send(
         JSON.stringify({
           type: "chat",
-          messages: [{ role: "user", content: text }],
+          messages: lastMessages,
         })
       );
 

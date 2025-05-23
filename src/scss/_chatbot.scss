@@ -32,6 +32,24 @@
   opacity: 0;
   transform: translateY(4px);
   animation: popIn 0.15s ease-out forwards;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.citation-popover strong,
+.citation-popover small,
+.citation-popover p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.citation-popover strong,
+.citation-popover small {
+  word-break: break-all;
 }
 
 @keyframes popIn {

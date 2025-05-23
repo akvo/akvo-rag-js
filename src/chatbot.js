@@ -132,7 +132,6 @@ export function initChat(options = {}) {
 
       // Limit to last 10
       const lastMessages = chatHistory.slice(CHAT_HISTORY_SLICE);
-      console.log(lastMessages, "aaa");
 
       wsConnection.socket.send(
         JSON.stringify({

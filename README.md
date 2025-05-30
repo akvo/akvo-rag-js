@@ -29,7 +29,6 @@ import 'akvo-rag-js/dist/akvo-rag.css';
 
 initChat({
   title: 'Support Bot',
-  token: "<auth-token>",
   kb_id: 39,
   wsURL: "ws://localhost:81/ws/chat",
 });
@@ -56,7 +55,6 @@ initChat({
 <script>
   AkvoRAG.initChat({
     title: 'Support Bot',
-    token: "<auth-token>",
     kb_id: 39,
     wsURL: "ws://localhost:81/ws/chat",
   });
@@ -73,7 +71,6 @@ The `initChat` function accepts a configuration object to customize the chat wid
 | Parameter | Type     | Required | Description                                              |
 | --------- | -------- | -------- | -------------------------------------------------------- |
 | `title`   | `string` | ✅ Yes    | The title displayed at the top of the chat window.       |
-| `token`   | `string` | ✅ Yes    | JWT or access token used for authenticating the user.    |
 | `kb_id`   | `number` | ✅ Yes    | The Knowledge Base ID to be used in the RAG backend.     |
 | `wsURL`   | `string` | ✅ Yes    | WebSocket endpoint URL for real-time chat communication. |
 

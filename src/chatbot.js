@@ -4,6 +4,7 @@ import {
   updateStreamingAssistantMessage,
 } from "./utils/chat-renderer.js";
 import { replaceCitations } from "./utils/citations-popover.js";
+import { getOrCreateVisitorId } from "./utils/uuid.js";
 
 let wsConnection = null;
 let currentAssistantMsgEl = null;
@@ -15,6 +16,7 @@ const CHAT_HISTORY_SLICE = -10;
 
 export function initChat(options = {}) {
   let container = document.getElementById("akvo-rag");
+  const visitorId = getOrCreateVisitorId();
 
   if (!container) {
     container = document.createElement("div");
@@ -109,7 +111,7 @@ export function initChat(options = {}) {
     // TODO :: autoReconnect can be a param from initChat
     const autoReconnect = true;
     wsConnection = connectWebSocket(
-      { ...options, autoReconnect },
+      { ...options, autoReconnect, visitorId },
       onMessage,
       socketCallback
     );

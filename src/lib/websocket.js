@@ -16,7 +16,7 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
       socket.send(
         JSON.stringify({
           type: "auth",
-          token: options.token,
+          visitor_id: options.visitorId,
           kb_id: options.kb_id,
         })
       );

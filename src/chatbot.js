@@ -12,7 +12,9 @@ let isLoading = false;
 let citations = [];
 let messageCounter = 0;
 let chatHistory = [];
+
 const CHAT_HISTORY_SLICE = -10;
+const DEFAULT_WELCOME_MESSAGE = "Hello! How can I help you today?";
 
 /**
  * Initializes the chat widget with the provided options.
@@ -41,8 +43,6 @@ export function initChat(options = {}) {
         </button>
       </div>
       <div id="akvo-rag-body" class="akvo-rag-body">
-        <p class="akvo-msg-system">Hello! How can I help you today?</p>
-
         ${
           // If no kb_id is provided, show KB selection options
           !options.kb_id && options.kb_options?.length
@@ -64,7 +64,7 @@ export function initChat(options = {}) {
                 </div>
               </div>
             `
-            : ""
+            : `<p class="akvo-msg-system">${DEFAULT_WELCOME_MESSAGE}</p>`
         }
       </div>
       <div id="akvo-rag-input-container" class="akvo-rag-input-container">
@@ -168,6 +168,23 @@ export function initChat(options = {}) {
     // If no KB is selected initially, handle the "Start Chat" button logic
     if (!options.kb_id && options.kb_options?.length) {
       const startBtn = container.querySelector("#akvo-start-chat-btn");
+
+      // Get the Start Chat button and KB radio buttons
+      const kbRadioButtons = container.querySelectorAll(
+        "input[name='akvo-kb']"
+      );
+
+      // Initially disable the Start Chat button
+      startBtn.disabled = true;
+
+      // Enable the button once a KB is selected
+      kbRadioButtons.forEach((radio) => {
+        radio.addEventListener("change", () => {
+          startBtn.disabled = false;
+        });
+      });
+
+      // start chat button click logic
       startBtn.addEventListener("click", () => {
         const selectedKB = container.querySelector(
           "input[name='akvo-kb']:checked"
@@ -212,8 +229,7 @@ export function initChat(options = {}) {
         const body = container.querySelector("#akvo-rag-body");
         const msg = document.createElement("p");
         msg.className = "akvo-msg-system";
-        msg.textContent =
-          "Knowledge base selected. You can now start chatting!";
+        msg.textContent = DEFAULT_WELCOME_MESSAGE;
         body.appendChild(msg);
 
         // Bind input & send button logic
@@ -249,21 +265,6 @@ export function initChat(options = {}) {
           sendBtn.disabled = true;
           sendBtn.innerHTML = `<span class="akvo-send-spinner"></span>`;
           isLoading = true;
-        });
-      });
-
-      // Get the Start Chat button and KB radio buttons
-      const kbRadioButtons = container.querySelectorAll(
-        "input[name='akvo-kb']"
-      );
-
-      // Initially disable the Start Chat button (redundant but clear)
-      startBtn.disabled = true;
-
-      // Enable the button once a KB is selected
-      kbRadioButtons.forEach((radio) => {
-        radio.addEventListener("change", () => {
-          startBtn.disabled = false;
         });
       });
     } else {

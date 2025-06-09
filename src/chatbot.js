@@ -24,16 +24,15 @@ const CHAT_HISTORY_SLICE = -10;
  * @param {Array<{ kb_id: number, label: string }>} [options.kb_options] - List of KBs for user selection (optional).
  */
 export function initChat(options = {}) {
-  // Try to get the chat container element; create it if it doesn't exist
   let container = document.getElementById("akvo-rag");
   const visitorId = getOrCreateVisitorId();
 
   if (!container) {
-    // Create the container element for the chat widget
+    // Create the container for the chat widget if it doesn't exist
     container = document.createElement("div");
     container.id = "akvo-rag";
 
-    // Set the inner HTML of the container, including header, body, and input
+    // Inner HTML includes header, body, and conditional input container
     container.innerHTML = `
       <div id="akvo-rag-header">
         ${options.title || "Chatbot"}
@@ -45,6 +44,7 @@ export function initChat(options = {}) {
         <p class="akvo-msg-system">Hello! How can I help you today?</p>
 
         ${
+          // If no kb_id is provided, show KB selection options
           !options.kb_id && options.kb_options?.length
             ? `
               <div id="akvo-kb-options" class="akvo-kb-options">
@@ -60,57 +60,61 @@ export function initChat(options = {}) {
                   )
                   .join("")}
                 <div class="akvo-kb-options-hint">
-                  After selecting, click "Send" to start chatting.
+                  After selecting, click "Start Chat" to begin.
                 </div>
               </div>
             `
             : ""
         }
-
       </div>
       <div id="akvo-rag-input-container" class="akvo-rag-input-container">
-        <input
-          type="text"
-          id="akvo-rag-input"
-          placeholder="Type a message..."
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
-          ${!options.kb_id ? "disabled" : ""}
-        />
-        <button id="akvo-rag-send-btn">Send</button>
+        ${
+          // If no kb_id, show "Start Chat" button; else show input and send button
+          !options.kb_id
+            ? `
+              <button id="akvo-start-chat-btn" class="akvo-start-chat-btn" style="flex: 1;">
+                Start Chat
+              </button>
+            `
+            : `
+              <input
+                type="text"
+                id="akvo-rag-input"
+                placeholder="Type a message..."
+                autocomplete="off"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+              />
+              <button id="akvo-rag-send-btn">Send</button>
+            `
+        }
       </div>
     `;
 
-    // Set up minimize button and header click events
+    // Handle minimize/expand of chat widget
     const header = container.querySelector("#akvo-rag-header");
     const btn = container.querySelector("#akvo-rag-close-btn");
-
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       container.classList.toggle("minimized");
     });
-
     header.addEventListener("click", () => {
       if (container.classList.contains("minimized")) {
         container.classList.remove("minimized");
       }
     });
 
-    // Append the container to the document body
+    // Append container to document body
     document.body.appendChild(container);
 
     /**
-     * Handler for messages received from the WebSocket connection.
-     * It processes different types of messages: info, start, response_chunk, end.
+     * WebSocket message handler: processes different types of messages.
      */
     const onMessage = (data) => {
       if (data.type === "info") {
-        // System information message (e.g., server status)
         appendMessageToBody("system", data.message);
       } else if (data.type === "start") {
-        // Start of an assistant message (streaming)
         citations = [];
         messageCounter++;
         currentAssistantMsgEl = appendMessageToBody(
@@ -120,20 +124,16 @@ export function initChat(options = {}) {
           messageCounter
         );
       } else if (data.type === "response_chunk") {
-        // Streaming response chunk from the assistant
         if (data?.citations?.length) {
           citations = [...citations, ...data.citations];
         }
         updateStreamingAssistantMessage(data.content, currentAssistantMsgEl);
       } else if (data.type === "end") {
-        // End of the assistant's response, attach citations and store in history
         const el = document.querySelector(
           `#akvo-msg-assistant-${messageCounter}`
         );
         if (el) {
           replaceCitations(el, citations);
-
-          // Save the assistant message to the chat history if available
           if (el?.rawText) {
             chatHistory.push({
               role: "assistant",
@@ -141,54 +141,34 @@ export function initChat(options = {}) {
             });
           }
         }
-
-        // Reset input and loading state
         isLoading = false;
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = "Send";
+        const sendBtn = container.querySelector("#akvo-rag-send-btn");
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.innerHTML = "Send";
+        }
       }
     };
 
     /**
-     * WebSocket callbacks, including reconnection logic.
+     * Socket callbacks: handles auto-reconnect logic.
      */
     const socketCallback = {
       onReconnect: (attempt) => {
         console.log(`Reconnecting attempt #${attempt}, resetting isLoading`);
         isLoading = false;
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = "Send";
+        const sendBtn = container.querySelector("#akvo-rag-send-btn");
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.innerHTML = "Send";
+        }
       },
     };
 
-    // Enable auto-reconnect for the WebSocket connection
-    const autoReconnect = true;
-
-    // Initialize the WebSocket connection
-    if (options.kb_id) {
-      // initialize the WebSocket connection with the provided kb_id
-      wsConnection = connectWebSocket(
-        { ...options, autoReconnect, visitorId },
-        onMessage,
-        socketCallback
-      );
-    }
-
-    // Get input and send button elements
-    const input = container.querySelector("#akvo-rag-input");
-    const sendBtn = container.querySelector("#akvo-rag-send-btn");
-
-    // Handle pressing Enter to send a message
-    input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") sendBtn.click();
-    });
-
-    // Handle sending a message when the send button is clicked
-    sendBtn.addEventListener("click", () => {
-      if (isLoading) return;
-
-      // If kb_id is not set, prompt user to select KB first
-      if (!options.kb_id) {
+    // If no KB is selected initially, handle the "Start Chat" button logic
+    if (!options.kb_id && options.kb_options?.length) {
+      const startBtn = container.querySelector("#akvo-start-chat-btn");
+      startBtn.addEventListener("click", () => {
         const selectedKB = container.querySelector(
           "input[name='akvo-kb']:checked"
         );
@@ -196,47 +176,124 @@ export function initChat(options = {}) {
           alert("Please select a knowledge base to start the conversation.");
           return;
         }
+
+        // Set the selected KB ID
         options.kb_id = parseInt(selectedKB.value, 10);
+
+        // Remove the KB selector UI
         const kbOptionsEl = container.querySelector("#akvo-kb-options");
         if (kbOptionsEl) kbOptionsEl.remove();
-      }
 
-      // Explicitly connect to the WebSocket only if it's not already connected
-      if (!wsConnection) {
-        // initialize the WebSocket connection with selected kb_id from kb_options
+        // Replace "Start Chat" button with input and send button
+        const inputContainer = container.querySelector(
+          "#akvo-rag-input-container"
+        );
+        inputContainer.innerHTML = `
+          <input
+            type="text"
+            id="akvo-rag-input"
+            placeholder="Type a message..."
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          />
+          <button id="akvo-rag-send-btn">Send</button>
+        `;
+
+        // Connect WebSocket with the selected KB
         wsConnection = connectWebSocket(
           { ...options, autoReconnect: true, visitorId },
           onMessage,
           socketCallback
         );
-      }
 
-      const text = input.value.trim();
-      if (!text || wsConnection.socket?.readyState !== WebSocket.OPEN) return;
+        // Notify the user that chat is ready
+        const body = container.querySelector("#akvo-rag-body");
+        const msg = document.createElement("p");
+        msg.className = "akvo-msg-system";
+        msg.textContent =
+          "Knowledge base selected. You can now start chatting!";
+        body.appendChild(msg);
 
-      // Add user message to history
-      chatHistory.push({ role: "user", content: text });
+        // Bind input & send button logic
+        const input = container.querySelector("#akvo-rag-input");
+        const sendBtn = container.querySelector("#akvo-rag-send-btn");
 
-      // Limit to last 10 messages
-      const lastMessages = chatHistory.slice(CHAT_HISTORY_SLICE);
+        // Send on Enter key
+        input.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") sendBtn.click();
+        });
 
-      wsConnection.socket.send(
-        JSON.stringify({
-          type: "chat",
-          kb_id: options.kb_id,
-          messages: lastMessages,
-        })
+        // Send button click logic
+        sendBtn.addEventListener("click", () => {
+          if (isLoading) return;
+          const text = input.value.trim();
+          if (!text || wsConnection.socket?.readyState !== WebSocket.OPEN)
+            return;
+
+          chatHistory.push({ role: "user", content: text });
+          const lastMessages = chatHistory.slice(CHAT_HISTORY_SLICE);
+
+          wsConnection.socket.send(
+            JSON.stringify({
+              type: "chat",
+              kb_id: options.kb_id,
+              messages: lastMessages,
+            })
+          );
+
+          appendMessageToBody("user", text);
+          input.value = "";
+          currentAssistantMsgEl = null;
+          sendBtn.disabled = true;
+          sendBtn.innerHTML = `<span class="akvo-send-spinner"></span>`;
+          isLoading = true;
+        });
+      });
+    } else {
+      // If KB is already set, show input and send button directly
+      const input = container.querySelector("#akvo-rag-input");
+      const sendBtn = container.querySelector("#akvo-rag-send-btn");
+
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendBtn.click();
+      });
+
+      sendBtn.addEventListener("click", () => {
+        if (isLoading) return;
+        const text = input.value.trim();
+        if (!text || wsConnection?.socket?.readyState !== WebSocket.OPEN)
+          return;
+
+        chatHistory.push({ role: "user", content: text });
+        const lastMessages = chatHistory.slice(CHAT_HISTORY_SLICE);
+
+        wsConnection.socket.send(
+          JSON.stringify({
+            type: "chat",
+            kb_id: options.kb_id,
+            messages: lastMessages,
+          })
+        );
+
+        appendMessageToBody("user", text);
+        input.value = "";
+        currentAssistantMsgEl = null;
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = `<span class="akvo-send-spinner"></span>`;
+        isLoading = true;
+      });
+
+      // Initialize the WebSocket connection if KB already known
+      wsConnection = connectWebSocket(
+        { ...options, autoReconnect: true, visitorId },
+        onMessage,
+        socketCallback
       );
-
-      appendMessageToBody("user", text);
-      input.value = "";
-      currentAssistantMsgEl = null;
-      sendBtn.disabled = true;
-      sendBtn.innerHTML = `<span class="akvo-send-spinner"></span>`;
-      isLoading = true;
-    });
+    }
   } else {
-    // If container already exists, ensure it is not minimized
+    // If widget already exists, ensure it is not minimized
     container.classList.remove("minimized");
     const btn = container.querySelector("#akvo-rag-close-btn");
     btn.innerHTML = `<i class="fa fa-window-minimize" aria-hidden="true"></i>`;

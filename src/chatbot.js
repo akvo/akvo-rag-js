@@ -14,14 +14,25 @@ let messageCounter = 0;
 let chatHistory = [];
 const CHAT_HISTORY_SLICE = -10;
 
+/**
+ * Initializes the chat widget with the provided options.
+ *
+ * @param {Object} options - Configuration options for initializing the chat widget.
+ * @param {string} options.title - The title displayed in the chat window.
+ * @param {number} options.kb_id - The ID of the knowledge base to use.
+ * @param {string} options.wsURL - The WebSocket URL to connect for chat communication.
+ */
 export function initChat(options = {}) {
+  // Try to get the chat container element; create it if it doesn't exist
   let container = document.getElementById("akvo-rag");
   const visitorId = getOrCreateVisitorId();
 
   if (!container) {
+    // Create the container element for the chat widget
     container = document.createElement("div");
     container.id = "akvo-rag";
 
+    // Set the inner HTML of the container, including header, body, and input
     container.innerHTML = `
       <div id="akvo-rag-header">
         ${options.title || "Chatbot"}
@@ -46,6 +57,7 @@ export function initChat(options = {}) {
       </div>
     `;
 
+    // Set up minimize button and header click events
     const header = container.querySelector("#akvo-rag-header");
     const btn = container.querySelector("#akvo-rag-close-btn");
 
@@ -60,12 +72,19 @@ export function initChat(options = {}) {
       }
     });
 
+    // Append the container to the document body
     document.body.appendChild(container);
 
+    /**
+     * Handler for messages received from the WebSocket connection.
+     * It processes different types of messages: info, start, response_chunk, end.
+     */
     const onMessage = (data) => {
       if (data.type === "info") {
+        // System information message (e.g., server status)
         appendMessageToBody("system", data.message);
       } else if (data.type === "start") {
+        // Start of an assistant message (streaming)
         citations = [];
         messageCounter++;
         currentAssistantMsgEl = appendMessageToBody(
@@ -75,30 +94,38 @@ export function initChat(options = {}) {
           messageCounter
         );
       } else if (data.type === "response_chunk") {
+        // Streaming response chunk from the assistant
         if (data?.citations?.length) {
           citations = [...citations, ...data.citations];
         }
         updateStreamingAssistantMessage(data.content, currentAssistantMsgEl);
       } else if (data.type === "end") {
+        // End of the assistant's response, attach citations and store in history
         const el = document.querySelector(
           `#akvo-msg-assistant-${messageCounter}`
         );
         if (el) {
           replaceCitations(el, citations);
+
+          // Save the assistant message to the chat history if available
           if (el?.rawText) {
-            // Save assistant message to history
             chatHistory.push({
               role: "assistant",
               content: el.rawText,
             });
           }
         }
+
+        // Reset input and loading state
         isLoading = false;
         sendBtn.disabled = false;
         sendBtn.innerHTML = "Send";
       }
     };
 
+    /**
+     * WebSocket callbacks, including reconnection logic.
+     */
     const socketCallback = {
       onReconnect: (attempt) => {
         console.log(`Reconnecting attempt #${attempt}, resetting isLoading`);
@@ -108,33 +135,40 @@ export function initChat(options = {}) {
       },
     };
 
-    // TODO :: autoReconnect can be a param from initChat
+    // Enable auto-reconnect for the WebSocket connection
     const autoReconnect = true;
+
+    // Initialize the WebSocket connection
     wsConnection = connectWebSocket(
       { ...options, autoReconnect, visitorId },
       onMessage,
       socketCallback
     );
 
+    // Get input and send button elements
     const input = container.querySelector("#akvo-rag-input");
     const sendBtn = container.querySelector("#akvo-rag-send-btn");
 
+    // Handle pressing Enter to send a message
     input.addEventListener("keypress", (e) => {
       if (e.key === "Enter") sendBtn.click();
     });
 
+    // Handle sending a message when the send button is clicked
     sendBtn.addEventListener("click", () => {
       if (isLoading) return;
 
       const text = input.value.trim();
+      // Check if input is empty or WebSocket is not open
       if (!text || wsConnection.socket?.readyState !== WebSocket.OPEN) return;
 
-      // Add user message to history
+      // Add the user's message to the chat history
       chatHistory.push({ role: "user", content: text });
 
-      // Limit to last 10
+      // Slice to keep only the last 10 messages
       const lastMessages = chatHistory.slice(CHAT_HISTORY_SLICE);
 
+      // Send the chat message payload via WebSocket
       wsConnection.socket.send(
         JSON.stringify({
           type: "chat",
@@ -142,6 +176,7 @@ export function initChat(options = {}) {
         })
       );
 
+      // Render the user's message in the chat
       appendMessageToBody("user", text);
       input.value = "";
       currentAssistantMsgEl = null;
@@ -150,6 +185,7 @@ export function initChat(options = {}) {
       isLoading = true;
     });
   } else {
+    // If container already exists, ensure it is not minimized
     container.classList.remove("minimized");
     const btn = container.querySelector("#akvo-rag-close-btn");
     btn.innerHTML = `<i class="fa fa-window-minimize" aria-hidden="true"></i>`;

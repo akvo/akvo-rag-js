@@ -43,7 +43,7 @@ export function initChat(options = {}) {
       </div>
       <div id="akvo-rag-body" class="akvo-rag-body">
         <p class="akvo-msg-system">Hello! How can I help you today?</p>
-        <!-- KB OPTIONS -->
+
         ${
           !options.kb_id && options.kb_options?.length
             ? `
@@ -52,18 +52,21 @@ export function initChat(options = {}) {
                 ${options.kb_options
                   .map(
                     (kb) => `
-                  <label>
-                    <input type="radio" name="akvo-kb" value="${kb.kb_id}">
-                    ${kb.label}
-                  </label>
-                `
+                    <div class="kb-option">
+                      <input type="radio" id="kb-${kb.kb_id}" name="akvo-kb" value="${kb.kb_id}">
+                      <label for="kb-${kb.kb_id}">${kb.label}</label>
+                    </div>
+                  `
                   )
                   .join("")}
+                <div class="akvo-kb-options-hint">
+                  After selecting, click "Send" to start chatting.
+                </div>
               </div>
             `
             : ""
         }
-        <!-- END KB OPTIONS -->
+
       </div>
       <div id="akvo-rag-input-container" class="akvo-rag-input-container">
         <input
@@ -74,6 +77,7 @@ export function initChat(options = {}) {
           autocorrect="off"
           autocapitalize="off"
           spellcheck="false"
+          ${!options.kb_id ? "disabled" : ""}
         />
         <button id="akvo-rag-send-btn">Send</button>
       </div>

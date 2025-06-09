@@ -327,4 +327,55 @@
       opacity: 0.6;
     }
   }
+
+  #akvo-kb-options,
+  .akvo-kb-options {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+
+    p {
+      font-weight: 500;
+      color: #111827; // slate-900
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    .kb-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      input[type="radio"] {
+        margin-right: 10px;
+        accent-color: v.$primary-color; // modern radio style
+        transform: scale(1.1);
+        cursor: pointer;
+      }
+
+      label {
+        color: #374151; // slate-700
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      &:hover {
+        background-color: #f3f4f6; // slate-100
+        border-radius: 6px;
+        padding: 4px 0;
+      }
+    }
+  }
+
+  // Highlight "click Send after selecting" hint
+  .akvo-kb-options-hint {
+    font-size: 0.85rem;
+    color: #6b7280; // slate-500
+    font-style: italic;
+    margin-top: 8px;
+  }
 }

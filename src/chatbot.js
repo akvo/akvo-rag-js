@@ -19,8 +19,9 @@ const CHAT_HISTORY_SLICE = -10;
  *
  * @param {Object} options - Configuration options for initializing the chat widget.
  * @param {string} options.title - The title displayed in the chat window.
- * @param {number} options.kb_id - The ID of the knowledge base to use.
+ * @param {number|null} options.kb_id - The ID of the knowledge base to use (optional).
  * @param {string} options.wsURL - The WebSocket URL to connect for chat communication.
+ * @param {Array<{ kb_id: number, label: string }>} [options.kb_options] - List of KBs for user selection (optional).
  */
 export function initChat(options = {}) {
   // Try to get the chat container element; create it if it doesn't exist
@@ -42,6 +43,27 @@ export function initChat(options = {}) {
       </div>
       <div id="akvo-rag-body" class="akvo-rag-body">
         <p class="akvo-msg-system">Hello! How can I help you today?</p>
+        <!-- KB OPTIONS -->
+        ${
+          !options.kb_id && options.kb_options?.length
+            ? `
+              <div id="akvo-kb-options" class="akvo-kb-options">
+                <p>Please select a knowledge base to continue:</p>
+                ${options.kb_options
+                  .map(
+                    (kb) => `
+                  <label>
+                    <input type="radio" name="akvo-kb" value="${kb.kb_id}">
+                    ${kb.label}
+                  </label>
+                `
+                  )
+                  .join("")}
+              </div>
+            `
+            : ""
+        }
+        <!-- END KB OPTIONS -->
       </div>
       <div id="akvo-rag-input-container" class="akvo-rag-input-container">
         <input
@@ -139,11 +161,14 @@ export function initChat(options = {}) {
     const autoReconnect = true;
 
     // Initialize the WebSocket connection
-    wsConnection = connectWebSocket(
-      { ...options, autoReconnect, visitorId },
-      onMessage,
-      socketCallback
-    );
+    if (options.kb_id) {
+      // initialize the WebSocket connection with the provided kb_id
+      wsConnection = connectWebSocket(
+        { ...options, autoReconnect, visitorId },
+        onMessage,
+        socketCallback
+      );
+    }
 
     // Get input and send button elements
     const input = container.querySelector("#akvo-rag-input");
@@ -158,25 +183,47 @@ export function initChat(options = {}) {
     sendBtn.addEventListener("click", () => {
       if (isLoading) return;
 
+      // If kb_id is not set, prompt user to select KB first
+      if (!options.kb_id) {
+        const selectedKB = container.querySelector(
+          "input[name='akvo-kb']:checked"
+        );
+        if (!selectedKB) {
+          alert("Please select a knowledge base to start the conversation.");
+          return;
+        }
+        options.kb_id = parseInt(selectedKB.value, 10);
+        const kbOptionsEl = container.querySelector("#akvo-kb-options");
+        if (kbOptionsEl) kbOptionsEl.remove();
+      }
+
+      // Explicitly connect to the WebSocket only if it's not already connected
+      if (!wsConnection) {
+        // initialize the WebSocket connection with selected kb_id from kb_options
+        wsConnection = connectWebSocket(
+          { ...options, autoReconnect: true, visitorId },
+          onMessage,
+          socketCallback
+        );
+      }
+
       const text = input.value.trim();
-      // Check if input is empty or WebSocket is not open
       if (!text || wsConnection.socket?.readyState !== WebSocket.OPEN) return;
 
-      // Add the user's message to the chat history
+      // Add user message to history
       chatHistory.push({ role: "user", content: text });
 
-      // Slice to keep only the last 10 messages
+      // Limit to last 10 messages
       const lastMessages = chatHistory.slice(CHAT_HISTORY_SLICE);
 
-      // Send the chat message payload via WebSocket
       wsConnection.socket.send(
         JSON.stringify({
           type: "chat",
+          kb_id: options.kb_id,
           messages: lastMessages,
         })
       );
 
-      // Render the user's message in the chat
       appendMessageToBody("user", text);
       input.value = "";
       currentAssistantMsgEl = null;

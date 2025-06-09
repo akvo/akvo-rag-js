@@ -72,7 +72,7 @@ export function initChat(options = {}) {
           // If no kb_id, show "Start Chat" button; else show input and send button
           !options.kb_id
             ? `
-              <button id="akvo-start-chat-btn" class="akvo-start-chat-btn" style="flex: 1;">
+              <button id="akvo-start-chat-btn" class="akvo-start-chat-btn" style="flex: 1;" disabled>
                 Start Chat
               </button>
             `
@@ -249,6 +249,21 @@ export function initChat(options = {}) {
           sendBtn.disabled = true;
           sendBtn.innerHTML = `<span class="akvo-send-spinner"></span>`;
           isLoading = true;
+        });
+      });
+
+      // Get the Start Chat button and KB radio buttons
+      const kbRadioButtons = container.querySelectorAll(
+        "input[name='akvo-kb']"
+      );
+
+      // Initially disable the Start Chat button (redundant but clear)
+      startBtn.disabled = true;
+
+      // Enable the button once a KB is selected
+      kbRadioButtons.forEach((radio) => {
+        radio.addEventListener("change", () => {
+          startBtn.disabled = false;
         });
       });
     } else {

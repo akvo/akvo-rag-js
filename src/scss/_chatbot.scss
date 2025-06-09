@@ -321,8 +321,8 @@
     align-items: center;
 
     &:disabled {
-      background-color: #cccccc;
-      color: #666666;
+      background-color: v.$disabled-color;
+      color: v.$text-color;
       cursor: not-allowed;
       opacity: 0.6;
     }
@@ -393,6 +393,13 @@
 
     &:hover {
       background-color: color.scale(v.$primary-color, $lightness: -10%);
+    }
+
+    &:disabled {
+      background-color: v.$disabled-color;
+      color: v.$text-color;
+      cursor: not-allowed;
+      opacity: 0.6;
     }
   }
 }

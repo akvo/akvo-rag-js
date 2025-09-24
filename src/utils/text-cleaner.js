@@ -2,13 +2,26 @@ export function cleanStreamingText(rawText) {
   let text = rawText;
 
   // 1. Join letters or numbers separated by spaces (e.g., "A G R A" -> "AGRA")
-  text = text.replace(/\b(?:[A-Za-z0-9] ?){2,10}\b/g, (match) => {
-    const noSpace = match.replace(/ /g, "");
-    return noSpace.length <= 10 ? noSpace : match;
-  });
+  //    but ignore anything inside markdown markers (** __ `)
+  text = text.replace(
+    /\b(?:[A-Za-z0-9](?: ?[A-Za-z0-9])){2,10}\b/g,
+    (match) => {
+      // If the match contains markdown markers, leave it untouched
+      if (/[*_`]/.test(match)) return match;
+
+      const noSpace = match.replace(/ /g, "");
+      return noSpace.length <= 10 ? noSpace : match;
+    }
+  );
 
   // 2. Remove spaces before punctuation marks like , . : ; !
   text = text.replace(/\s+([,.:;!?])/g, "$1");
+
+  // 2b. Remove spaces immediately inside bold/italic markers (** text ** -> **text**)
+  text = text.replace(/(\*\*|__)\s*(.*?)\s*(\*\*|__)/g, "$1$2$3");
+
+  // 2c. Remove spaces inside inline code markers (` code ` -> `code`)
+  text = text.replace(/` +([^`]+?) +`/g, "`$1`");
 
   // 3. Fix markdown code blocks by removing spaces after ```
   text = text.replace(/``` *bash/g, "```bash");

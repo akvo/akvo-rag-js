@@ -41,6 +41,11 @@ export function updateStreamingAssistantMessage(
   const body = document.querySelector("#akvo-rag-body");
   if (!body || !newChunk || !currentAssistantMsgEl) return;
 
+  // 🚫 Ignore non-message chunks (metadata like finishReason, usage, etc.)
+  if (/^\s*d:\{/.test(newChunk)) {
+    return;
+  }
+
   // Reset typing animation
   currentAssistantMsgEl.innerHTML = "";
 

@@ -4,40 +4,28 @@ description: How to release the Akvo RAG widget to npm
 
 # Release Workflow
 
-Follow these steps to release a new version of the Akvo RAG widget.
+This workflow uses the `release.sh` script to automate the release process.
 
-## 1. Preparation
-1. Ensure you are on the `main` branch: `git checkout main`
-2. Pull the latest changes: `git pull origin main`
-3. Merge your feature branch into `main` (if not already done): `git merge <feature-branch>`
+## Steps
 
-## 2. Versioning
-1. Choose the version bump type (patch, minor, or major).
-2. Run the version command:
-   ```bash
-   npm version <patch|minor|major>
-   ```
-   *This will update `package.json`, commit the change, and create a git tag.*
+1.  **Run the release script**:
+    Execute the script from the root directory with the desired version bump type:
+    ```bash
+    ./release.sh <patch|minor|major>
+    ```
 
-## 3. Build & Verify
-1. Run the production build:
-   ```bash
-   npm run build
-   ```
-2. Verify that the `dist/` directory contains the updated assets.
-
-## 4. Push to Remote
-1. Push the commit and the new tag to GitHub:
-   ```bash
-   git push origin main --tags
-   ```
-
-## 5. Publish to NPM
-1. Publish the package:
-   ```bash
-   npm publish --access public
-   ```
+2.  **Follow the prompts**:
+    The script will:
+    - Validate your branch and git status.
+    - Bump the version in `package.json`.
+    - Build the production bundle.
+    - Push commits and tags to GitHub.
+    - Publish the package to npm.
 
 ---
 > [!IMPORTANT]
-> Ensure you are logged into npm before running the publish command (`npm login`).
+> Ensure you are logged into npm before running the script (`npm login`). You will be prompted for an OTP during the publish step if MFA is enabled.
+
+> [!TIP]
+> Use the `--dry-run` flag to verify the steps without making any changes:
+> `./release.sh patch --dry-run`

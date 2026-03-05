@@ -30,7 +30,23 @@ Manages citation bubbles and popovers linked to source documents.
 6. Refined text is parsed by `marked` and sanitized by `dompurify`.
 7. Sanitzed HTML is inserted into the chat body.
 
+## Technical Stack & Standards
+
+### Runtime & Modules
+- **Stack**: Node.js (v18+) based development.
+- **Module System**: **Native ES Modules (ESM)**.
+  - `type: module` enabled in `package.json`.
+  - Strict requirement for `.js` extensions in internal imports.
+  - Webpack build tools use `.cjs` where CommonJS is necessary.
+
+### Testing Standard
+- **Runner**: Node.js Native Test Runner (`node --test`).
+- **Convention**: Test files are located in `/tests` with `.test.mjs` extension.
+- **Strategy**: Automated unit and integration tests serve as quality gates for utility logic and rendering.
+
 ## Security
 - All HTML output is sanitized using `dompurify`.
 - No sensitive credentials stored client-side.
 - CSP-compliant (namespaced styles and local bundling).
+- Sanitize raw text stream via `text-cleaner.mjs`.
+

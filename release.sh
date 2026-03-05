@@ -57,6 +57,6 @@ echo -e "${GREEN}Step 3/4: Pushing to remote...${NC}"
 git push origin main --tags || error_exit "Git push failed."
 
 echo -e "${GREEN}Step 4/4: Publishing to NPM...${NC}"
-npm publish --access public || error_exit "NPM publish failed."
+npm publish --ignore-scripts || error_exit "NPM publish failed."
 
 echo -e "${GREEN}Successfully released new $VERSION_TYPE version!${NC}"

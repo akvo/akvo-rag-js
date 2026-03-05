@@ -136,10 +136,17 @@ npm install
 npm run dev
 ```
 
-Build for production:
+### Build
 ```bash
-npm run build
+npm run build # Outputs to dist/
 ```
+
+### Running Tests
+Automated tests are located in `/tests` and use the native Node.js test runner.
+```bash
+npm test
+```
+
 
 ## 🤝 Contributing
 

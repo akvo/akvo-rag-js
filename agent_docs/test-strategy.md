@@ -11,12 +11,12 @@ The chat widget relies on real-time streaming data. The primary risks are:
 ### 1. Unit Tests (Logic Layer)
 - **Target**: Utility functions in `src/utils/`.
 - **Focus**: `text-cleaner.js` (spacing, markers), `chat-renderer.js` (concatenation logic).
-- **Tooling**: Node.js (current verification), ideally Jest/Vitest in the future.
+- **Tooling**: Node.js Native Test Runner (`node --test`).
 
 ### 2. Integration Tests (Communication Layer)
-- **Target**: `websocket.js` and message handlers in `chatbot.js`.
-- **Focus**: Successful message flow, chunk processing, and error handling.
-- **Tooling**: Simulated WebSocket server or mock WebSocket client.
+- **Target**: `marked` GFM rendering and critical component paths.
+- **Focus**: Successful message flow, chunk processing, and GFM parsing.
+- **Tooling**: `tests/integration/` using `.test.mjs`.
 
 ### 3. Manual Verification (E2E)
 - **Target**: Full widget performance in a real browser (`public/index.html`).
@@ -25,9 +25,14 @@ The chat widget relies on real-time streaming data. The primary risks are:
 ## Quality Gates
 | Gate | Criteria | Blocking? |
 |------|----------|-----------|
-| Unit Tests | Verification script passes 100% | Yes |
+| Unit Tests | `npm test` passes 100% | Yes |
 | Build | `npm run build` completes without errors | Yes |
 | Manual Review | Visual check of "living income" and "alleviation" cases | Yes |
 
-## Test Strategy for Issue #10
-Specifically for this issue, we use a **Verification Script** to simulate various chunking scenarios and verify that the resulting text is correctly cleaned and formatted.
+## Test Execution
+The test suite is integrated into the standard NPM lifecycle:
+```bash
+npm test
+```
+This runs all files matching `tests/**/*.test.mjs` using the native Node.js runner.
+

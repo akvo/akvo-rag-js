@@ -8,7 +8,8 @@
 
 ### Timeline & Effort
 - **Estimated Time**: 6h
-- **Actual Time**:
+- **Actual Time**: 4h
+
 - **Effort Points**: 5
 
 ### Acceptance Criteria

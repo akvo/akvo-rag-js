@@ -6,7 +6,7 @@
 
 ### Timeline & Effort
 - **Estimated Time**: 2h
-- **Actual Time**: 1.5h (Assistant Aided)
+- **Actual Time**: 0.5h (Assistant Aided)
 - **Effort Points**: 2
 
 ### Acceptance Criteria

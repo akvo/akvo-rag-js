@@ -8,7 +8,7 @@
 
 ### Timeline & Effort
 - **Estimated Time**: 6h
-- **Actual Time**: 4h (Assistant Aided)
+- **Actual Time**: 1.5h (Assistant Aided)
 
 - **Effort Points**: 5
 

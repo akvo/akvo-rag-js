@@ -41,7 +41,7 @@ if [ "$DRY_RUN" == "--dry-run" ]; then
     echo "1. Would run: npm version $VERSION_TYPE"
     echo "2. Would run: npm run build"
     echo "3. Would run: git push origin main --tags"
-    echo "4. Would run: npm publish --access public"
+    echo "4. Would run: npm publish --ignore-scripts"
     echo -e "${GREEN}Dry run complete.${NC}"
     exit 0
 fi

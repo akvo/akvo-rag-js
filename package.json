@@ -1,6 +1,6 @@
 {
   "name": "akvo-rag-js",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "type": "module",
   "description": "An embeddable chatbot widget for Akvo RAG.",
   "main": "dist/akvo-rag.js",

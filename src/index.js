@@ -1,5 +1,5 @@
 import "./scss/akvo-rag.scss";
-import { initChat } from "./chatbot";
+import { initChat } from "./chatbot.js";
 
 // For ESM/CJS usage
 export { initChat };

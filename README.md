@@ -2,16 +2,14 @@
 
 An embeddable chatbot widget for Akvo RAG.
 
-## 🎯 Features
+- **Premium Markdown Rendering**: Supports GitHub Flavored Markdown (GFM), tables, code blocks, and lists with isolated, premium styling.
+- **Optimized Streaming UX**: Intelligent text cleaning to prevent mid-word spacing issues during real-time streaming.
+- **Embeddable & Flexible**: Embed directly into HTML with `<script>` or use as an NPM module.
+- **Knowledge Base Selection**: Supports multiple KB selections with a clear "Start Chat" workflow.
+- **Isolated Styling**: Scoped CSS (`#akvo-rag`) using SCSS to prevent style collisions with host sites.
+- **Modern Architecture**: Migrated to ESM for better testability and performance.
+- **Extensive Documentation**: Detailed ADRs, stories, and architecture docs available in `/agent_docs`.
 
-- Embed directly into HTML with `<script>`
-- Use as an NPM module with modern frameworks
-- Minimize/restore functionality
-- Supports multiple knowledge base (KB) selections before starting a conversation
-- “Start Chat” button to clearly initiate the chat session
-- Styled with SCSS using scoped ID selector (`#akvo-rag`)
-- Font Awesome icons included
-- Fully customizable via options
 
 ---
 
@@ -121,14 +119,30 @@ This makes it clearer to users that they need to pick a KB before chatting.
 
 
 
+## 📚 Documentation Structure
+
+We use the **BMAD (Business-Model-Architecture-Development)** methodology. All technical specifications and historical decisions are stored in the `/agent_docs` directory:
+
+- **[PRD](file:///Users/galihpratama/Sites/akvo-rag-js/agent_docs/features/markdown-rendering-support.md)**: Product requirements for major features.
+- **[Architecture](file:///Users/galihpratama/Sites/akvo-rag-js/agent_docs/architecture.md)**: High-level system design and data flows.
+- **[ADRs](file:///Users/galihpratama/Sites/akvo-rag-js/agent_docs/adrs/)**: Architecture Decision Records (e.g., [ADR-003: Test Suite Architecture](file:///Users/galihpratama/Sites/akvo-rag-js/agent_docs/adrs/ADR-003-test-suite-architecture.md)).
+- **[Stories](file:///Users/galihpratama/Sites/akvo-rag-js/agent_docs/stories/)**: User stories and implementation status.
+
 ## 🎨 Styling
 
-All styles are scoped under `#akvo-rag`. You can override CSS variables or extend the SCSS if needed.
+We use **Scoped SCSS** to ensure the widget looks consistent regardless of the host website's styles:
+- **Root Scope**: All styles are nested under `#akvo-rag`.
+- **CSS Resets**: Isolated resets for markdown elements (headers, lists, tables) are located in `src/scss/_markdown.scss`.
+- **Customization**: You can override the primary colors and typography by modifying the SCSS variables in `src/scss/akvo-rag.scss`.
 
 ## 🧱 Development
 
-To develop locally:
 
+### Prerequisites
+- Node.js (v18+)
+- Webpack
+
+### Local Setup
 ```bash
 git clone https://github.com/akvo/akvo-rag-js.git
 cd akvo-rag-js
@@ -136,10 +150,24 @@ npm install
 npm run dev
 ```
 
-Build for production:
+### Modern ESM Stack
+This project uses **Native ES Modules (ESM)**.
+- All source files in `/src` use `export/import`.
+- Internal imports **must** include the `.js` extension.
+- Build tools (Webpack) use `.cjs` where CommonJS is required.
+
+### Build
 ```bash
-npm run build
+npm run build # Outputs optimized bundle to dist/
 ```
+
+### Testing
+We use the **Native Node.js Test Runner** (`node --test`) for maximum speed and zero dependencies.
+```bash
+npm test # Runs all tests in /tests
+```
+
+
 
 ## 🤝 Contributing
 

@@ -1,6 +1,7 @@
 {
   "name": "akvo-rag-js",
   "version": "1.1.7",
+  "type": "module",
   "description": "An embeddable chatbot widget for Akvo RAG.",
   "main": "dist/akvo-rag.js",
   "files": [
@@ -9,7 +10,8 @@
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack serve",
-    "publish": "npm publish --access public"
+    "publish": "npm publish --access public",
+    "test": "node --test tests/**/*.test.mjs"
   },
   "repository": {
     "type": "git",

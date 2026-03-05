@@ -3,15 +3,8 @@ export function cleanStreamingText(rawText) {
 
   // 1. Join letters or numbers separated by spaces (e.g., "A G R A" -> "AGRA")
   //    but ignore anything inside markdown markers (** __ `)
-  text = text.replace(
-    /\b(?:[A-Za-z0-9](?: ?[A-Za-z0-9])){2,10}\b/g,
-    (match) => {
-      // If the match contains markdown markers, leave it untouched
-      if (/[*_`]/.test(match)) return match;
-
-      const noSpace = match.replace(/ /g, "");
-      return noSpace.length <= 10 ? noSpace : match;
-    }
+  text = text.replace(/\b[A-Za-z0-9](?: [A-Za-z0-9])+\b/g, (match) =>
+    match.replace(/ /g, ""),
   );
 
   // 2. Remove spaces before punctuation marks like , . : ; !

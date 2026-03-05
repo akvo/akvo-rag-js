@@ -1,0 +1,112 @@
+@use "variables" as v;
+
+.akvo-msg-assistant {
+  // Scoped reset for Markdown elements
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: v.$primary-color;
+  }
+
+  p {
+    margin-bottom: 1em;
+    line-height: 1.5;
+  }
+
+  ul,
+  ol {
+    margin: 10px 0 10px 20px;
+    padding: 0;
+
+    li {
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+    border: 1px solid #ddd;
+    font-size: 0.9em;
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+  }
+
+  code {
+    font-family:
+      Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
+      "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
+      "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier,
+      monospace;
+    background-color: #f0f0f0;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background-color: #f0f0f0;
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1em;
+
+    code {
+      padding: 0;
+      background: none;
+    }
+  }
+
+  blockquote {
+    border-left: 4px solid v.$primary-color;
+    margin: 10px 0;
+    padding: 8px 16px;
+    background-color: #fff;
+    font-style: italic;
+    color: #555;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+  }
+
+  a {
+    color: v.$primary-color;
+    text-decoration: underline;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}

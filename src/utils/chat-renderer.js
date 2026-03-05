@@ -2,6 +2,11 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { cleanStreamingText } from "./text-cleaner.js";
 
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
+
 export function appendMessageToBody(
   role,
   markdownText,

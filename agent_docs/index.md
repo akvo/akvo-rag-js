@@ -11,15 +11,22 @@ This is the master index for all project documentation and agent artifacts manag
 
 ### Product Management (PM)
 - [10 - Fix Spacing Issues](./features/10-fix-spacing-issues.md): Requirements for fixing mid-word spacing in chat responses.
+- [Enhanced Markdown Support](./features/markdown-rendering-support.md): Requirements for beautiful and secure markdown element styling.
+
 
 
 ### Business Analyst (Analyst)
 - [Research Findings: Issue #10](./research-findings.md): Analysis of the root cause of spacing issues.
+- [Research Findings: Markdown](./research-findings-markdown.md): Analysis of requirements for enhanced markdown rendering.
+
 
 
 ### Architecture (Architect)
 - [Architecture Overview](./architecture.md): High-level system design and data flow.
+- [Architecture: Markdown](./architecture-markdown.md): Design for scoped reset and markdown component structure.
 - [ADR-001: Streaming Text Concatenation](./adrs/ADR-001-streaming-text-concatenation.md): Decision to use direct chunk concatenation.
+- [ADR-002: Markdown Styling Isolation](./adrs/ADR-002-markdown-styling-isolation.md): Decision to use scoped reset for CSS isolation.
+
 
 
 ### UX Design (UX)
@@ -28,6 +35,9 @@ This is the master index for all project documentation and agent artifacts manag
 ### Sprint Planning (SM)
 - [Sprint Plan](./sprint-plan.md): Current sprint goals and stories.
 - [STORY-010: Fix Spacing](./stories/STORY-010-fix-spacing.md): Detailed user story for fixing response formatting.
+- [STORY-MD-01: GFM Parsing Configuration](./stories/STORY-MD-01-parsing-config.md): Requirements for parser settings.
+- [STORY-MD-02: Isolated Markdown Styling](./stories/STORY-MD-02-isolated-styling.md): Requirements for CSS isolation and styling.
+
 
 
 ### Implementation (Dev)

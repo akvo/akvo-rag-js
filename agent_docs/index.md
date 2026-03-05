@@ -10,25 +10,32 @@ This is the master index for all project documentation and agent artifacts manag
 ## Agent Documentation
 
 ### Product Management (PM)
-- *No artifacts yet.*
+- [10 - Fix Spacing Issues](./features/10-fix-spacing-issues.md): Requirements for fixing mid-word spacing in chat responses.
+
 
 ### Business Analyst (Analyst)
-- *No artifacts yet.*
+- [Research Findings: Issue #10](./research-findings.md): Analysis of the root cause of spacing issues.
+
 
 ### Architecture (Architect)
-- *No artifacts yet.*
+- [Architecture Overview](./architecture.md): High-level system design and data flow.
+- [ADR-001: Streaming Text Concatenation](./adrs/ADR-001-streaming-text-concatenation.md): Decision to use direct chunk concatenation.
+
 
 ### UX Design (UX)
 - *No artifacts yet.*
 
 ### Sprint Planning (SM)
-- *No artifacts yet.*
+- [Sprint Plan](./sprint-plan.md): Current sprint goals and stories.
+- [STORY-010: Fix Spacing](./stories/STORY-010-fix-spacing.md): Detailed user story for fixing response formatting.
+
 
 ### Implementation (Dev)
 - *No artifacts yet.*
 
 ### Testing (Tester)
-- *No artifacts yet.*
+- [Test Strategy](./test-strategy.md): Risk assessment and verification strategy for the widget.
+
 
 ### Documentation (Writer)
 - *No artifacts yet.*

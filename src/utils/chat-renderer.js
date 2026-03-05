@@ -6,7 +6,7 @@ export function appendMessageToBody(
   role,
   markdownText,
   isTyping = false,
-  messageCounter
+  messageCounter,
 ) {
   const body = document.querySelector("#akvo-rag-body");
   if (!body) return;
@@ -36,7 +36,7 @@ export function appendMessageToBody(
 
 export function updateStreamingAssistantMessage(
   newChunk,
-  currentAssistantMsgEl
+  currentAssistantMsgEl,
 ) {
   const body = document.querySelector("#akvo-rag-body");
   if (!body || !newChunk || !currentAssistantMsgEl) return;
@@ -59,13 +59,12 @@ export function updateStreamingAssistantMessage(
     word = JSON.parse('"' + word.replace(/"/g, '\\"') + '"');
   } catch {}
 
-  currentAssistantMsgEl.rawText +=
-    (currentAssistantMsgEl.rawText ? " " : "") + word;
+  currentAssistantMsgEl.rawText += word;
 
   // Remove extra quote mark
   currentAssistantMsgEl.rawText = currentAssistantMsgEl.rawText.replace(
     /^"\s*/,
-    ""
+    "",
   );
 
   const cleanedText = cleanStreamingText(currentAssistantMsgEl.rawText);

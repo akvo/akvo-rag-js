@@ -1,4 +1,4 @@
-# Architecture: akvo-rag-js
+# Architecture: akvo-rag-js *Last updated: 2026-03-09*
 
 ## System Overview
 Akvo RAG JS is a client-side chat widget that communicates with a RAG (Retrieval-Augmented Generation) backend via WebSockets. It provides a streaming interface for AI responses with support for markdown rendering and citations.
@@ -10,7 +10,8 @@ The main entry point that provides a `Chatbot` class or instance for initializin
 
 ### 2. UI Rendering (utils/chat-renderer.js)
 Handles the rendering of messages into the DOM. Uses `marked` for markdown and `dompurify` for sanitization.
-- **Streaming Strategy**: Chunks are concatenated into a buffer and re-rendered as they arrive to provide a smooth streaming experience.
+- **Streaming Strategy**: Chunks are concatenated into a buffer and re-rendered as they arrive.
+- **Optimization**: To ensure smooth performance, the renderer implements a **change-detection check** that skips expensive Markdown parsing and DOM sanitization if the cleaned text hasn't changed between streaming chunks.
 
 ### 3. Text Processing (utils/text-cleaner.js)
 A utility to post-process text before rendering. It handles:

@@ -53,21 +53,24 @@ export function updateStreamingAssistantMessage(
 
   if (!currentAssistantMsgEl.rawText) currentAssistantMsgEl.rawText = "";
 
-  // Parsing and decode chunk
+  // Robust Parsing and decode chunk
+  let word = newChunk;
   const match = newChunk.match(/:\s*"(.*)"/);
-  let word = match ? match[1] : newChunk;
 
-  try {
-    word = JSON.parse('"' + word.replace(/"/g, '\\"') + '"');
-  } catch {}
+  if (match) {
+    word = match[1];
+    // Decode common escapes if it's a raw string part from a JSON field
+    try {
+      word = JSON.parse('"' + word + '"');
+    } catch {
+      // Fallback if the above fails due to complex escaping
+      try {
+        word = JSON.parse('"' + word.replace(/"/g, '\\"') + '"');
+      } catch {}
+    }
+  }
 
   currentAssistantMsgEl.rawText += word;
-
-  // Remove extra quote mark
-  currentAssistantMsgEl.rawText = currentAssistantMsgEl.rawText.replace(
-    /^"\s*/,
-    "",
-  );
 
   const cleanedText = cleanStreamingText(currentAssistantMsgEl.rawText);
 

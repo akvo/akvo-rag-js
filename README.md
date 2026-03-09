@@ -67,11 +67,11 @@ initChat({
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
   />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.2.1/dist/akvo-rag.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.2.2/dist/akvo-rag.css" />
 </head>
 <body>
 
-<script src="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.2.1/dist/akvo-rag.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.2.2/dist/akvo-rag.js"></script>
 
 <!-- USING kb_id -->
 <script>

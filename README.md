@@ -7,7 +7,8 @@ An embeddable chatbot widget for Akvo RAG.
 - **Embeddable & Flexible**: Embed directly into HTML with `<script>` or use as an NPM module.
 - **Knowledge Base Selection**: Supports multiple KB selections with a clear "Start Chat" workflow.
 - **Isolated Styling**: Scoped CSS (`#akvo-rag`) using SCSS to prevent style collisions with host sites.
-- **Modern Architecture**: Migrated to ESM for better testability and performance.
+- **Resilient Reconnection**: Exponential backoff with jitter to protect backend during outages (ADR-005).
+- **Component Lifecycle**: Class-based `AkvoRagChatbox` supporting multiple instances and clean `destroy()` (ADR-004).
 - **Extensive Documentation**: Detailed ADRs, stories, and architecture docs available in `/agent_docs`.
 
 
@@ -27,11 +28,15 @@ Example Usage using `kb_id`:
 import { initChat } from 'akvo-rag-js';
 import 'akvo-rag-js/dist/akvo-rag.css';
 
-initChat({
+const chat = initChat({
   title: 'Support Bot',
   kb_id: 39,
   wsURL: "ws://localhost:81/ws/chat",
 });
+
+// Clean up when done
+// chat.destroy();
+
 ```
 
 Example Usage using `kb_options`:
@@ -103,6 +108,19 @@ The `initChat` function accepts a configuration object to customize the chat wid
 | `kb_id`      | `number`                                  | ❌ No     | The initial Knowledge Base ID to use (if pre-selected).       |
 | `wsURL`      | `string`                                  | ✅ Yes    | WebSocket endpoint URL for real-time chat communication.      |
 | `kb_options` | `Array<{ kb_id: number, label: string }>` | ❌ No     | List of available KBs for the user to select before chatting. |
+| `autoReconnect`| `boolean`                               | ❌ No     | Defaults to `true`. Uses exponential backoff (ADR-005).      |
+
+### 🔧 Component Lifecycle (`AkvoRagChatbox`)
+
+The `initChat` function returns an instance of `AkvoRagChatbox`. You can use it to manage the widget's lifecycle:
+
+```javascript
+const chat = initChat({ ... });
+
+// To remove the widget and close connections:
+chat.destroy();
+```
+
 
 💡 If kb_id is not provided, the chatbot will prompt the user to select a KB and then click “Start Chat” to begin the conversation.
 💡 Additional configuration options may be added in future releases to support themes, positioning, or additional behaviors.

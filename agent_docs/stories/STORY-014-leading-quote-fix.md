@@ -14,5 +14,5 @@ Refactored `chat-renderer.js` to extract `accumulateAssistantText` for testabili
 
 ## Status
 - **Status**: COMPLETED
-- **Actual Time**: 1.0h
-- **Release**: 1.2.2
+- **Actual Time**: 2.5h
+- **Release**: 1.2.3

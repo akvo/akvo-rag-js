@@ -48,30 +48,25 @@ export function accumulateAssistantText(newChunk, currentText = "") {
   // 1. Strip technical numerical prefixes like "0:", "1:", etc.
   word = word.replace(/^\d+:\s*/, "");
 
-  // 2. Surgical parse: Find the content between the first and last double quotes
-  const firstQuote = word.indexOf('"');
-  const lastQuote = word.lastIndexOf('"');
+  // 2. Remove surrounding technical quotes if they exist at the boundaries
+  //    Matches: "content", "content, content"
+  //    We use a simple approach: if it starts with a quote, strip it. If it ends with a quote, strip it.
+  if (word.startsWith('"')) word = word.substring(1);
+  if (word.endsWith('"')) word = word.substring(0, word.length - 1);
+  // Important: Also handle chunks that might have trailing spaces AFTER the quote
+  else if (word.trimEnd().endsWith('"')) {
+    word = word.trimEnd();
+    word = word.substring(0, word.length - 1);
+  }
 
-  if (firstQuote !== -1) {
-    if (lastQuote > firstQuote) {
-      // It's a full or multi-line quoted string
-      const interior = word.substring(firstQuote + 1, lastQuote);
-      try {
-        // Correctly decode JSON escapes
-        word = JSON.parse('"' + interior + '"');
-      } catch {
-        word = interior;
-      }
-    } else {
-      // Only one quote - likely a fragment boundary
-      // If it's at the start, strip it
-      if (firstQuote === 0) {
-        word = word.substring(1);
-      } else if (firstQuote === word.length - 1) {
-        // If it's at the end, strip it
-        word = word.substring(0, word.length - 1);
-      }
-    }
+  // 3. Decode JSON escapes (like \n, \", etc.)
+  try {
+    // We wrap it in quotes and parse it to let the engine handle escapes
+    // If there ARE quotes inside the content, we must escape them for JSON.parse
+    const escaped = word.replace(/\\"/g, '"').replace(/"/g, '\\"');
+    word = JSON.parse('"' + escaped + '"');
+  } catch {
+    // Fallback to raw word if parse fails
   }
 
   let combined = (currentText || "") + word;

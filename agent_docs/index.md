@@ -37,6 +37,8 @@ This is the master index for all project documentation and agent artifacts manag
 - [STORY-011: Component Refactor](./stories/STORY-011-component-refactor.md): Requirements for instance-based pattern.
 - [STORY-012: Resilience](./stories/STORY-012-exponential-backoff.md): Requirements for exponential backoff.
 - [STORY-013: Performance](./stories/STORY-013-rendering-optimization.md): Requirements for rendering optimization.
+- [STORY-014: Quoting Fix](./stories/STORY-014-leading-quote-fix.md): Requirements for fixing technical artifacts in responses.
+- [STORY-015: Doc Audit](./stories/STORY-015-doc-audit.md): Requirements for documentation synchronization.
 
 ### Implementation (Dev)
 - **Sprint 2 Complete**: 3 structural bugs remediated and validated against the new test suite.

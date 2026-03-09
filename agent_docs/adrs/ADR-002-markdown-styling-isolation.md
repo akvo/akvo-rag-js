@@ -1,6 +1,6 @@
 # ADR-002: Markdown Styling Isolation Strategy
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Context**:
   The Akvo RAG widget is embedded in various host sites which often have complex global CSS resets or frameworks like Tailwind/Bootstrap. These global styles can break the appearance of standard markdown elements (like list bullets disappearing or tables having no margins).
 

@@ -7,14 +7,15 @@ Improve system stability, performance, and maintainability by remediating issues
 - [x] [STORY-011: Component Pattern Refactor](./stories/STORY-011-component-refactor.md) (Pri: High, Est: 4h, Actual: 1.5h)
 - [x] [STORY-012: Exponential Backoff](./stories/STORY-012-exponential-backoff.md) (Pri: Medium, Est: 2h, Actual: 0.5h)
 - [x] [STORY-013: Rendering Optimization](./stories/STORY-013-rendering-optimization.md) (Pri: Medium, Est: 3h, Actual: 0.5h)
-- [x] [STORY-014: Quoting & Test Refactor](./stories/STORY-014-leading-quote-fix.md) (Pri: High, Est: 2h, Actual: 1.5h)
+- [x] [STORY-014: Quoting & Test Refactor](./stories/STORY-014-leading-quote-fix.md) (Pri: High, Est: 2h, Actual: 2.5h)
+- [x] [STORY-015: Documentation Audit](./stories/STORY-015-doc-audit.md) (Pri: Low, Est: 1h, Actual: 0.5h)
 
 ## Sprint Summary
 | Metric | Value |
 |--------|-------|
-| **Total Estimated Time** | 11.0h |
-| **Total Actual Time (Active)** | **4.0h** (Assistant Aided) |
-| **Stories Completed** | 4 / 4 |
+| **Total Estimated Time** | 12.0h |
+| **Total Actual Time (Active)** | **5.0h** (Assistant Aided) |
+| **Stories Completed** | 5 / 5 |
 | **Status** | **100% Complete** |
 
 ---

@@ -59,6 +59,7 @@ This is the master index for all project documentation and agent artifacts manag
 ### Documentation (Writer)
 - **README Updated**: Finalized with premium features and technical stack details.
 - [Release Workflow](../.agent/workflows/release.md): Documentation for the automated release process.
+- [User Guide](./user-guide.md): Comprehensive guide for integration and API usage.
 - **Walkthrough Created**: Full summary of Sprint 1 results.
 
 ---

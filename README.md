@@ -67,11 +67,11 @@ initChat({
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
   />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.0.5/dist/akvo-rag.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.2.1/dist/akvo-rag.css" />
 </head>
 <body>
 
-<script src="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.0.5/dist/akvo-rag.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/akvo-rag-js@1.2.1/dist/akvo-rag.js"></script>
 
 <!-- USING kb_id -->
 <script>
@@ -192,4 +192,4 @@ npm test # Runs all tests in /tests
 Contributions are welcome! Please open an issue or submit a PR.
 
 ## 📄 License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the AGPL-3.0 License. See the [LICENSE](LICENSE) file for details.

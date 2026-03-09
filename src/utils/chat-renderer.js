@@ -39,27 +39,24 @@ export function appendMessageToBody(
   return msg;
 }
 
-export function updateStreamingAssistantMessage(
-  newChunk,
-  currentAssistantMsgEl,
-) {
-  const body = document.querySelector("#akvo-rag-body");
-  if (!body || !newChunk || !currentAssistantMsgEl) return;
+export function accumulateAssistantText(newChunk, currentText = "") {
+  // 🚫 Ignore technical metadata
+  if (/^\s*d:\{/.test(newChunk)) return currentText;
 
-  // 🚫 Ignore non-message chunks (metadata like finishReason, usage, etc.)
-  if (/^\s*d:\{/.test(newChunk)) {
-    return;
-  }
-
-  if (!currentAssistantMsgEl.rawText) currentAssistantMsgEl.rawText = "";
-
-  // Robust Parsing and decode chunk
   let word = newChunk;
-  const match = newChunk.match(/:\s*"(.*)"/);
+
+  // 1. Strip technical prefixes like "0:", "1:", etc. and optional space
+  word = word.replace(/^\d+:\s*/, "");
+
+  // 2. Extract content between quotes if present
+  const match =
+    word.match(/^"(.*)"$/) || // Full quoted string
+    word.match(/^"(.*)$/) || // Starting quote
+    word.match(/(.*)"$/); // Ending quote
 
   if (match) {
     word = match[1];
-    // Decode common escapes if it's a raw string part from a JSON field
+    // 3. Decode common escapes if it's a raw string part from a JSON field
     try {
       word = JSON.parse('"' + word + '"');
     } catch {
@@ -70,7 +67,27 @@ export function updateStreamingAssistantMessage(
     }
   }
 
-  currentAssistantMsgEl.rawText += word;
+  let combined = (currentText || "") + word;
+
+  // 🛡️ Final Guard: Always ensure no technical quotes leak at the very beginning
+  return combined.replace(/^"\s*/, "");
+}
+
+export function updateStreamingAssistantMessage(
+  newChunk,
+  currentAssistantMsgEl,
+) {
+  const body = document.querySelector("#akvo-rag-body");
+  if (!body || !newChunk || !currentAssistantMsgEl) return;
+
+  if (!currentAssistantMsgEl.rawText) currentAssistantMsgEl.rawText = "";
+
+  const newText = accumulateAssistantText(
+    newChunk,
+    currentAssistantMsgEl.rawText,
+  );
+
+  currentAssistantMsgEl.rawText = newText;
 
   const cleanedText = cleanStreamingText(currentAssistantMsgEl.rawText);
 

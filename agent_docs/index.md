@@ -18,7 +18,7 @@ This is the master index for all project documentation and agent artifacts manag
 
 
 ### Business Analyst (Analyst)
-- [Research Findings: Issue #10](./research-findings.md): Analysis of the root cause of spacing issues.
+- [Research Findings: Bug Audit](./research-findings.md): Comprehensive analysis of potential codebase bugs.
 - [Research Findings: Markdown](./research-findings-markdown.md): Analysis of requirements for enhanced markdown rendering.
 - [Research Findings: Test Suite](./research-findings-test-suite.md): Analysis of testing infrastructure and requirements.
 
@@ -32,6 +32,8 @@ This is the master index for all project documentation and agent artifacts manag
 - [ADR-001: Streaming Text Concatenation](./adrs/ADR-001-streaming-text-concatenation.md): Decision to use direct chunk concatenation.
 - [ADR-002: Markdown Styling Isolation](./adrs/ADR-002-markdown-styling-isolation.md): Decision to use scoped reset for CSS isolation.
 - [ADR-003: Test Suite Architecture](./adrs/ADR-003-test-suite-architecture.md): Decision to use Node.js native test runner.
+- [ADR-004: Component Instance Pattern](./adrs/ADR-004-component-instance-pattern.md): Decision to use class-based state isolation.
+- [ADR-005: Exponential Backoff](./adrs/ADR-005-exponential-backoff.md): Decision to use resilient reconnection strategy.
 
 
 
@@ -41,10 +43,9 @@ This is the master index for all project documentation and agent artifacts manag
 
 ### Sprint Planning (SM)
 - [Sprint Plan](./sprint-plan.md): Current sprint goals and stories.
-- [STORY-010: Fix Spacing](./stories/STORY-010-fix-spacing.md): Detailed user story for fixing response formatting.
-- [STORY-MD-01: GFM Parsing Configuration](./stories/STORY-MD-01-parsing-config.md): Requirements for parser settings.
-- [STORY-MD-02: Isolated Markdown Styling](./stories/STORY-MD-02-isolated-styling.md): Requirements for CSS isolation and styling.
-- [STORY-TEST-01: Test Suite Migration](./stories/STORY-TEST-01-suite-migration.md): Formalizing automated testing.
+- [STORY-011: Component Refactor](./stories/STORY-011-component-refactor.md): Requirements for instance-based pattern.
+- [STORY-012: Resilience](./stories/STORY-012-exponential-backoff.md): Requirements for exponential backoff.
+- [STORY-013: Performance](./stories/STORY-013-rendering-optimization.md): Requirements for rendering optimization.
 
 
 

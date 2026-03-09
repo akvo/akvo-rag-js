@@ -4,7 +4,6 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
   let socket = null;
   let reconnectAttempts = 0;
   const maxReconnectAttempts = 10;
-  const reconnectDelayMs = 3000; // 3 seconds
 
   // Helper to create the WebSocket and set handlers
   function createSocket() {
@@ -18,7 +17,7 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
           type: "auth",
           visitor_id: options.visitorId,
           kb_id: options.kb_id,
-        })
+        }),
       );
       if (options.onOpen) options.onOpen();
     };
@@ -81,22 +80,34 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
 
     socket.onclose = (event) => {
       console.warn(
-        `WebSocket closed: code=${event.code} reason=${event.reason}`
+        `WebSocket closed: code=${event.code} reason=${event.reason}`,
       );
 
       if (options.autoReconnect && event.code !== 1000) {
         // 1000 = normal close
         if (reconnectAttempts < maxReconnectAttempts) {
           reconnectAttempts++;
-          console.log(
-            `[WebSocket] Reconnect attempt ${reconnectAttempts} in ${reconnectDelayMs}ms`
+
+          // Exponential backoff: min(initial * 2^(n-1), max) + jitter
+          const initialDelay = 1000;
+          const maxDelay = 30000;
+          const baseDelay = Math.min(
+            initialDelay * Math.pow(2, reconnectAttempts - 1),
+            maxDelay,
           );
+          const jitter = Math.random() * 1000 - 500; // +/- 500ms
+          const finalDelay = Math.max(1000, baseDelay + jitter);
+
+          console.log(
+            `[WebSocket] Reconnect attempt ${reconnectAttempts} in ${Math.round(finalDelay)}ms`,
+          );
+
           if (callbacks?.onReconnect) {
             callbacks.onReconnect(reconnectAttempts);
           }
           setTimeout(() => {
             createSocket();
-          }, reconnectDelayMs);
+          }, finalDelay);
         } else {
           console.error("[WebSocket] Max reconnect attempts reached.");
           if (options.onMaxReconnect) options.onMaxReconnect();

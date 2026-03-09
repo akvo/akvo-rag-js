@@ -1,33 +1,35 @@
-# Research Findings: Issue #10 - Spacing Issues in Chat Widget
+# Research Findings: Comprehensive Bug Audit (2026-03-09)
 
-## Problem Analysis
-The issue of odd spacing (e.g., "allev iation") in the chat widget stems from a combination of the streaming response handler and a sub-optimal text cleaning utility.
+**Auditor**: Mary (Business Analyst)
+**Scope**: Codebase audit for stability, performance, and security.
 
-### Root Cause 1: Artificial Space Injection
-In `src/utils/chat-renderer.js`, the `updateStreamingAssistantMessage` function appends a space between EVERY chunk received from the WebSocket:
-```javascript
-currentAssistantMsgEl.rawText += (currentAssistantMsgEl.rawText ? " " : "") + word;
-```
-Most LLM streaming APIs (including OpenAI-compatible ones) send chunks which already contain necessary whitespace. Manually injecting a space between chunks causes words to break if a chunk boundary falls inside a word (e.g., "alle" and "viation").
+## Summary of Findings
 
-### Root Cause 2: Incomplete Text Cleaning
-`src/utils/text-cleaner.js` attempts to "fix" these broken words using a regex:
-```javascript
-text = text.replace(
-  /\b(?:[A-Za-z0-9](?: ?[A-Za-z0-9])){2,10}\b/g,
-  (match) => { ... }
-);
-```
-This regex is intended to join characters separated by spaces (e.g., "A G R A" -> "AGRA"). However:
-1. It is limited to a certain length (effectively 10 repetitions of the group).
-2. It might not handle single-space word breaks effectively if the resulting "word" is seen as multiple tokens by the regex word boundaries.
-3. It has a hard-coded length check `noSpace.length <= 10` which prevents it from fixing longer words like "alleviation" (11 chars).
+| ID | Issue | Severity | Component | Description |
+|---|---|---|---|---|
+| B001 | Global State Persistence | High | `chatbot.js` | Chat history and connection state are stored in module-level variables. Re-initializing the widget without a page reload will lead to state leakage. |
+| B002 | Missing Cleanup Mechanism | High | `chatbot.js` | No destructor or `destroy()` method exists. WebSockets and event listeners remain active if the widget is removed from the DOM. |
+| B003 | Inefficient Streaming | Medium | `chat-renderer.js`| Currently re-parses and re-sanitizes the entire markdown message for every incoming chunk. This will cause lag in long conversations. |
+| B004 | Linear Reconnection | Medium | `websocket.js` | Uses a fixed 3-second delay. This can overwhelm a struggling backend compared to exponential backoff. |
+| B005 | Brittle Chunk Parsing | Medium | `chat-renderer.js`| RegEx-based JSON value extraction is susceptible to failure if the LLM output contains specific characters or escapes. |
+| B006 | CSS Style "Leak-in" | Low | `_markdown.scss` | Lack of a comprehensive reset (like `box-sizing: border-box`) leaves the widget vulnerable to layout shifts from host site styles. |
 
-## Recommendations
-1. **Primary Fix**: Modify `src/utils/chat-renderer.js` to concatenate chunks without adding a space.
-2. **Refinement**: Update `src/utils/text-cleaner.js` to remove the aggressive word joining logic OR improve it to handle longer words and be less prone to false positives. Given the primary fix, the aggressive joining might no longer be necessary for standard RAG responses.
+## Detailed Analysis
 
-## Impact Assessment
-- **UI/UX**: Clearer, more professional responses.
-- **Performance**: Negligible impact on client-side rendering.
-- **Risk**: Low, as long as we ensuring existing markdown formatting (which might use spaces) is preserved.
+### 1. State Management (B001, B002)
+The current implementation assumes a "one-page, one-session" model. Modern SPAs (Single Page Applications) might mount/unmount the widget multiple times. Without a `destroy` method and localized state (e.g., inside a class or closure), memory leaks and data pollution are inevitable.
+
+### 2. Streaming Performance (B003)
+LLM responses can reach thousands of tokens. Re-rendering the entire message every 30ms (average chunk rate) means thousands of DOM operations and RegEx executions.
+**Recommendation**: Implement a throttle or only append new parts if possible (though Markdown makes "appending" tricky as markers might span chunks).
+
+### 3. Resilience (B004)
+The backend connection is the lifeline of RAG. A static 3-second retry is "all-or-nothing".
+**Recommendation**: Implement exponential backoff (e.g., 1s, 2s, 4s, 8s...) with jitter.
+
+### 4. Isolation (B006)
+While namespacing is used, the widget doesn't protect itself from parent site inherited styles (like `line-height` or `font-size` on `div` or `li`).
+**Recommendation**: Add a root reset that explicitly sets all critical properties to defaults.
+
+## Next Steps
+Hand off to **Winston (Architect)** to design structural fixes for B001 and B002, and **Amelia (Dev)** for performance optimizations.

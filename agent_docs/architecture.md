@@ -6,7 +6,7 @@ Akvo RAG JS is a client-side chat widget that communicates with a RAG (Retrieval
 ## Component Design
 
 ### 1. Chat Widget (chatbot.js)
-The main entry point that initializes the UI and manages the WebSocket connection lifecycle.
+The main entry point that provides a `Chatbot` class or instance for initializing the UI and managing the WebSocket connection lifecycle. It encapsulates state to support multiple instances and proper cleanup via a `destroy()` method.
 
 ### 2. UI Rendering (utils/chat-renderer.js)
 Handles the rendering of messages into the DOM. Uses `marked` for markdown and `dompurify` for sanitization.

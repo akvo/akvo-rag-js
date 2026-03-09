@@ -51,9 +51,6 @@ export function updateStreamingAssistantMessage(
     return;
   }
 
-  // Reset typing animation
-  currentAssistantMsgEl.innerHTML = "";
-
   if (!currentAssistantMsgEl.rawText) currentAssistantMsgEl.rawText = "";
 
   // Parsing and decode chunk
@@ -73,9 +70,18 @@ export function updateStreamingAssistantMessage(
   );
 
   const cleanedText = cleanStreamingText(currentAssistantMsgEl.rawText);
+
+  // 🚀 Optimization: Only re-render if the cleaned text actually changed
+  if (currentAssistantMsgEl.lastRenderedText === cleanedText) {
+    return;
+  }
+
   const rawHTML = marked.parse(cleanedText);
   const safeHTML = DOMPurify.sanitize(rawHTML);
+
+  // 🚀 Optimization: Use DOM updates only when content changes
   currentAssistantMsgEl.innerHTML = safeHTML;
+  currentAssistantMsgEl.lastRenderedText = cleanedText;
 
   body.scrollTop = body.scrollHeight;
 }

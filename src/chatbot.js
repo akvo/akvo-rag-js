@@ -56,7 +56,7 @@ export function initChat(options = {}) {
                       <input type="radio" id="kb-${kb.kb_id}" name="akvo-kb" value="${kb.kb_id}">
                       <label for="kb-${kb.kb_id}">${kb.label}</label>
                     </div>
-                  `
+                  `,
                   )
                   .join("")}
                 <div class="akvo-kb-options-hint">
@@ -121,16 +121,30 @@ export function initChat(options = {}) {
           "assistant",
           "",
           true,
-          messageCounter
+          messageCounter,
         );
       } else if (data.type === "response_chunk") {
         if (data?.citations?.length) {
-          citations = [...citations, ...data.citations];
+          data.citations.forEach((newCite) => {
+            const existingIdx = citations.findIndex((c) => c.id === newCite.id);
+            if (existingIdx > -1) {
+              // Replace existing if new one has more data (text and metadata)
+              const existing = citations[existingIdx];
+              const newHasData = newCite.text && newCite.metadata;
+              const existingHasData = existing.text && existing.metadata;
+
+              if (newHasData || !existingHasData) {
+                citations[existingIdx] = newCite;
+              }
+            } else {
+              citations.push(newCite);
+            }
+          });
         }
         updateStreamingAssistantMessage(data.content, currentAssistantMsgEl);
       } else if (data.type === "end") {
         const el = document.querySelector(
-          `#akvo-msg-assistant-${messageCounter}`
+          `#akvo-msg-assistant-${messageCounter}`,
         );
         if (el) {
           replaceCitations(el, citations);
@@ -171,7 +185,7 @@ export function initChat(options = {}) {
 
       // Get the Start Chat button and KB radio buttons
       const kbRadioButtons = container.querySelectorAll(
-        "input[name='akvo-kb']"
+        "input[name='akvo-kb']",
       );
 
       // Initially disable the Start Chat button
@@ -187,7 +201,7 @@ export function initChat(options = {}) {
       // start chat button click logic
       startBtn.addEventListener("click", () => {
         const selectedKB = container.querySelector(
-          "input[name='akvo-kb']:checked"
+          "input[name='akvo-kb']:checked",
         );
         if (!selectedKB) {
           alert("Please select a knowledge base to start the conversation.");
@@ -203,7 +217,7 @@ export function initChat(options = {}) {
 
         // Replace "Start Chat" button with input and send button
         const inputContainer = container.querySelector(
-          "#akvo-rag-input-container"
+          "#akvo-rag-input-container",
         );
         inputContainer.innerHTML = `
           <input
@@ -222,7 +236,7 @@ export function initChat(options = {}) {
         wsConnection = connectWebSocket(
           { ...options, autoReconnect: true, visitorId },
           onMessage,
-          socketCallback
+          socketCallback,
         );
 
         // Notify the user that chat is ready
@@ -256,7 +270,7 @@ export function initChat(options = {}) {
               type: "chat",
               kb_id: options.kb_id,
               messages: lastMessages,
-            })
+            }),
           );
 
           appendMessageToBody("user", text);
@@ -290,7 +304,7 @@ export function initChat(options = {}) {
             type: "chat",
             kb_id: options.kb_id,
             messages: lastMessages,
-          })
+          }),
         );
 
         appendMessageToBody("user", text);
@@ -305,7 +319,7 @@ export function initChat(options = {}) {
       wsConnection = connectWebSocket(
         { ...options, autoReconnect: true, visitorId },
         onMessage,
-        socketCallback
+        socketCallback,
       );
     }
   } else {

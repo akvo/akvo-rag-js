@@ -6,20 +6,23 @@ export function replaceCitations(el, citations) {
     let html = el.innerHTML;
 
     citations.forEach((c) => {
-      const citationId = c.id;
+      const citationId = c?.id;
+      if (citationId === undefined || citationId === null) return;
 
-      // Flexible regex to match [ citation:ID ] with optional spaces
+      // Robust regex to match [citation:ID] even if brackets are escaped or spaces vary
       const regex = new RegExp(
-        `\\[\\s*citation:\\s*${citationId}\\s*\\]`,
-        "gi"
+        `(\\[|&?#?[a-zA-Z0-9]+;)\\s*citation:\\s*${citationId}\\s*(\\]|&?#?[a-zA-Z0-9]+;)`,
+        "gi",
       );
 
+      const rawText = c?.text || "";
       const shortText =
-        c.text.replace(/\s+/g, " ").trim().slice(0, 200) + "...";
-      const source = c.metadata.source || "Unknown Source";
-      const page = c.metadata.page_label || c.metadata.page || "n/a";
-      const title =
-        c.metadata.title || c.metadata.source || "Untitled Document";
+        rawText.replace(/\s+/g, " ").trim().slice(0, 200) + "...";
+
+      const metadata = c?.metadata || {};
+      const source = metadata.source || "Unknown Source";
+      const page = metadata.page_label || metadata.page || "n/a";
+      const title = metadata.title || metadata.source || "Untitled Document";
 
       // Escape quotes for use in HTML attributes
       const safeText = shortText.replace(/"/g, "&quot;");
@@ -101,7 +104,7 @@ function showPopover(event) {
 
   arrowLeft = Math.max(
     arrowSize,
-    Math.min(arrowLeft, popoverWidth - arrowSize * 2)
+    Math.min(arrowLeft, popoverWidth - arrowSize * 2),
   );
   arrow.style.left = `${arrowLeft}px`;
 }

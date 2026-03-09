@@ -39,6 +39,7 @@ This is the master index for all project documentation and agent artifacts manag
 - [STORY-013: Performance](./stories/STORY-013-rendering-optimization.md): Requirements for rendering optimization.
 - [STORY-014: Quoting Fix](./stories/STORY-014-leading-quote-fix.md): Requirements for fixing technical artifacts in responses.
 - [STORY-015: Doc Audit](./stories/STORY-015-doc-audit.md): Requirements for documentation synchronization.
+- [STORY-016: List Styling](./stories/STORY-016-list-styling-refinement.md): Improvement of markdown list indentation and nesting.
 
 ### Implementation (Dev)
 - **Sprint 2 Complete**: 3 structural bugs remediated and validated against the new test suite.

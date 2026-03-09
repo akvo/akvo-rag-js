@@ -47,3 +47,64 @@ test("accumulateAssistantText - Direct text (no prefix)", () => {
     "Should handle non-json chunks gracefully",
   );
 });
+
+// Comprehensive edge cases from implementation plan
+test("accumulateAssistantText - Newlines in quoted chunks", () => {
+  let text = "";
+  text = accumulateAssistantText('0:"Line 1\\nLine 2"', text);
+  assert.strictEqual(
+    text,
+    "Line 1\nLine 2",
+    "Should correctly parse newlines in technical quotes",
+  );
+});
+
+test("accumulateAssistantText - Fragmented quotes with newlines", () => {
+  let text = "";
+  text = accumulateAssistantText('0:"Line 1\n', text);
+  assert.strictEqual(
+    text,
+    "Line 1\n",
+    "Should handle starting quote with newline",
+  );
+  text = accumulateAssistantText('Line 2"', text); // No prefix case
+  assert.strictEqual(
+    text,
+    "Line 1\nLine 2",
+    "Should handle fragmented ending quote",
+  );
+});
+
+test("accumulateAssistantText - Emojis", () => {
+  let text = "";
+  text = accumulateAssistantText('0:"Hello 🌍"', text);
+  assert.strictEqual(text, "Hello 🌍", "Should handle emojis correctly");
+});
+
+test("accumulateAssistantText - Empty quoted chunks", () => {
+  let text = "Previous";
+  text = accumulateAssistantText('0:""', text);
+  assert.strictEqual(text, "Previous", "Should handle empty technical quotes");
+});
+
+test("accumulateAssistantText - Large integer prefixes", () => {
+  let text = "";
+  text = accumulateAssistantText('1234:"Long prefix"', text);
+  assert.strictEqual(
+    text,
+    "Long prefix",
+    "Should handle large numerical prefixes",
+  );
+});
+
+test("accumulateAssistantText - Mixed fragments", () => {
+  let text = "";
+  text = accumulateAssistantText('0:"The cost "', text);
+  text = accumulateAssistantText('0:"of living\n"', text);
+  text = accumulateAssistantText('0:"is high."', text);
+  assert.strictEqual(
+    text,
+    "The cost of living\nis high.",
+    "Should correctly stitch complex fragments",
+  );
+});

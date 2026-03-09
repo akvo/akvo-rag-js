@@ -48,11 +48,11 @@ export function accumulateAssistantText(newChunk, currentText = "") {
   // 1. Strip technical prefixes like "0:", "1:", etc. and optional space
   word = word.replace(/^\d+:\s*/, "");
 
-  // 2. Extract content between quotes if present
+  // 2. Extract content between quotes if present (using [^] for dotAll support)
   const match =
-    word.match(/^"(.*)"$/) || // Full quoted string
-    word.match(/^"(.*)$/) || // Starting quote
-    word.match(/(.*)"$/); // Ending quote
+    word.match(/^"([^]*)"$/) || // Full quoted string
+    word.match(/^"([^]*)$/) || // Starting quote
+    word.match(/([^]*)"$/); // Ending quote
 
   if (match) {
     word = match[1];

@@ -59,6 +59,24 @@ test("accumulateAssistantText - Newlines in quoted chunks", () => {
   );
 });
 
+test("accumulateAssistantText - Trailing whitespace in technical segment", () => {
+  let text = "";
+  // The specific bug reported: 0: "word"  (with trailing space)
+  text = accumulateAssistantText('0:"living" ', text);
+  assert.strictEqual(
+    text,
+    "living",
+    "Should strip quotes even with trailing whitespace",
+  );
+
+  text = accumulateAssistantText('0:" income" ', text);
+  assert.strictEqual(
+    text,
+    "living income",
+    "Should ignore trailing whitespace in envelope",
+  );
+});
+
 test("accumulateAssistantText - Fragmented quotes with newlines", () => {
   let text = "";
   text = accumulateAssistantText('0:"Line 1\n', text);
@@ -97,14 +115,16 @@ test("accumulateAssistantText - Large integer prefixes", () => {
   );
 });
 
-test("accumulateAssistantText - Mixed fragments", () => {
+test("accumulateAssistantText - Regression: Quoted response pattern", () => {
   let text = "";
-  text = accumulateAssistantText('0:"The cost "', text);
-  text = accumulateAssistantText('0:"of living\n"', text);
-  text = accumulateAssistantText('0:"is high."', text);
+  // Simulate the exact pattern reported by user: A" living" income"
+  text = accumulateAssistantText('0:"A" ', text);
+  text = accumulateAssistantText('0:" living" ', text);
+  text = accumulateAssistantText('0:" income" ', text);
+
   assert.strictEqual(
     text,
-    "The cost of living\nis high.",
-    "Should correctly stitch complex fragments",
+    "A living income",
+    "Should correctly strip quotes when multiple fragments have trailing space",
   );
 });

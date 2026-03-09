@@ -45,31 +45,38 @@ export function accumulateAssistantText(newChunk, currentText = "") {
 
   let word = newChunk;
 
-  // 1. Strip technical prefixes like "0:", "1:", etc. and optional space
+  // 1. Strip technical numerical prefixes like "0:", "1:", etc.
   word = word.replace(/^\d+:\s*/, "");
 
-  // 2. Extract content between quotes if present (using [^] for dotAll support)
-  const match =
-    word.match(/^"([^]*)"$/) || // Full quoted string
-    word.match(/^"([^]*)$/) || // Starting quote
-    word.match(/([^]*)"$/); // Ending quote
+  // 2. Surgical parse: Find the content between the first and last double quotes
+  const firstQuote = word.indexOf('"');
+  const lastQuote = word.lastIndexOf('"');
 
-  if (match) {
-    word = match[1];
-    // 3. Decode common escapes if it's a raw string part from a JSON field
-    try {
-      word = JSON.parse('"' + word + '"');
-    } catch {
-      // Fallback if the above fails due to complex escaping
+  if (firstQuote !== -1) {
+    if (lastQuote > firstQuote) {
+      // It's a full or multi-line quoted string
+      const interior = word.substring(firstQuote + 1, lastQuote);
       try {
-        word = JSON.parse('"' + word.replace(/"/g, '\\"') + '"');
-      } catch {}
+        // Correctly decode JSON escapes
+        word = JSON.parse('"' + interior + '"');
+      } catch {
+        word = interior;
+      }
+    } else {
+      // Only one quote - likely a fragment boundary
+      // If it's at the start, strip it
+      if (firstQuote === 0) {
+        word = word.substring(1);
+      } else if (firstQuote === word.length - 1) {
+        // If it's at the end, strip it
+        word = word.substring(0, word.length - 1);
+      }
     }
   }
 
   let combined = (currentText || "") + word;
 
-  // 🛡️ Final Guard: Always ensure no technical quotes leak at the very beginning
+  // 🛡️ Final Guard: Always clean leaks at the very beginning of the stream
   return combined.replace(/^"\s*/, "");
 }
 

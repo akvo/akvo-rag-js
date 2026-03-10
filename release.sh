@@ -16,6 +16,12 @@ error_exit() {
 }
 
 # 1. Validation
+
+# 1.1 NPM Auth check
+echo -e "${YELLOW}Checking NPM authentication...${NC}"
+npm whoami > /dev/null 2>&1 || error_exit "You are not logged into NPM. Please run 'npm login' first."
+echo -e "${GREEN}Authenticated as $(npm whoami)${NC}"
+
 CURRENT_BRANCH=$(git branch --show-current)
 if [ "$CURRENT_BRANCH" != "main" ]; then
     error_exit "You must be on the 'main' branch to release. Current branch: $CURRENT_BRANCH"

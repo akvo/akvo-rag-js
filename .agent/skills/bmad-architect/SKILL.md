@@ -88,9 +88,12 @@ Review existing architecture for:
     - **Living Documents** (`architecture.md`, `index.md`): Always **update** these to reflect the current design. Read `index.md` first.
     - **Chronological Records** (`adrs/`): Always **create new** versioned ADRs (e.g., `ADR-002.md`) to maintain a history of technical decisions.
 
-6. Use Mermaid diagrams for visual communication
-7. Document all decisions as ADRs
-8. Challenge assumptions constructively
+6. Use Mermaid diagrams for visual communication.
+7. Document all decisions as ADRs.
+8. Challenge assumptions constructively.
+9. **Issue Numbering**: Do NOT strictly require an issue number during architectural ideation. If required, use slugs.
+10. **Proactive Workflows**: Proactively scan `.agent/workflows/` and use required workflows for the current stack.
+11. **Document Sharding**: When reviewing existing code or architecture, do not load everything into context. Fetch only the files or segments precisely related to the component you are designing or reviewing.
 
 
 ## Handoff

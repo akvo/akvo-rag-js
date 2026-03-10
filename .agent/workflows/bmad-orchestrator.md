@@ -21,8 +21,9 @@ Before starting:
 3. Create an `agent_docs/` directory for artifacts
 4. **Check for existing artifacts** in `agent_docs/`. Explain the distinction between **Living Documents** (`index.md`, `prd.md`, etc., updated to maintain current state) and **Chronological Records** (newly created to preserve history). Always consult `agent_docs/index.md` as the master map.
 
-5. Ask the user: "**Is this a new feature, refinement, refactor, or a general task?**"
-6. Ask if the user wants to run all phases or start from a specific phase
+5. Ask the user: "**Is this a new feature, refinement, refactor, minor bug, or a general task?**"
+6. **Scale-Adaptive Routing**: If the task is a minor bug, minor refactor, or small ticket, immediately switch to the `/bmad-fastpath` workflow. Only proceed with the full 8-agent orchestrator phase below if it is a major feature or architectural change.
+7. Ask if the user wants to run all phases or start from a specific phase (if continuing with the orchestrator).
 
 
 ## Lifecycle Phases

@@ -9,7 +9,8 @@ Improve system stability, performance, and maintainability by remediating issues
 - [x] [STORY-013: Rendering Optimization](./stories/STORY-013-rendering-optimization.md) (Pri: Medium, Est: 3h, Actual: 0.5h)
 - [x] [STORY-014: Quoting & Test Refactor](./stories/STORY-014-leading-quote-fix.md) (Pri: High, Est: 2h, Actual: 2.5h)
 - [x] [STORY-015: Documentation Audit](./stories/STORY-015-doc-audit.md) (Pri: Low, Est: 1h, Actual: 0.5h)
-- [x] [Issue #12: Prevent Hallucinated Citations](./stories/issue-12-hallucinated-citations.md) (Pri: Medium, Est: 1h, Actual: 0.5h)
+- [x] [Issue #12: Prevent Hallucinated Citations](./stories/issue-12-hallucinated-citations.md) (Pri: Medium, Est: 1h, Actual: 1.0h)
+- [x] [Issue #14: WebSocket Stability & Cleanup](./stories/issue-14-websocket-cleanup.md) (Pri: High, Est: 1h, Actual: 0.5h)
 
 ## Sprint Summary
 | Metric | Value |

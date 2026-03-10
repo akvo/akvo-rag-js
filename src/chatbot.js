@@ -6,13 +6,6 @@ import {
 import { replaceCitations } from "./utils/citations-popover.js";
 import { getOrCreateVisitorId } from "./utils/uuid.js";
 
-let wsConnection = null;
-let currentAssistantMsgEl = null;
-let isLoading = false;
-let citations = [];
-let messageCounter = 0;
-let chatHistory = [];
-
 const CHAT_HISTORY_SLICE = -10;
 const DEFAULT_WELCOME_MESSAGE = "Hello! How can I help you today?";
 

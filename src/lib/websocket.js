@@ -7,6 +7,7 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
 
   // Helper to create the WebSocket and set handlers
   function createSocket() {
+    console.log(`[WebSocket] Connecting to: ${options.wsURL}`);
     socket = new WebSocket(options.wsURL);
 
     socket.onopen = () => {
@@ -80,7 +81,7 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
 
     socket.onclose = (event) => {
       console.warn(
-        `WebSocket closed: code=${event.code} reason=${event.reason}`,
+        `[WebSocket] Closed (URL: ${options.wsURL}): code=${event.code} reason=${event.reason || "no reason provided"}`,
       );
 
       if (options.autoReconnect && event.code !== 1000) {
@@ -116,7 +117,7 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
     };
 
     socket.onerror = (event) => {
-      console.error("WebSocket error:", event);
+      console.error(`[WebSocket] Error (URL: ${options.wsURL}):`, event);
       if (options.onError) options.onError(event);
     };
   }

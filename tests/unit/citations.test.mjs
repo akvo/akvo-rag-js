@@ -5,7 +5,7 @@ import { replaceCitations } from "../../src/utils/citations-popover.js";
 test("replaceCitations should handle large citation counts and missing data", async (t) => {
   // Mock element with getter/setter for innerHTML to simulate behavior
   let currentHTML =
-    "The concept of a Living Income [citation:1] [citation:11] [citation:12] [citation:13] [citation:14]";
+    "The concept of a Living Income [citation:1] [citation:11] [citation:12] [citation:0] [citation:13] [citation:99] [citation:14]";
   const el = {
     get innerHTML() {
       return currentHTML;
@@ -57,5 +57,15 @@ test("replaceCitations should handle large citation counts and missing data", as
   assert.ok(
     html.includes('<sup class="citation" data-id="14"'),
     "Citation 14 should be rendered",
+  );
+
+  // Check that hallucinated citations are removed
+  assert.ok(
+    !html.includes("[citation:0]"),
+    "Hallucinated Citation 0 should be stripped",
+  );
+  assert.ok(
+    !html.includes("[citation:99]"),
+    "Hallucinated Citation 99 should be stripped",
   );
 });

@@ -42,6 +42,13 @@ export function replaceCitations(el, citations) {
       html = html.replace(regex, popoverHTML);
     });
 
+    // Strip out any remaining unmatched [citation:X] tags (e.g., hallucinated citations)
+    // We match both raw brackets and HTML entity escaped brackets just in case
+    html = html.replace(
+      /(?:\[|&#91;|&lbrack;)\s*citation:\s*\d+\s*(?:\]|&#93;|&rbrack;)/gi,
+      "",
+    );
+
     el.innerHTML = html;
 
     // Attach event listeners

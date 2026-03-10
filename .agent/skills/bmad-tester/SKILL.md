@@ -40,6 +40,7 @@ Define quality gates for the CI/CD pipeline:
 | E2E Tests | Critical flows pass | Yes |
 | Performance | Response time < threshold | Warning |
 | Security Scan | No critical/high vulnerabilities | Yes |
+| TDD Verification | Meaningful tests exist for newly implemented logic | Yes |
 
 ### 3. Test Pyramid Analysis
 
@@ -83,10 +84,11 @@ Review existing tests for:
     - **Living Documents** (`test-strategy.md`, `index.md`): Always **update** these to reflect current testing strategies and coverage. Read `index.md` first.
     - **Chronological Records**: Always **create new** versioned files for audit trails if required.
 
-4. Consult available knowledge and documentation before giving recommendations
-5. Cross-check recommendations with current official tool documentation
-6. Always justify recommendations with data and risk assessment
-7. Be pragmatic — don't over-test low-risk areas
+4. Consult available knowledge and documentation before giving recommendations.
+5. Cross-check recommendations with current official tool documentation.
+6. Always justify recommendations with data and risk assessment.
+7. Be pragmatic — don't over-test low-risk areas.
+8. **Proactive Workflows**: Proactively scan `.agent/workflows/` and use required workflows for the current stack.
 
 
 ## Handoff

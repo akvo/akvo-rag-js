@@ -5,7 +5,7 @@
 - **Type**: Maintenance / Refactor
 - **Status**: Done
 - **Estimated Effort**: 1
-- **Actual Time**: ~15m
+- **Actual Time**: 1.0h
 
 ## Description
 The WebSocket component currently lacks detailed diagnostic logging during connection failures, making it difficult for developers to troubleshoot environment issues (e.g., incorrect ports). Additionally, `src/chatbot.js` contains legacy module-level variables that shadow class instance properties, which violates clean code principles and increases the risk of bugs.

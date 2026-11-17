@@ -44,8 +44,16 @@ module.exports = {
 			directory: path.join(__dirname, "dist"),
 		},
 		compress: true,
+		host: "0.0.0.0",
 		port: 8080,
 		hot: true,
+		allowedHosts: "all",
+		watchFiles: {
+			paths: ["src/**/*", "public/**/*"],
+			options: {
+				usePolling: process.env.WATCHPACK_POLLING === "true",
+			},
+		},
 	},
 	optimization: {
 		minimize: true,

@@ -155,6 +155,36 @@ We use **Scoped SCSS** to ensure the widget looks consistent regardless of the h
 
 ## 🧱 Development
 
+You can develop natively with Node.js (v18+) or use the standardized **Docker Compose** environment for cross-platform parity across macOS, Linux, and Windows.
+
+---
+
+### Option A: Standardized Docker Setup (Recommended for Cross-Platform)
+
+Zero-prerequisite setup. Perfect for teams working across macOS, Linux, and Windows:
+
+```bash
+# Start development server with live HMR (http://localhost:8080)
+./dc.sh up
+
+# Run test suite inside container
+./dc.sh test
+
+# Build production bundle inside container
+./dc.sh build
+
+# Stop containers
+./dc.sh down
+```
+
+> **Windows Users**: You can run `./dc.sh` in Git Bash / WSL, or invoke native Docker Compose commands:
+> - `docker compose up`
+> - `docker compose run --rm app npm test`
+> - `docker compose run --rm app npm run build`
+
+---
+
+### Option B: Native Node.js Setup
 
 ### Prerequisites
 - Node.js (v18+)

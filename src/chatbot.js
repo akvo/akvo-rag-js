@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import { connectWebSocket } from "./lib/websocket.js";
 import {
   appendMessageToBody,
@@ -15,6 +16,14 @@ const DEFAULT_WELCOME_MESSAGE = "Hello! How can I help you today?";
 export class AkvoRagChatbox {
   constructor(options = {}) {
     this.options = options;
+    this.showLauncher =
+      this.options.showLauncher !== undefined
+        ? Boolean(this.options.showLauncher)
+        : true;
+    this.isMinimized =
+      this.options.startMinimized !== undefined
+        ? Boolean(this.options.startMinimized)
+        : true;
     this.wsConnection = null;
     this.currentAssistantMsgEl = null;
     this.isLoading = false;
@@ -23,6 +32,7 @@ export class AkvoRagChatbox {
     this.chatHistory = [];
     this.visitorId = getOrCreateVisitorId();
     this.container = null;
+    this.launcher = null;
 
     this._onMessage = this._onMessage.bind(this);
     this._handleSend = this._handleSend.bind(this);
@@ -36,12 +46,21 @@ export class AkvoRagChatbox {
    */
   init() {
     this.container = document.getElementById("akvo-rag");
+    this.launcher = document.getElementById("akvo-rag-launcher");
+
     if (this.container) {
-      this.container.classList.remove("minimized");
-      const btn = this.container.querySelector("#akvo-rag-close-btn");
-      if (btn)
-        btn.innerHTML = `<i class="fa fa-window-minimize" aria-hidden="true"></i>`;
+      if (this.showLauncher && this.isMinimized) {
+        this.close();
+      } else {
+        this.open();
+      }
       return;
+    }
+
+    if (this.showLauncher) {
+      this._createLauncher();
+    } else {
+      this.launcher = null;
     }
 
     this._createUI();
@@ -63,15 +82,176 @@ export class AkvoRagChatbox {
       this.container.remove();
       this.container = null;
     }
+    if (this.launcher) {
+      this.launcher.remove();
+      this.launcher = null;
+    }
+  }
+
+  /**
+   * Opens / expands the chatbox and hides the launcher.
+   */
+  open() {
+    this.isMinimized = false;
+    if (this.container) {
+      if (this.container.style) this.container.style.display = "flex";
+      this.container.classList?.remove("minimized");
+    }
+    if (this.launcher) {
+      if (this.launcher.style) this.launcher.style.display = "none";
+    }
+  }
+
+  /**
+   * Closes / minimizes the chatbox and restores the launcher.
+   */
+  close() {
+    this.isMinimized = true;
+    if (this.container) {
+      if (this.showLauncher) {
+        if (this.container.style) this.container.style.display = "none";
+      } else {
+        this.container.classList?.toggle("minimized");
+      }
+      this.container.classList?.add("minimized");
+    }
+    if (this.launcher) {
+      if (this.launcher.style) this.launcher.style.display = "flex";
+    }
+  }
+
+  /**
+   * Alias for close.
+   */
+  minimize() {
+    this.close();
+  }
+
+  _isValidCssColor(color) {
+    if (!color || typeof color !== "string") return false;
+    const trimmed = color.trim();
+    if (/^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(trimmed)) {
+      return true;
+    }
+    if (/^(?:rgb|hsl)a?\(\s*[\d.%\s,/-]+\s*\)$/i.test(trimmed)) {
+      return true;
+    }
+    const safeNamed =
+      /^(?:teal|blue|green|red|purple|indigo|slate|gray|black|white|transparent)$/i;
+    return safeNamed.test(trimmed);
+  }
+
+  _sanitizeHtml(content, options) {
+    if (typeof DOMPurify?.sanitize === "function") {
+      return DOMPurify.sanitize(content, options);
+    }
+    if (typeof DOMPurify === "function") {
+      try {
+        const instance = DOMPurify(globalThis.window || globalThis);
+        if (typeof instance?.sanitize === "function") {
+          return instance.sanitize(content, options);
+        }
+      } catch {
+        // fallback
+      }
+    }
+    return String(content)
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+      .replace(/on\w+="[^"]*"/gi, "")
+      .replace(/on\w+='[^']*'/gi, "");
+  }
+
+  _renderIcon(iconProp, defaultIconHtml = "") {
+    if (!iconProp) {
+      return defaultIconHtml;
+    }
+
+    const trimmed = String(iconProp).trim();
+
+    // 1. Inline SVG
+    if (trimmed.startsWith("<svg") || trimmed.includes("<svg")) {
+      return this._sanitizeHtml(trimmed, {
+        USE_PROFILES: { svg: true, svgFilters: true },
+      });
+    }
+
+    // 2. Image URL (http, https, data:image, relative path, or common image extensions)
+    const isUrl =
+      /^(https?:\/\/|data:image\/|\/|\.\/)/i.test(trimmed) ||
+      /\.(svg|png|jpe?g|webp|gif)(\?.*)?$/i.test(trimmed);
+
+    if (isUrl) {
+      const safeSrc = this._sanitizeHtml(trimmed);
+      return `<img src="${safeSrc}" alt="icon" class="akvo-icon-img" />`;
+    }
+
+    // 3. CSS / FontAwesome class string
+    const safeClass = this._sanitizeHtml(trimmed);
+    return `<i class="${safeClass}" aria-hidden="true"></i>`;
+  }
+
+  _createLauncher() {
+    this.launcher = document.createElement("button");
+    this.launcher.id = "akvo-rag-launcher";
+    this.launcher.className = "akvo-rag-launcher";
+    if (typeof this.launcher.setAttribute === "function") {
+      this.launcher.setAttribute("type", "button");
+      this.launcher.setAttribute("aria-label", "Open chat");
+    }
+
+    const defaultIcon = `<i class="fa fa-comments" aria-hidden="true"></i>`;
+    this.launcher.innerHTML = this._renderIcon(
+      this.options.launcherIcon,
+      defaultIcon,
+    );
+
+    if (this.launcher.style) {
+      if (
+        this._isValidCssColor(this.options.primaryColor) &&
+        typeof this.launcher.style.setProperty === "function"
+      ) {
+        this.launcher.style.setProperty(
+          "--akvo-primary",
+          this.options.primaryColor.trim(),
+        );
+      }
+      this.launcher.style.display = this.isMinimized ? "flex" : "none";
+    }
+
+    if (document.body && typeof document.body.appendChild === "function") {
+      document.body.appendChild(this.launcher);
+    }
   }
 
   _createUI() {
     this.container = document.createElement("div");
     this.container.id = "akvo-rag";
+
+    if (this.container.style) {
+      if (
+        this._isValidCssColor(this.options.primaryColor) &&
+        typeof this.container.style.setProperty === "function"
+      ) {
+        this.container.style.setProperty(
+          "--akvo-primary",
+          this.options.primaryColor.trim(),
+        );
+      }
+      this.container.style.display =
+        this.showLauncher && this.isMinimized ? "none" : "flex";
+    }
+
+    const headerIconHtml = this.options.headerIcon
+      ? `<span class="akvo-header-icon">${this._renderIcon(this.options.headerIcon, "")}</span>`
+      : "";
+
     this.container.innerHTML = `
       <div id="akvo-rag-header">
-        ${this.options.title || "Chatbot"}
-        <button id="akvo-rag-close-btn" class="akvo-rag-close-btn">
+        <div class="akvo-header-title">
+          ${headerIconHtml}
+          <span>${this.options.title || "Chatbot"}</span>
+        </div>
+        <button id="akvo-rag-close-btn" class="akvo-rag-close-btn" aria-label="Minimize chat">
           <i class="fa fa-window-minimize" aria-hidden="true"></i>
         </button>
       </div>
@@ -126,19 +306,33 @@ export class AkvoRagChatbox {
   }
 
   _bindEvents() {
-    const header = this.container.querySelector("#akvo-rag-header");
-    const closeBtn = this.container.querySelector("#akvo-rag-close-btn");
+    const header = this.container?.querySelector("#akvo-rag-header");
+    const closeBtn = this.container?.querySelector("#akvo-rag-close-btn");
 
-    closeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.container.classList.toggle("minimized");
-    });
+    if (this.launcher && typeof this.launcher.addEventListener === "function") {
+      this.launcher.addEventListener("click", () => {
+        this.open();
+      });
+    }
 
-    header.addEventListener("click", () => {
-      if (this.container.classList.contains("minimized")) {
-        this.container.classList.remove("minimized");
-      }
-    });
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (this.showLauncher) {
+          this.close();
+        } else {
+          this.container?.classList?.toggle("minimized");
+        }
+      });
+    }
+
+    if (header) {
+      header.addEventListener("click", () => {
+        if (this.isMinimized) {
+          this.open();
+        }
+      });
+    }
 
     if (!this.options.kb_id && this.options.kb_options?.length) {
       const startBtn = this.container.querySelector("#akvo-start-chat-btn");

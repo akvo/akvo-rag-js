@@ -19,8 +19,14 @@ if (!globalThis.crypto) {
 globalThis.document = {
   getElementById: () => null,
   createElement: (tag) => ({
-    id: "",
+    addEventListener: () => {},
+    removeEventListener: () => {},
     innerHTML: "",
+    setAttribute: () => {},
+    style: {
+      setProperty: () => {},
+      display: "",
+    },
     appendChild: () => {},
     querySelector: () => ({
       addEventListener: () => {},

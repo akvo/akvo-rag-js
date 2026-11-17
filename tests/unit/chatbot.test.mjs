@@ -7,9 +7,14 @@ globalThis.localStorage = {
   setItem: () => {},
 };
 
-globalThis.crypto = {
-  randomUUID: () => "1234-5678",
-};
+if (!globalThis.crypto) {
+  Object.defineProperty(globalThis, "crypto", {
+    value: { randomUUID: () => "1234-5678" },
+    configurable: true,
+  });
+} else if (!globalThis.crypto.randomUUID) {
+  globalThis.crypto.randomUUID = () => "1234-5678";
+}
 
 globalThis.document = {
   getElementById: () => null,

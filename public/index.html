@@ -1,835 +1,855 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>akvo-rag-js SDK Workbench</title>
-    <link rel="stylesheet" href="/akvo-rag.css" />
-    <script src="/akvo-rag.js"></script>
-    <style>
-      :root {
-        --surface-ground: #f8fafc;
-        --surface-panel: #ffffff;
-        --surface-subtle: #f1f5f9;
-        --surface-highlight: #e2e8f0;
-        --border-subtle: #e2e8f0;
-        --border-default: #cbd5e1;
-        --border-accent: #007A78;
-        --text-headline: #0f172a;
-        --text-body: #334155;
-        --text-muted: #64748b;
-        --text-dim: #94a3b8;
-        --brand-teal: #007A78;
-        --brand-akvo: #007bff;
-        --brand-emerald: #059669;
-        --brand-amber: #d97706;
-        --brand-slate: #475569;
-        --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-      }
-
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        background-color: var(--surface-ground);
-        color: var(--text-body);
-        font-family: var(--font-sans);
-        line-height: 1.5;
-        padding: 40px 24px;
-        min-height: 100vh;
-        -webkit-font-smoothing: antialiased;
-      }
-
-      .workbench-container {
-        max-width: 1120px;
-        margin: 0 auto;
-      }
-
-      /* Top Navigation / Metadata Header */
-      .workbench-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 16px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid var(--border-subtle);
-        margin-bottom: 28px;
-        flex-wrap: wrap;
-      }
-
-      .title-group h1 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--text-headline);
-        letter-spacing: -0.02em;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .title-group p {
-        color: var(--text-muted);
-        font-size: 0.875rem;
-        margin-top: 4px;
-      }
-
-      .meta-tags {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .tag {
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        font-weight: 500;
-        padding: 3px 8px;
-        border-radius: 4px;
-        border: 1px solid var(--border-subtle);
-        color: var(--text-muted);
-        background: #ffffff;
-      }
-
-      .tag-accent {
-        color: #007A78;
-        border-color: rgba(0, 122, 120, 0.25);
-        background: rgba(0, 122, 120, 0.08);
-      }
-
-      /* Two Column Split Workbench */
-      .workbench-grid {
-        display: grid;
-        grid-template-columns: 440px 1fr;
-        gap: 24px;
-        align-items: start;
-      }
-
-      @media (max-width: 960px) {
-        .workbench-grid {
-          grid-template-columns: 1fr;
+<!DOCTYPE html>
+<html class="h-full bg-[#FAFAFA] text-[#09090B]" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>akvo-rag-js / Workbench - Integration Playground</title>
+  <!-- BEGIN: External Fonts & Tailwind Setup -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Akvo RAG SDK Bundle Assets -->
+  <link rel="stylesheet" href="/akvo-rag.css" />
+  <script src="/akvo-rag.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Geist', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              teal: '#007A78',
+              'teal-dark': '#005D5B',
+              'teal-light': '#E6F3F2',
+            },
+            surface: {
+              DEFAULT: '#FFFFFF',
+              muted: '#F4F4F5',
+              subtle: '#FAFAFA',
+              dark: '#111113',
+            },
+            border: {
+              DEFAULT: '#E4E4E7',
+              strong: '#D4D4D8',
+              subtle: '#F0F0F2',
+            }
+          },
+          boxShadow: {
+            'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            'card': '0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.03)',
+            'elevation': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04)',
+            'fab': '0 8px 24px -4px rgba(0, 122, 120, 0.35)',
+          }
         }
       }
-
-      .panel {
-        background: var(--surface-panel);
-        border: 1px solid var(--border-subtle);
-        border-radius: 10px;
-        padding: 24px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
-      }
-
-      .panel-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-bottom: 14px;
-        margin-bottom: 20px;
-        border-bottom: 1px solid var(--border-subtle);
-      }
-
-      .panel-header h2 {
-        font-size: 0.875rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-headline);
-      }
-
-      .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-family: var(--font-mono);
-        font-size: 0.725rem;
-        color: #059669;
-        font-weight: 600;
-      }
-
-      .status-indicator {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: #10b981;
-        box-shadow: 0 0 4px rgba(16, 185, 129, 0.5);
-      }
-
-      /* Field Controls */
-      .field {
-        margin-bottom: 20px;
-      }
-
-      .field-label {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: #475569;
-        margin-bottom: 8px;
-      }
-
-      .field-label code {
-        font-family: var(--font-mono);
-        font-size: 0.7rem;
-        color: #64748b;
-        text-transform: none;
-      }
-
-      /* Segmented Toggle Control */
-      .segmented {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        background: #f1f5f9;
-        padding: 3px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        gap: 3px;
-      }
-
-      .segmented button {
-        background: transparent;
-        border: none;
-        color: #64748b;
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 500;
-        padding: 7px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 120ms cubic-bezier(0.16, 1, 0.3, 1);
-      }
-
-      .segmented button:hover {
-        color: var(--text-headline);
-      }
-
-      .segmented button.active {
-        background: #ffffff;
-        color: #0f172a;
-        font-weight: 600;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-      }
-
-      .segmented button:active {
-        transform: scale(0.98);
-      }
-
-      /* Swatches & Color Picker */
-      .swatches-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .swatch {
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
-        border: 2px solid transparent;
-        cursor: pointer;
-        transition: all 120ms ease;
-        position: relative;
-      }
-
-      .swatch:hover {
-        transform: translateY(-1px);
-      }
-
-      .swatch.active {
-        border-color: #0f172a;
-        box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #0f172a;
-      }
-
-      .swatch:active {
-        transform: scale(0.95);
-      }
-
-      .custom-color-wrap {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-left: auto;
-      }
-
-      input[type="color"] {
-        -webkit-appearance: none;
-        border: 1px solid #cbd5e1;
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
-        cursor: pointer;
-        background: none;
-        padding: 0;
-      }
-
-      input[type="color"]::-webkit-color-swatch-wrapper {
-        padding: 0;
-      }
-
-      input[type="color"]::-webkit-color-swatch {
-        border: none;
-        border-radius: 4px;
-      }
-
-      /* Text Inputs & Selects */
-      input[type="text"], select {
-        width: 100%;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        color: #0f172a;
-        font-family: var(--font-sans);
-        font-size: 0.875rem;
-        padding: 8px 12px;
-        border-radius: 6px;
-        outline: none;
-        transition: border-color 120ms ease, box-shadow 120ms ease;
-      }
-
-      input[type="text"]:focus, select:focus {
-        border-color: var(--brand-teal);
-        box-shadow: 0 0 0 3px rgba(0, 122, 120, 0.12);
-      }
-
-      select {
-        cursor: pointer;
-      }
-
-      .field-hint {
-        font-size: 0.75rem;
-        color: #64748b;
-        margin-top: 5px;
-        line-height: 1.4;
-      }
-
-      /* Action Buttons */
-      .actions-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 24px;
-        padding-top: 18px;
-        border-top: 1px solid var(--border-subtle);
-      }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 14px;
-        font-family: var(--font-sans);
-        font-size: 0.8125rem;
-        font-weight: 600;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 100ms cubic-bezier(0.16, 1, 0.3, 1);
-        border: 1px solid transparent;
-      }
-
-      .btn-brand {
-        background: var(--brand-teal);
-        color: #ffffff;
-        grid-column: span 2;
-      }
-
-      .btn-brand:hover {
-        filter: brightness(0.92);
-      }
-
-      .btn-brand:active {
-        transform: scale(0.98);
-        filter: brightness(0.88);
-      }
-
-      .btn-ghost {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
-        color: #1e293b;
-      }
-
-      .btn-ghost:hover {
-        background: #e2e8f0;
-      }
-
-      .btn-ghost:active {
-        transform: scale(0.98);
-      }
-
-      /* Code Snippet Box */
-      .code-container {
-        position: relative;
-        background: #0f172a;
-        border: 1px solid #1e293b;
-        border-radius: 8px;
-        overflow: hidden;
-      }
-
-      .code-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 12px;
-        background: #1e293b;
-        border-bottom: 1px solid #334155;
-        font-family: var(--font-mono);
-        font-size: 0.725rem;
-        color: #94a3b8;
-      }
-
-      .btn-copy {
-        background: #334155;
-        border: 1px solid #475569;
-        color: #f8fafc;
-        font-family: var(--font-mono);
-        font-size: 0.7rem;
-        padding: 3px 8px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 100ms ease;
-      }
-
-      .btn-copy:hover {
-        background: #475569;
-      }
-
-      .btn-copy:active {
-        transform: scale(0.96);
-      }
-
-      pre.code-block {
-        margin: 0;
-        padding: 14px 16px;
-        font-family: var(--font-mono);
-        font-size: 0.8125rem;
-        color: #f8fafc;
-        line-height: 1.55;
-        overflow-x: auto;
-      }
-
-      /* Runtime Inspector Details */
-      .inspector-card {
-        margin-top: 16px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 14px;
-      }
-
-      .inspector-card h3 {
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #475569;
-        margin-bottom: 8px;
-      }
-
-      .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-      }
-
-      .metric-cell {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 6px;
-        padding: 8px 10px;
-      }
-
-      .metric-label {
-        font-size: 0.7rem;
-        color: #64748b;
-        font-weight: 500;
-      }
-
-      .metric-val {
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #0f172a;
-        margin-top: 2px;
-      }
-        transform: scale(0.96);
-      }
-
-      pre.code-block {
-        margin: 0;
-        padding: 14px 16px;
-        font-family: var(--font-mono);
-        font-size: 0.8125rem;
-        color: #e2e8f0;
-        line-height: 1.55;
-        overflow-x: auto;
-      }
-
-      /* Runtime Inspector Details */
-      .inspector-card {
-        margin-top: 16px;
-        background: var(--surface-subtle);
-        border: 1px solid var(--border-subtle);
-        border-radius: 6px;
-        padding: 14px;
-      }
-
-      .inspector-card h3 {
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--text-muted);
-        margin-bottom: 8px;
-      }
-
-      .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-      }
-
-      .metric-cell {
-        background: var(--surface-ground);
-        border: 1px solid var(--border-subtle);
-        border-radius: 4px;
-        padding: 8px;
-      }
-
-      .metric-label {
-        font-size: 0.7rem;
-        color: var(--text-dim);
-      }
-
-      .metric-val {
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        color: var(--text-headline);
-        margin-top: 2px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="workbench-container">
-      <!-- Header -->
-      <header class="workbench-header">
-        <div class="title-group">
-          <h1>akvo-rag-js <span style="font-weight: 400; color: var(--text-dim);">/</span> Workbench</h1>
-          <p>Interactive integration harness for floating launcher, dynamic CSS custom property theming, and custom icon rendering.</p>
+    }
+  </script>
+  <!-- END: External Fonts & Tailwind Setup -->
+  <!-- BEGIN: Custom Micro-Styles -->
+  <style data-purpose="custom-scrollbars">
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D4D4D8;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #A1A1AA;
+    }
+  </style>
+  <style data-purpose="code-syntax-tokens">
+    .tok-kw   { color: #F43F5E; } /* pink-500 keywords */
+    .tok-fn   { color: #38BDF8; } /* sky-400 function names */
+    .tok-str  { color: #34D399; } /* emerald-400 strings */
+    .tok-prop { color: #E2E8F0; } /* slate-200 properties */
+    .tok-bool { color: #F59E0B; } /* amber-500 booleans */
+    .tok-num  { color: #A78BFA; } /* violet-400 numbers */
+    .tok-com  { color: #64748B; font-style: italic; } /* slate-500 comments */
+    .tok-punc { color: #94A3B8; } /* slate-400 punctuation */
+  </style>
+  <!-- END: Custom Micro-Styles -->
+</head>
+<body class="min-h-screen bg-[#F8F9FA] text-[#09090B] font-sans antialiased selection:bg-[#007A78]/15 selection:text-[#005D5B]">
+  <!-- BEGIN: AppHeader -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-border" data-purpose="top-navigation-bar">
+    <div class="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
+      <!-- Brand & Breadcrumbs -->
+      <div class="flex items-center gap-3">
+        <!-- Minimal Package Icon -->
+        <div class="w-8 h-8 rounded-lg bg-neutral-900 text-white flex items-center justify-center font-mono font-bold text-xs tracking-wider border border-neutral-700 shadow-sm">
+          AR
         </div>
-        <div class="meta-tags">
-          <span class="tag tag-accent">v1.2.4</span>
-          <span class="tag">UMD + ESM</span>
-          <span class="tag">Node 18+</span>
+        <nav aria-label="Breadcrumb" class="flex items-center space-x-2 text-sm">
+          <a class="font-semibold text-neutral-900 hover:text-black tracking-tight font-mono" href="#">akvo-rag-js</a>
+          <span class="text-neutral-400">/</span>
+          <span class="font-medium text-neutral-600">Workbench</span>
+        </nav>
+        <!-- Version & Environment Badges -->
+        <div class="hidden sm:flex items-center gap-1.5 ml-2">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+            v1.2.4
+          </span>
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono text-neutral-500 bg-neutral-100 border border-neutral-200">
+            UMD + ESM
+          </span>
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono text-neutral-500 bg-neutral-100 border border-neutral-200">
+            Node 18+
+          </span>
         </div>
-      </header>
+      </div>
+      <!-- Header Secondary Actions -->
+      <div class="flex items-center gap-2">
+        <a class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors" href="https://github.com/akvo/akvo-rag-js#readme" target="_blank" rel="noopener noreferrer">
+          <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+            <path d="M6 6h10"></path>
+            <path d="M6 10h10"></path>
+          </svg>
+          Docs
+        </a>
+        <a class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors" href="https://github.com/akvo/akvo-rag-js" target="_blank" rel="noopener noreferrer">
+          <svg class="w-4 h-4 text-neutral-400" fill="currentColor" viewbox="0 0 24 24">
+            <path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+          </svg>
+          Repository
+        </a>
+        <div class="h-4 w-[1px] bg-neutral-200 mx-1"></div>
+        <button id="btnResetConfig" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-neutral-700 bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 rounded-md transition-all shadow-xs" type="button">
+          <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          Reset
+        </button>
+      </div>
+    </div>
+  </header>
+  <!-- END: AppHeader -->
 
-      <!-- Split View -->
-      <div class="workbench-grid">
-        <!-- Configuration Panel -->
-        <div class="panel">
-          <div class="panel-header">
-            <h2>Configuration Inspector</h2>
-            <div class="status-pill">
-              <span class="status-indicator"></span>
-              <span id="runtimeStatus">Mounted (Active)</span>
-            </div>
-          </div>
-
-          <!-- Display Mode -->
-          <div class="field">
-            <div class="field-label">
-              <span>Display Mode</span>
-              <code>options.showLauncher</code>
-            </div>
-            <div class="segmented" id="modeControl">
-              <button type="button" class="active" data-val="true">Circular FAB (Modern)</button>
-              <button type="button" data-val="false">Embedded Box (Legacy)</button>
-            </div>
-            <div class="field-hint">Circular FAB renders a 56x56px button at bottom-right. Embedded Box mounts the 360x500 box directly.</div>
-          </div>
-
-          <!-- Start State -->
-          <div class="field" id="startStateField">
-            <div class="field-label">
-              <span>Initial Mount State</span>
-              <code>options.startMinimized</code>
-            </div>
-            <div class="segmented" id="startStateControl">
-              <button type="button" class="active" data-val="true">startMinimized: true</button>
-              <button type="button" data-val="false">startMinimized: false</button>
-            </div>
-            <div class="field-hint">When true, the chatbox starts collapsed into the floating launcher icon.</div>
-          </div>
-
-          <!-- Color Token -->
-          <div class="field">
-            <div class="field-label">
-              <span>Theme Token</span>
-              <code>--akvo-primary</code>
-            </div>
-            <div class="swatches-row">
-              <button type="button" class="swatch active" style="background: #007A78;" data-color="#007A78" title="Teal"></button>
-              <button type="button" class="swatch" style="background: #007bff;" data-color="#007bff" title="Akvo Blue"></button>
-              <button type="button" class="swatch" style="background: #059669;" data-color="#059669" title="Emerald"></button>
-              <button type="button" class="swatch" style="background: #d97706;" data-color="#d97706" title="Amber"></button>
-              <button type="button" class="swatch" style="background: #475569;" data-color="#475569" title="Slate"></button>
-              <div class="custom-color-wrap">
-                <input type="color" id="colorPicker" value="#007A78" />
-                <input type="text" id="colorText" value="#007A78" style="width: 82px; font-family: var(--font-mono); font-size: 0.775rem; padding: 5px 8px;" />
-              </div>
-            </div>
-            <div class="field-hint">Harmonizes the launcher bubble, chat header, send button, and citation links.</div>
-          </div>
-
-          <!-- Launcher Icon -->
-          <div class="field" id="launcherIconField">
-            <div class="field-label">
-              <span>Launcher Icon</span>
-              <code>options.launcherIcon</code>
-            </div>
-            <select id="launcherIconSelect">
-              <option value="default">Default Comment Bubble</option>
-              <option value="svg-sparkle">Custom SVG String (Sparkle AI)</option>
-              <option value="avatar-img">Image URL (message-circle.svg)</option>
-              <option value="fa-life-ring">FontAwesome Class (fa fa-life-ring)</option>
-            </select>
-            <div class="field-hint">Supports inline SVG (DOMPurified), HTTP/HTTPS/data URLs, or CSS classes.</div>
-          </div>
-
-          <!-- Header Icon & Title -->
-          <div class="field">
-            <div class="field-label">
-              <span>Chat Header Title</span>
-              <code>options.title</code>
-            </div>
-            <input type="text" id="titleInput" value="Akvo Assistant" />
-          </div>
-
-          <div class="field">
-            <div class="field-label">
-              <span>Header Avatar Icon</span>
-              <code>options.headerIcon</code>
-            </div>
-            <select id="headerIconSelect">
-              <option value="logo">Logo Icon (URL)</option>
-              <option value="svg">SVG Bot Avatar</option>
-              <option value="none">None (Title only)</option>
-            </select>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="actions-grid">
-            <button type="button" class="btn btn-brand" id="reapplyBtn">Apply Configuration</button>
-            <button type="button" class="btn btn-ghost" onclick="window.chatInstance?.open()">Trigger Open</button>
-            <button type="button" class="btn btn-ghost" onclick="window.chatInstance?.close()">Trigger Minimize</button>
-          </div>
-        </div>
-
-        <!-- Integration Code Panel -->
-        <div class="panel">
-          <div class="panel-header">
-            <h2>Integration Output</h2>
-            <span class="tag">Ready to deploy</span>
-          </div>
-
-          <div class="code-container">
-            <div class="code-header">
-              <span>consumption_snippet.js</span>
-              <button type="button" class="btn-copy" id="copySnippetBtn">Copy</button>
-            </div>
-            <pre class="code-block"><code id="codeOutput"></code></pre>
-          </div>
-
-          <!-- Runtime Inspector Metrics -->
-          <div class="inspector-card">
-            <h3>DOM State & Diagnostic Metrics</h3>
-            <div class="metrics-grid">
-              <div class="metric-cell">
-                <div class="metric-label">Launcher Element</div>
-                <div class="metric-val" id="metricLauncher">#akvo-rag-launcher</div>
-              </div>
-              <div class="metric-cell">
-                <div class="metric-label">Chatbox Display</div>
-                <div class="metric-val" id="metricDisplay">display: none</div>
-              </div>
-              <div class="metric-cell">
-                <div class="metric-label">Token Inheritance</div>
-                <div class="metric-val" id="metricToken">#007A78</div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- BEGIN: MainContent -->
+  <main class="max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 py-7" data-purpose="workbench-workspace">
+    <!-- Playground Context Bar -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-neutral-900 flex items-center gap-2">
+          RAG Integration Harness
+          <span class="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Mounted &amp; Active
+          </span>
+        </h1>
+        <p class="text-xs text-neutral-500 mt-1 max-w-2xl leading-relaxed">
+          Interactive client-side harness for testing launcher positioning, runtime CSS custom properties, reactive DOM lifecycle hooks, and tokenized chatbox embedding.
+        </p>
+      </div>
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-2 self-start md:self-auto">
+        <span class="text-xs font-mono text-neutral-400">Target: DOM-Window</span>
+        <button class="text-xs font-medium px-2.5 py-1.5 bg-white border border-neutral-200 rounded-md text-neutral-700 hover:bg-neutral-50 shadow-xs flex items-center gap-1.5" id="togglePreviewViewBtn" type="button">
+          <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+            <rect height="18" rx="2" width="18" x="3" y="3"></rect>
+            <path d="M9 3v18"></path>
+          </svg>
+          Layout View
+        </button>
       </div>
     </div>
 
-    <script>
-      const PRESETS = {
-        svgSparkle: `<svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`,
-        svgBot: `<svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M12 2a2 2 0 0 1 2 2v1h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h1V4a2 2 0 0 1 2-2zm-3 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-6 5a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H9z"/></svg>`,
-        imgAvatar: "https://raw.githubusercontent.com/feathericons/feather/master/icons/message-circle.svg",
-        headerLogo: "https://raw.githubusercontent.com/feathericons/feather/master/icons/help-circle.svg"
-      };
+    <!-- 2-Column Split Workspace -->
+    <div id="workspaceGrid" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- BEGIN: LeftPanel (Configuration Inspector) -->
+      <section class="lg:col-span-5 bg-white border border-border rounded-xl shadow-card flex flex-col overflow-hidden" data-purpose="configuration-inspector">
+        <!-- Inspector Card Header -->
+        <div class="px-5 py-3.5 border-b border-border bg-neutral-50/50 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <h2 class="text-xs font-semibold tracking-wider uppercase text-neutral-800 font-mono">Configuration Inspector</h2>
+          </div>
+          <span class="text-[11px] font-mono text-neutral-400">client_options</span>
+        </div>
 
-      let config = {
+        <!-- Scrollable Config Form Body -->
+        <div class="p-5 space-y-6 divide-y divide-neutral-100 max-h-[calc(100vh-210px)] overflow-y-auto">
+          <!-- Control Group 1: Display Mode -->
+          <div class="space-y-3 pt-1">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700">Display Mode</label>
+              <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">options.showLauncher</code>
+            </div>
+            <!-- Segmented Pill Control -->
+            <div class="grid grid-cols-2 p-1 bg-neutral-100/90 border border-neutral-200/80 rounded-lg gap-1" role="radiogroup">
+              <button aria-checked="true" class="px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 font-sans flex items-center justify-center gap-1.5" id="btnDisplayFab" type="button">
+                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Circular FAB <span class="text-[10px] text-neutral-400">(Modern)</span>
+              </button>
+              <button aria-checked="false" class="px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all font-sans flex items-center justify-center gap-1.5" id="btnDisplayEmbedded" type="button">
+                Embedded Box <span class="text-[10px] text-neutral-400">(Legacy)</span>
+              </button>
+            </div>
+            <p class="text-[11px] text-neutral-500 leading-normal">
+              Circular FAB renders a persistent 56×56px floating trigger at the viewport edge. Embedded mounts a direct 360×500px container inside host markup.
+            </p>
+          </div>
+
+          <!-- Control Group 2: Initial Mount State -->
+          <div id="startStateContainer" class="space-y-3 pt-5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700">Initial Mount State</label>
+              <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">options.startMinimized</code>
+            </div>
+            <div class="grid grid-cols-2 p-1 bg-neutral-100/90 border border-neutral-200/80 rounded-lg gap-1">
+              <button class="px-3 py-1.5 text-xs font-mono font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5" id="btnMountMinTrue" type="button">
+                startMinimized: true
+              </button>
+              <button class="px-3 py-1.5 text-xs font-mono font-medium rounded-md text-neutral-500 hover:text-neutral-900 transition-all" id="btnMountMinFalse" type="button">
+                startMinimized: false
+              </button>
+            </div>
+            <p class="text-[11px] text-neutral-500 leading-normal">
+              When true, the chat engine mounts with the discreet launcher bubble; clicking expands the chat. When false, the full chatbox renders open immediately.
+            </p>
+          </div>
+
+          <!-- Control Group 3: Theme Token Palette -->
+          <div class="space-y-3 pt-5" data-purpose="theme-token-selector">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700">Theme Token</label>
+              <code class="text-[11px] font-mono text-teal-700 bg-teal-50 border border-teal-200/50 px-1.5 py-0.5 rounded">--akvo-primary</code>
+            </div>
+            <!-- Color Swatches & Custom Picker -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <!-- Swatch 1: Teal (Default) -->
+              <button class="theme-swatch group relative w-8 h-8 rounded-lg bg-[#007A78] flex items-center justify-center ring-2 ring-neutral-900 ring-offset-2 transition-transform active:scale-95" data-color="#007A78" title="Default Teal (#007A78)" type="button">
+                <svg class="w-4 h-4 text-white check-icon" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <!-- Swatch 2: Royal Blue -->
+              <button class="theme-swatch w-8 h-8 rounded-lg bg-[#0284C7] flex items-center justify-center ring-1 ring-black/10 hover:ring-2 hover:ring-neutral-400 ring-offset-1 transition-transform active:scale-95" data-color="#0284C7" title="Cyan 600 (#0284C7)" type="button">
+                <svg class="w-4 h-4 text-white check-icon hidden" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <!-- Swatch 3: Forest Green -->
+              <button class="theme-swatch w-8 h-8 rounded-lg bg-[#059669] flex items-center justify-center ring-1 ring-black/10 hover:ring-2 hover:ring-neutral-400 ring-offset-1 transition-transform active:scale-95" data-color="#059669" title="Emerald 600 (#059669)" type="button">
+                <svg class="w-4 h-4 text-white check-icon hidden" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <!-- Swatch 4: Warm Amber -->
+              <button class="theme-swatch w-8 h-8 rounded-lg bg-[#D97706] flex items-center justify-center ring-1 ring-black/10 hover:ring-2 hover:ring-neutral-400 ring-offset-1 transition-transform active:scale-95" data-color="#D97706" title="Amber 600 (#D97706)" type="button">
+                <svg class="w-4 h-4 text-white check-icon hidden" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <!-- Swatch 5: Slate Navy -->
+              <button class="theme-swatch w-8 h-8 rounded-lg bg-[#475569] flex items-center justify-center ring-1 ring-black/10 hover:ring-2 hover:ring-neutral-400 ring-offset-1 transition-transform active:scale-95" data-color="#475569" title="Slate 600 (#475569)" type="button">
+                <svg class="w-4 h-4 text-white check-icon hidden" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <!-- Swatch 6: Deep Black -->
+              <button class="theme-swatch w-8 h-8 rounded-lg bg-[#09090B] flex items-center justify-center ring-1 ring-black/10 hover:ring-2 hover:ring-neutral-400 ring-offset-1 transition-transform active:scale-95" data-color="#09090B" title="Zinc 950 (#09090B)" type="button">
+                <svg class="w-4 h-4 text-white check-icon hidden" fill="none" stroke="currentColor" stroke-width="3" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </button>
+              <!-- Color Hex Input -->
+              <div class="ml-auto flex items-center border border-neutral-300 rounded-lg overflow-hidden focus-within:border-neutral-800 transition-colors bg-white">
+                <input class="w-7 h-7 p-0 border-0 cursor-pointer ml-1" id="nativeColorInput" type="color" value="#007A78"/>
+                <span class="text-xs font-mono text-neutral-400 pl-1">#</span>
+                <input class="w-20 border-0 text-xs font-mono py-1 px-1 text-neutral-800 uppercase focus:ring-0" id="hexTextInput" maxlength="6" type="text" value="007A78"/>
+              </div>
+            </div>
+            <p class="text-[11px] text-neutral-500 leading-normal">
+              Dynamically cascades into FAB backdrop, active citations, inline copy-action highlights, and send button state.
+            </p>
+          </div>
+
+          <!-- Control Group 4: Launcher Icon -->
+          <div id="launcherIconContainer" class="space-y-2 pt-5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700" for="selectLauncherIcon">Launcher Icon</label>
+              <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">options.launcherIcon</code>
+            </div>
+            <div class="relative">
+              <select class="w-full text-xs font-medium rounded-lg border-neutral-300 py-2 pl-3 pr-8 text-neutral-800 bg-white hover:border-neutral-400 focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900" id="selectLauncherIcon">
+                <option selected="" value="bubble">Default Comment Bubble (FontAwesome)</option>
+                <option value="sparkle">Sparkle AI Intelligence (Inline SVG)</option>
+                <option value="robot">Assistant Bot Silhouette (Inline SVG)</option>
+                <option value="custom_url">External Asset URL (CDN image)</option>
+              </select>
+            </div>
+            <p class="text-[11px] text-neutral-400">Supports DOMPurified SVG markup, image URLs (.svg/.png), or CSS icon classes.</p>
+          </div>
+
+          <!-- Control Group 5: Chat Header Title & Avatar -->
+          <div class="space-y-4 pt-5">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700" for="inputHeaderTitle">Chat Header Title</label>
+                <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">options.title</code>
+              </div>
+              <input class="w-full text-xs font-mono rounded-lg border-neutral-300 py-2 px-3 text-neutral-900 focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900" id="inputHeaderTitle" type="text" value="Akvo Assistant"/>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700" for="selectHeaderAvatar">Header Avatar Icon</label>
+                <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">options.headerIcon</code>
+              </div>
+              <select class="w-full text-xs font-medium rounded-lg border-neutral-300 py-2 pl-3 pr-8 text-neutral-800 bg-white hover:border-neutral-400 focus:border-neutral-900" id="selectHeaderAvatar">
+                <option selected="" value="none">None (Title Only)</option>
+                <option value="bot">Default Verified Bot Badge (SVG)</option>
+                <option value="custom_url">Custom Team Avatar (Image URL)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Bar / Footer Buttons -->
+        <div class="p-4 bg-neutral-50/80 border-t border-border mt-auto flex flex-col gap-2.5">
+          <button class="w-full py-2.5 px-4 rounded-lg bg-[#007A78] hover:bg-[#005D5B] text-white text-xs font-semibold tracking-wide transition-all shadow-subtle flex items-center justify-center gap-2 active:scale-[0.99]" id="btnApplyConfig" type="button">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Apply Configuration to Session
+          </button>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="py-2 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-100 border border-neutral-300 rounded-lg transition-colors flex items-center justify-center gap-1.5" id="btnTriggerOpen" type="button">
+              <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg>
+              Trigger Open
+            </button>
+            <button class="py-2 px-3 text-xs font-medium text-neutral-700 bg-white hover:bg-neutral-100 border border-neutral-300 rounded-lg transition-colors flex items-center justify-center gap-1.5" id="btnTriggerMinimize" type="button">
+              <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4 14h6v6"></path><path d="M20 10h-6V4"></path><path d="M14 10l7-7"></path><path d="M3 21l7-7"></path></svg>
+              Trigger Minimize
+            </button>
+          </div>
+        </div>
+      </section>
+      <!-- END: LeftPanel (Configuration Inspector) -->
+
+      <!-- BEGIN: RightPanel (Integration Output & Runtime Diagnostics) -->
+      <section class="lg:col-span-7 space-y-6 flex flex-col" data-purpose="output-telemetry-panel">
+        <!-- Output Code Card -->
+        <div class="bg-surface-dark rounded-xl border border-neutral-800 shadow-card overflow-hidden">
+          <!-- Code Card Toolbar -->
+          <div class="px-4 py-3 bg-[#18181B] border-b border-neutral-800/80 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5 mr-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-neutral-700"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-neutral-700"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-neutral-700"></span>
+              </div>
+              <!-- Tab Controls -->
+              <div class="flex items-center space-x-1" role="tablist">
+                <button class="px-2.5 py-1 text-xs font-mono rounded bg-neutral-800 text-white font-medium" type="button">consumption_snippet.js</button>
+                <button class="px-2.5 py-1 text-xs font-mono rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50" type="button">index.html</button>
+                <button class="px-2.5 py-1 text-xs font-mono rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50" type="button">React (Hook)</button>
+              </div>
+            </div>
+            <!-- Status Indicator & Copy Action -->
+            <div class="flex items-center gap-3">
+              <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-emerald-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                Ready to deploy
+              </span>
+              <button class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono text-neutral-300 hover:text-white bg-neutral-800 hover:bg-neutral-700 rounded border border-neutral-700 transition-colors" id="copyCodeBtn" type="button">
+                <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+                  <rect height="14" rx="2" ry="2" width="14" x="8" y="8"></rect>
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                </svg>
+                <span id="copyBtnLabel">Copy</span>
+              </button>
+            </div>
+          </div>
+          <!-- Code View Area -->
+          <div class="p-4 sm:p-5 overflow-x-auto text-[13px] font-mono leading-relaxed select-all">
+            <pre class="text-neutral-300"><code><span class="tok-com">// Host Web Application Integration</span>
+<span class="tok-kw">import</span> { <span class="tok-fn">initChat</span> } <span class="tok-kw">from</span> <span class="tok-str">"akvo-rag-js"</span>;
+<span class="tok-kw">import</span> <span class="tok-str">"akvo-rag-js/dist/akvo-rag.css"</span>;
+
+<span class="tok-kw">const</span> <span class="tok-prop">chat</span> = <span class="tok-fn">initChat</span>({
+  <span class="tok-prop">title</span>: <span class="tok-str" id="codePropTitle">"Akvo Assistant"</span>,
+  <span class="tok-prop">primaryColor</span>: <span class="tok-str" id="codePropColor">"#007A78"</span>,
+  <span class="tok-prop">showLauncher</span>: <span class="tok-bool" id="codePropShowLauncher">true</span>,
+  <span class="tok-prop">startMinimized</span>: <span class="tok-bool" id="codePropStartMinimized">true</span>,
+  <span class="tok-prop">launcherIcon</span>: <span class="tok-bool" id="codePropLauncherIcon">null</span>,
+  <span class="tok-prop">headerIcon</span>: <span class="tok-bool" id="codePropHeaderIcon">null</span>,
+  <span class="tok-prop">kb_options</span>: [
+    {
+      <span class="tok-prop">"kb_id"</span>: <span class="tok-num">746</span>,
+      <span class="tok-prop">"label"</span>: <span class="tok-str">"Online Knowledge Base"</span>
+    }
+  ]
+});</code></pre>
+          </div>
+          <div class="px-4 py-2 bg-[#0E0E10] border-t border-neutral-800 text-[11px] font-mono text-neutral-500 flex justify-between">
+            <span>Bundle cost: ~12.4 kB gzipped</span>
+            <span>UTF-8 | LF</span>
+          </div>
+        </div>
+
+        <!-- Runtime DOM & Diagnostics Telemetry -->
+        <div class="bg-white rounded-xl border border-border shadow-card overflow-hidden" data-purpose="diagnostic-metrics">
+          <div class="px-5 py-3 border-b border-border bg-neutral-50/50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg>
+              <h3 class="text-xs font-semibold tracking-wider uppercase text-neutral-800 font-mono">DOM State &amp; Diagnostic Metrics</h3>
+            </div>
+            <span class="text-[11px] font-mono text-neutral-400">MutationObserver active</span>
+          </div>
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Metric 1 -->
+            <div class="p-3.5 rounded-lg border border-neutral-200/90 bg-neutral-50/40">
+              <div class="text-[11px] font-mono uppercase text-neutral-500 font-medium">Launcher Element</div>
+              <div class="text-sm font-semibold font-mono text-neutral-900 mt-1 flex items-center gap-1.5" id="metricLauncher">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Visible (56px FAB)
+              </div>
+              <span class="text-[10px] text-neutral-400 block mt-0.5">Fixed z-index: 99998</span>
+            </div>
+            <!-- Metric 2 -->
+            <div class="p-3.5 rounded-lg border border-neutral-200/90 bg-neutral-50/40">
+              <div class="text-[11px] font-mono uppercase text-neutral-500 font-medium">Chatbox Display</div>
+              <div class="text-sm font-semibold font-mono text-neutral-900 mt-1" id="metricChatbox">
+                none (Collapsed)
+              </div>
+              <span class="text-[10px] text-neutral-400 block mt-0.5">Hydrated &amp; Collapsed</span>
+            </div>
+            <!-- Metric 3 -->
+            <div class="p-3.5 rounded-lg border border-neutral-200/90 bg-neutral-50/40">
+              <div class="text-[11px] font-mono uppercase text-neutral-500 font-medium">Token Inheritance</div>
+              <div class="text-sm font-semibold font-mono text-neutral-900 mt-1 flex items-center gap-1.5" id="metricToken">
+                <span class="w-3 h-3 rounded bg-[#007A78]" id="metricColorDot"></span>
+                <span id="metricTokenHex">#007A78</span>
+              </div>
+              <span class="text-[10px] text-neutral-400 block mt-0.5">Applied via --akvo-primary</span>
+            </div>
+          </div>
+          <!-- Event Log Minimal Feed -->
+          <div class="px-5 py-3 border-t border-neutral-100 bg-neutral-50/20 text-xs text-neutral-500 flex items-center justify-between">
+            <span class="font-mono text-[11px] flex items-center gap-1.5">
+              <span class="text-neutral-400">Recent Event:</span>
+              <span id="recentEventText" class="text-neutral-700 bg-neutral-100 px-1.5 py-0.5 rounded font-mono">chat:ready (t+0ms)</span>
+            </span>
+            <span class="text-[11px] font-mono text-teal-700">Live Client Connected</span>
+          </div>
+        </div>
+      </section>
+      <!-- END: RightPanel (Integration Output & Runtime Diagnostics) -->
+    </div>
+  </main>
+  <!-- END: MainContent -->
+
+  <!-- BEGIN: InteractiveBehaviorScript -->
+  <script data-purpose="workbench-interactivity">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Configuration State
+      const config = {
+        title: "Akvo Assistant",
+        primaryColor: "#007A78",
         showLauncher: true,
         startMinimized: true,
-        primaryColor: "#007A78",
-        title: "Akvo Assistant",
-        launcherIconType: "default",
-        headerIconType: "logo"
+        launcherIconType: "bubble",
+        headerIconType: "none",
+        kb_options: [{ "kb_id": 746, "label": "Online Knowledge Base" }]
       };
 
+      const ICONS = {
+        launcher: {
+          bubble: null,
+          sparkle: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>',
+          robot: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>',
+          custom_url: 'https://api.iconify.design/lucide:bot.svg'
+        },
+        header: {
+          none: null,
+          bot: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>',
+          custom_url: 'https://api.iconify.design/lucide:sparkles.svg'
+        }
+      };
+
+      // UI References
+      const nativeColorInput = document.getElementById('nativeColorInput');
+      const hexTextInput = document.getElementById('hexTextInput');
+      const swatches = document.querySelectorAll('.theme-swatch');
+
+      const codePropColor = document.getElementById('codePropColor');
+      const codePropTitle = document.getElementById('codePropTitle');
+      const codePropShowLauncher = document.getElementById('codePropShowLauncher');
+      const codePropStartMinimized = document.getElementById('codePropStartMinimized');
+      const codePropLauncherIcon = document.getElementById('codePropLauncherIcon');
+      const codePropHeaderIcon = document.getElementById('codePropHeaderIcon');
+
+      const metricTokenHex = document.getElementById('metricTokenHex');
+      const metricColorDot = document.getElementById('metricColorDot');
+      const metricChatbox = document.getElementById('metricChatbox');
+      const metricLauncher = document.getElementById('metricLauncher');
+      const recentEventText = document.getElementById('recentEventText');
+
+      const inputHeaderTitle = document.getElementById('inputHeaderTitle');
+      const selectLauncherIcon = document.getElementById('selectLauncherIcon');
+      const selectHeaderAvatar = document.getElementById('selectHeaderAvatar');
+
+      const btnApplyConfig = document.getElementById('btnApplyConfig');
+      const btnTriggerOpen = document.getElementById('btnTriggerOpen');
+      const btnTriggerMinimize = document.getElementById('btnTriggerMinimize');
+      const btnResetConfig = document.getElementById('btnResetConfig');
+      const copyCodeBtn = document.getElementById('copyCodeBtn');
+      const copyBtnLabel = document.getElementById('copyBtnLabel');
+
+      const btnDisplayFab = document.getElementById('btnDisplayFab');
+      const btnDisplayEmbedded = document.getElementById('btnDisplayEmbedded');
+      const btnMountMinTrue = document.getElementById('btnMountMinTrue');
+      const btnMountMinFalse = document.getElementById('btnMountMinFalse');
+      const startStateContainer = document.getElementById('startStateContainer');
+      const launcherIconContainer = document.getElementById('launcherIconContainer');
+
+      function logEvent(name) {
+        if (recentEventText) {
+          const t = new Date().toLocaleTimeString();
+          recentEventText.textContent = `${name} (${t})`;
+        }
+      }
+
       function resolveOptions() {
-        let launcherIcon = null;
-        if (config.launcherIconType === "svg-sparkle") launcherIcon = PRESETS.svgSparkle;
-        else if (config.launcherIconType === "avatar-img") launcherIcon = PRESETS.imgAvatar;
-        else if (config.launcherIconType === "fa-life-ring") launcherIcon = "fa fa-life-ring";
-
-        let headerIcon = null;
-        if (config.headerIconType === "logo") headerIcon = PRESETS.headerLogo;
-        else if (config.headerIconType === "svg") headerIcon = PRESETS.svgBot;
-
         return {
           title: config.title,
           primaryColor: config.primaryColor,
           showLauncher: config.showLauncher,
           startMinimized: config.startMinimized,
-          launcherIcon: launcherIcon,
-          headerIcon: headerIcon,
-          kb_options: [
-            { kb_id: 746, label: "Online MCP Implementation" },
-          ]
+          launcherIcon: ICONS.launcher[config.launcherIconType] || null,
+          headerIcon: ICONS.header[config.headerIconType] || null,
+          kb_options: config.kb_options
         };
       }
 
-      function updateCodeBlock(opts) {
-        const cleanOpts = { ...opts };
-        if (cleanOpts.launcherIcon && cleanOpts.launcherIcon.startsWith("<svg")) {
-          cleanOpts.launcherIcon = "<svg viewBox='0 0 24 24'>...</svg>";
+      function updateCodeSnippet(opts) {
+        if (codePropTitle) codePropTitle.textContent = `"${opts.title}"`;
+        if (codePropColor) codePropColor.textContent = `"${opts.primaryColor}"`;
+        if (codePropShowLauncher) codePropShowLauncher.textContent = opts.showLauncher ? 'true' : 'false';
+        if (codePropStartMinimized) codePropStartMinimized.textContent = opts.startMinimized ? 'true' : 'false';
+        if (codePropLauncherIcon) {
+          if (!opts.launcherIcon) {
+            codePropLauncherIcon.textContent = 'null';
+          } else if (opts.launcherIcon.startsWith('<svg')) {
+            codePropLauncherIcon.textContent = '"<svg ... />"';
+          } else {
+            codePropLauncherIcon.textContent = `"${opts.launcherIcon}"`;
+          }
         }
-        if (cleanOpts.headerIcon && cleanOpts.headerIcon.startsWith("<svg")) {
-          cleanOpts.headerIcon = "<svg viewBox='0 0 24 24'>...</svg>";
+        if (codePropHeaderIcon) {
+          if (!opts.headerIcon) {
+            codePropHeaderIcon.textContent = 'null';
+          } else if (opts.headerIcon.startsWith('<svg')) {
+            codePropHeaderIcon.textContent = '"<svg ... />"';
+          } else {
+            codePropHeaderIcon.textContent = `"${opts.headerIcon}"`;
+          }
         }
-
-        const snippet = `// Host Web Application Integration
-import { initChat } from "akvo-rag-js";
-import "akvo-rag-js/dist/akvo-rag.css";
-
-const chat = initChat(${JSON.stringify(cleanOpts, null, 2)});`;
-
-        document.getElementById("codeOutput").textContent = snippet;
       }
 
-      function updateDiagnostics(opts) {
-        const launcherEl = document.getElementById("akvo-rag-launcher");
-        const chatboxEl = document.getElementById("akvo-rag");
+      function updateTelemetry() {
+        const launcher = document.getElementById('akvo-rag-launcher');
+        const chatbox = document.getElementById('akvo-rag');
 
-        document.getElementById("metricLauncher").textContent = opts.showLauncher
-          ? (launcherEl ? "Visible (56px)" : "Pending")
-          : "Disabled (null)";
-        
-        document.getElementById("metricDisplay").textContent = chatboxEl
-          ? (chatboxEl.style.display || "default")
-          : "Unmounted";
+        if (metricLauncher) {
+          if (!config.showLauncher) {
+            metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400"></span> Disabled (Inline Embed)`;
+          } else if (launcher) {
+            const isVisible = window.getComputedStyle(launcher).display !== 'none';
+            if (isVisible) {
+              metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Visible (56px FAB)`;
+            } else {
+              metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Hidden (Chat Open)`;
+            }
+          } else {
+            metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400"></span> Pending Init...`;
+          }
+        }
 
-        document.getElementById("metricToken").textContent = opts.primaryColor || "#007A78";
+        if (metricChatbox) {
+          if (chatbox) {
+            const isVisible = window.getComputedStyle(chatbox).display !== 'none';
+            if (isVisible) {
+              metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span> flex (Active)`;
+              metricChatbox.className = "text-sm font-semibold font-mono text-emerald-700 mt-1";
+            } else {
+              metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400 inline-block mr-1"></span> none (Collapsed)`;
+              metricChatbox.className = "text-sm font-semibold font-mono text-neutral-600 mt-1";
+            }
+          } else {
+            metricChatbox.textContent = 'Unmounted';
+            metricChatbox.className = "text-sm font-semibold font-mono text-neutral-400 mt-1";
+          }
+        }
+
+        if (metricTokenHex) {
+          metricTokenHex.textContent = config.primaryColor;
+        }
+        if (metricColorDot) {
+          metricColorDot.style.backgroundColor = config.primaryColor;
+        }
       }
 
       function mount() {
         if (window.chatInstance) {
-          window.chatInstance.destroy();
+          try {
+            window.chatInstance.destroy();
+          } catch (e) {
+            console.warn("Destroy instance:", e);
+          }
           window.chatInstance = null;
         }
 
         const opts = resolveOptions();
-        updateCodeBlock(opts);
-        window.chatInstance = AkvoRAG.initChat(opts);
+        updateCodeSnippet(opts);
 
-        setTimeout(() => updateDiagnostics(opts), 50);
+        const Rag = window.AkvoRAG || (typeof AkvoRAG !== 'undefined' ? AkvoRAG : null);
+        if (Rag && typeof Rag.initChat === 'function') {
+          window.chatInstance = Rag.initChat(opts);
+          logEvent("widget:mounted");
+        } else {
+          console.warn("AkvoRAG is not available on window yet.");
+        }
+
+        setTimeout(updateTelemetry, 60);
       }
 
-      // Event Handlers
-      document.querySelectorAll("#modeControl button").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll("#modeControl button").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          config.showLauncher = btn.getAttribute("data-val") === "true";
-          document.getElementById("startStateField").style.display = config.showLauncher ? "block" : "none";
-          document.getElementById("launcherIconField").style.display = config.showLauncher ? "block" : "none";
+      // Safe retry for initial script loading
+      function ensureMount(retries = 10) {
+        const Rag = window.AkvoRAG || (typeof AkvoRAG !== 'undefined' ? AkvoRAG : null);
+        if (Rag && typeof Rag.initChat === 'function') {
           mount();
+        } else if (retries > 0) {
+          setTimeout(() => ensureMount(retries - 1), 100);
+        }
+      }
+
+      // Update Theme Color
+      function applyThemeColor(color, remount = true) {
+        config.primaryColor = color;
+        nativeColorInput.value = color;
+        hexTextInput.value = color.replace('#', '').toUpperCase();
+
+        swatches.forEach(sw => {
+          const swColor = sw.getAttribute('data-color');
+          const checkIcon = sw.querySelector('.check-icon');
+          if (swColor && swColor.toLowerCase() === color.toLowerCase()) {
+            sw.classList.add('ring-2', 'ring-neutral-900', 'ring-offset-2');
+            sw.classList.remove('ring-1', 'ring-black/10');
+            if (checkIcon) checkIcon.classList.remove('hidden');
+          } else {
+            sw.classList.remove('ring-2', 'ring-neutral-900', 'ring-offset-2');
+            sw.classList.add('ring-1', 'ring-black/10');
+            if (checkIcon) checkIcon.classList.add('hidden');
+          }
+        });
+
+        // Fast update runtime CSS variables without tearing down the DOM tree
+        const container = document.getElementById('akvo-rag');
+        const launcher = document.getElementById('akvo-rag-launcher');
+        if (container && container.style) container.style.setProperty('--akvo-primary', color);
+        if (launcher && launcher.style) launcher.style.setProperty('--akvo-primary', color);
+
+        updateCodeSnippet(resolveOptions());
+        updateTelemetry();
+
+        if (remount) {
+          mount();
+        }
+        logEvent(`theme:${color}`);
+      }
+
+      // Swatch Click Listeners
+      swatches.forEach(swatch => {
+        swatch.addEventListener('click', () => {
+          const col = swatch.getAttribute('data-color');
+          if (col) applyThemeColor(col, true);
         });
       });
 
-      document.querySelectorAll("#startStateControl button").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll("#startStateControl button").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          config.startMinimized = btn.getAttribute("data-val") === "true";
-          mount();
-        });
+      // Custom Color Inputs (live 60fps CSS property preview on input, full sync on change)
+      nativeColorInput.addEventListener('input', (e) => {
+        applyThemeColor(e.target.value, false);
+      });
+      nativeColorInput.addEventListener('change', (e) => {
+        applyThemeColor(e.target.value, true);
       });
 
-      document.querySelectorAll(".swatch").forEach(swatch => {
-        swatch.addEventListener("click", () => {
-          document.querySelectorAll(".swatch").forEach(s => s.classList.remove("active"));
-          swatch.classList.add("active");
-          const c = swatch.getAttribute("data-color");
-          config.primaryColor = c;
-          document.getElementById("colorPicker").value = c;
-          document.getElementById("colorText").value = c;
-          mount();
-        });
+      hexTextInput.addEventListener('change', (e) => {
+        let val = e.target.value.trim();
+        if (!val.startsWith('#')) val = '#' + val;
+        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+          applyThemeColor(val, true);
+        }
       });
 
-      document.getElementById("colorPicker").addEventListener("input", (e) => {
-        const c = e.target.value;
-        config.primaryColor = c;
-        document.getElementById("colorText").value = c;
-        document.querySelectorAll(".swatch").forEach(s => s.classList.remove("active"));
+      // Header Title Change
+      inputHeaderTitle.addEventListener('change', (e) => {
+        const val = e.target.value.trim() || "Akvo Assistant";
+        config.title = val;
         mount();
+        logEvent("title:updated");
+      });
+      inputHeaderTitle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const val = e.target.value.trim() || "Akvo Assistant";
+          config.title = val;
+          mount();
+          logEvent("title:updated");
+        }
       });
 
-      document.getElementById("colorText").addEventListener("change", (e) => {
-        const c = e.target.value.trim();
-        config.primaryColor = c;
-        document.getElementById("colorPicker").value = c;
-        mount();
-      });
-
-      document.getElementById("launcherIconSelect").addEventListener("change", (e) => {
+      // Launcher Icon Dropdown
+      selectLauncherIcon.addEventListener('change', (e) => {
         config.launcherIconType = e.target.value;
         mount();
+        logEvent(`icon:launcher_${config.launcherIconType}`);
       });
 
-      document.getElementById("headerIconSelect").addEventListener("change", (e) => {
+      // Header Avatar Dropdown
+      selectHeaderAvatar.addEventListener('change', (e) => {
         config.headerIconType = e.target.value;
         mount();
+        logEvent(`icon:header_${config.headerIconType}`);
       });
 
-      document.getElementById("titleInput").addEventListener("input", (e) => {
-        config.title = e.target.value;
+      // Programmatic Open & Minimize
+      btnTriggerOpen.addEventListener('click', () => {
+        if (window.chatInstance && typeof window.chatInstance.open === 'function') {
+          window.chatInstance.open();
+          logEvent("widget:opened");
+          updateTelemetry();
+        }
       });
 
-      document.getElementById("reapplyBtn").addEventListener("click", () => {
+      btnTriggerMinimize.addEventListener('click', () => {
+        if (window.chatInstance && typeof window.chatInstance.minimize === 'function') {
+          window.chatInstance.minimize();
+          logEvent("widget:minimized");
+          updateTelemetry();
+        }
+      });
+
+      // Display Mode Toggle
+      btnDisplayFab.addEventListener('click', () => {
+        config.showLauncher = true;
+        btnDisplayFab.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5';
+        btnDisplayEmbedded.className = 'px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5';
+        if (startStateContainer) startStateContainer.style.display = 'block';
+        if (launcherIconContainer) launcherIconContainer.style.display = 'block';
         mount();
+        logEvent("mode:circular_fab");
       });
 
-      document.getElementById("copySnippetBtn").addEventListener("click", () => {
-        const text = document.getElementById("codeOutput").textContent;
-        navigator.clipboard.writeText(text).then(() => {
-          const btn = document.getElementById("copySnippetBtn");
-          btn.textContent = "Copied!";
-          setTimeout(() => { btn.textContent = "Copy"; }, 1800);
+      btnDisplayEmbedded.addEventListener('click', () => {
+        config.showLauncher = false;
+        btnDisplayEmbedded.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5';
+        btnDisplayFab.className = 'px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5';
+        if (startStateContainer) startStateContainer.style.display = 'none';
+        if (launcherIconContainer) launcherIconContainer.style.display = 'none';
+        mount();
+        logEvent("mode:embedded_box");
+      });
+
+      // Mount State Toggle
+      btnMountMinTrue.addEventListener('click', () => {
+        config.startMinimized = true;
+        btnMountMinTrue.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5';
+        btnMountMinFalse.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-md text-neutral-500 hover:text-neutral-900 transition-all';
+        mount();
+        logEvent("state:minimized_true");
+      });
+
+      btnMountMinFalse.addEventListener('click', () => {
+        config.startMinimized = false;
+        btnMountMinFalse.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5';
+        btnMountMinTrue.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-md text-neutral-500 hover:text-neutral-900 transition-all';
+        mount();
+        logEvent("state:minimized_false");
+      });
+
+      // Apply Config Feedback
+      btnApplyConfig.addEventListener('click', () => {
+        config.title = inputHeaderTitle.value.trim() || "Akvo Assistant";
+        btnApplyConfig.innerHTML = `<svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Reloading Engine...`;
+        setTimeout(() => {
+          mount();
+          btnApplyConfig.innerHTML = `<svg class="w-4 h-4 text-emerald-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Configuration Synced`;
+          setTimeout(() => {
+            btnApplyConfig.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Apply Configuration to Session`;
+          }, 1400);
+        }, 300);
+      });
+
+      // Reset Defaults
+      if (btnResetConfig) {
+        btnResetConfig.addEventListener('click', () => {
+          config.title = "Akvo Assistant";
+          config.primaryColor = "#007A78";
+          config.showLauncher = true;
+          config.startMinimized = true;
+          config.launcherIconType = "bubble";
+          config.headerIconType = "none";
+
+          inputHeaderTitle.value = config.title;
+          selectLauncherIcon.value = "bubble";
+          selectHeaderAvatar.value = "none";
+          btnDisplayFab.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5';
+          btnDisplayEmbedded.className = 'px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5';
+          btnMountMinTrue.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5';
+          btnMountMinFalse.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-md text-neutral-500 hover:text-neutral-900 transition-all';
+          if (startStateContainer) startStateContainer.style.display = 'block';
+          if (launcherIconContainer) launcherIconContainer.style.display = 'block';
+
+          applyThemeColor("#007A78");
+          logEvent("config:reset_defaults");
         });
+      }
+
+      // Copy Code Snippet
+      copyCodeBtn.addEventListener('click', () => {
+        const opts = resolveOptions();
+        const codeText = `import { initChat } from "akvo-rag-js";\nimport "akvo-rag-js/dist/akvo-rag.css";\n\nconst chat = initChat(${JSON.stringify(opts, null, 2)});`;
+        navigator.clipboard.writeText(codeText).then(() => {
+          copyBtnLabel.textContent = 'Copied!';
+          setTimeout(() => {
+            copyBtnLabel.textContent = 'Copy';
+          }, 1800);
+        });
+      });
+
+      // Layout View Toggle
+      const togglePreviewViewBtn = document.getElementById('togglePreviewViewBtn');
+      const workspaceGrid = document.getElementById('workspaceGrid');
+      if (togglePreviewViewBtn && workspaceGrid) {
+        let isStacked = false;
+        togglePreviewViewBtn.addEventListener('click', () => {
+          isStacked = !isStacked;
+          if (isStacked) {
+            workspaceGrid.classList.remove('lg:grid-cols-12');
+            workspaceGrid.classList.add('grid-cols-1');
+          } else {
+            workspaceGrid.classList.remove('grid-cols-1');
+            workspaceGrid.classList.add('lg:grid-cols-12');
+          }
+          logEvent(isStacked ? "layout:stacked" : "layout:split");
+        });
+      }
+
+      // Reactively update telemetry when widget elements are clicked
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('#akvo-rag-launcher') || e.target.closest('#akvo-rag-close-btn')) {
+          setTimeout(updateTelemetry, 50);
+        }
       });
 
       // Initial Mount
-      mount();
-    </script>
-  </body>
+      ensureMount();
+    });
+  </script>
+  <!-- END: InteractiveBehaviorScript -->
+</body>
 </html>

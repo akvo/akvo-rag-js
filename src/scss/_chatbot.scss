@@ -17,7 +17,7 @@
 }
 
 .citation {
-  color: v.$primary-color;
+  color: var(--akvo-primary, v.$primary-color);
 }
 
 .citation-popover {
@@ -114,6 +114,7 @@
 }
 
 #akvo-rag {
+  --akvo-primary: #{v.$primary-color};
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -130,7 +131,7 @@
   transition: all 0.3s ease;
 
   &-header {
-    background-color: v.$primary-color;
+    background-color: var(--akvo-primary, v.$primary-color);
     color: white;
     padding: 12px 16px;
     font-size: 16px;
@@ -140,6 +141,36 @@
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
+
+    .akvo-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .akvo-header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+
+      img.akvo-icon-img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: contain;
+      }
+
+      i.fa {
+        margin-right: 0;
+        font-size: 18px;
+      }
+    }
 
     i.fa {
       margin-right: 8px;
@@ -204,15 +235,15 @@
     button {
       margin-left: 8px;
       padding: 8px 16px;
-      background-color: v.$primary-color;
+      background-color: var(--akvo-primary, v.$primary-color);
       color: white;
       border: none;
       border-radius: 20px;
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      transition: background-color 0.2s ease, filter 0.2s ease;
 
       &:hover {
-        background-color: color.scale(v.$primary-color, $lightness: -10%);
+        filter: brightness(0.9);
       }
     }
   }
@@ -390,17 +421,17 @@
   .akvo-start-chat-btn {
     width: 100%;
     padding: 8px 16px;
-    background-color: v.$primary-color;
+    background-color: var(--akvo-primary, v.$primary-color);
     color: #ffffff;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, filter 0.2s ease;
 
-    &:hover {
-      background-color: color.scale(v.$primary-color, $lightness: -10%);
+    &:hover:not(:disabled) {
+      filter: brightness(0.9);
     }
 
     &:disabled {
@@ -409,5 +440,54 @@
       cursor: not-allowed;
       opacity: 0.6;
     }
+  }
+}
+
+#akvo-rag-launcher {
+  --akvo-primary: #{v.$primary-color};
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--akvo-primary, v.$primary-color);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  z-index: 99998;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    filter: brightness(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+  }
+
+  img.akvo-icon-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+
+  i.fa {
+    font-size: 24px;
+    color: white;
   }
 }

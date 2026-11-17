@@ -267,10 +267,10 @@
             </p>
           </div>
 
-          <!-- Control Group 4: Launcher Icon -->
-          <div id="launcherIconContainer" class="space-y-2 pt-5">
+          <!-- Control Group 4: Launcher Icon & Size -->
+          <div id="launcherIconContainer" class="space-y-3 pt-5">
             <div class="flex items-center justify-between">
-              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700" for="selectLauncherIcon">Launcher Icon</label>
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700" for="selectLauncherIcon">Launcher Icon & Size</label>
               <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">options.launcherIcon</code>
             </div>
             <div class="relative">
@@ -281,7 +281,18 @@
                 <option value="custom_url">External Asset URL (CDN image)</option>
               </select>
             </div>
-            <p class="text-[11px] text-neutral-400">Supports DOMPurified SVG markup, image URLs (.svg/.png), or CSS icon classes.</p>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] font-medium text-neutral-600" for="selectLauncherSize">Button Size (FAB)</label>
+                <code class="text-[10px] font-mono text-neutral-400">options.launcherSize</code>
+              </div>
+              <select class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-2 text-neutral-800 bg-white hover:border-neutral-400 focus:border-neutral-900" id="selectLauncherSize">
+                <option value="48px">48×48px (Compact)</option>
+                <option selected value="56px">56×56px (Standard FAB)</option>
+                <option value="64px">64×64px (Large)</option>
+              </select>
+            </div>
+            <p class="text-[11px] text-neutral-400">Supports DOMPurified SVG markup, image URLs (.svg/.png), and custom button dimensions.</p>
           </div>
 
           <!-- Control Group 5: Chat Header Title & Avatar -->
@@ -303,6 +314,107 @@
                 <option value="bot">Default Verified Bot Badge (SVG)</option>
                 <option value="custom_url">Custom Team Avatar (Image URL)</option>
               </select>
+            </div>
+          </div>
+
+          <!-- Control Group 6: Dimensions & Position -->
+          <div class="space-y-4 pt-5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700">Position & Dimensions</label>
+              <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">position / size</code>
+            </div>
+            <!-- Position Switcher -->
+            <div class="grid grid-cols-2 p-1 bg-neutral-100/90 border border-neutral-200/80 rounded-lg gap-1">
+              <button class="px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1" id="btnPosRight" type="button">
+                Bottom Right
+              </button>
+              <button class="px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1" id="btnPosLeft" type="button">
+                Bottom Left
+              </button>
+            </div>
+            <!-- Width & Height Selectors -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-medium text-neutral-600 mb-1" for="selectWidth">Width</label>
+                <select class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-2 text-neutral-800 bg-white hover:border-neutral-400 focus:border-neutral-900" id="selectWidth">
+                  <option value="320px">320px (Compact)</option>
+                  <option selected value="360px">360px (Standard)</option>
+                  <option value="400px">400px (Medium)</option>
+                  <option value="460px">460px (Wide)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-medium text-neutral-600 mb-1" for="selectHeight">Height</label>
+                <select class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-2 text-neutral-800 bg-white hover:border-neutral-400 focus:border-neutral-900" id="selectHeight">
+                  <option value="460px">460px (Short)</option>
+                  <option selected value="500px">500px (Standard)</option>
+                  <option value="580px">580px (Tall)</option>
+                  <option value="660px">660px (Expanded)</option>
+                </select>
+              </div>
+            </div>
+            <!-- Border Radius -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] font-medium text-neutral-600" for="selectRadius">Corner Radius</label>
+                <code class="text-[10px] font-mono text-neutral-400">options.borderRadius</code>
+              </div>
+              <select class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-2 text-neutral-800 bg-white hover:border-neutral-400 focus:border-neutral-900" id="selectRadius">
+                <option value="4px">4px (Subtle)</option>
+                <option selected value="8px">8px (Default)</option>
+                <option value="12px">12px (Rounded)</option>
+                <option value="16px">16px (Pill / Soft)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Control Group 7: Knowledge Base Configuration -->
+          <div class="space-y-4 pt-5" data-purpose="kb-configuration-group">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700">Knowledge Base Setup</label>
+              <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">kb_id / kb_options</code>
+            </div>
+            <!-- Segmented Switcher -->
+            <div class="grid grid-cols-2 p-1 bg-neutral-100/90 border border-neutral-200/80 rounded-lg gap-1" role="radiogroup">
+              <button class="px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5 font-sans" id="btnKbModeSingle" type="button">
+                Single KB <span class="text-[10px] text-neutral-400">(Direct)</span>
+              </button>
+              <button class="px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5 font-sans" id="btnKbModeMulti" type="button">
+                Multi-KB <span class="text-[10px] text-neutral-400">(Picker)</span>
+              </button>
+            </div>
+
+            <!-- Single KB Settings Panel -->
+            <div id="singleKbContainer" class="hidden space-y-2 p-3 bg-neutral-50/80 rounded-lg border border-neutral-200/80">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-semibold text-neutral-700" for="inputSingleKbId">Single KB ID (Direct Session)</label>
+                <code class="text-[10px] font-mono text-neutral-500 bg-neutral-200/60 px-1 rounded">options.kb_id</code>
+              </div>
+              <input class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-3 text-neutral-900 focus:border-neutral-900" id="inputSingleKbId" type="number" value="746" />
+              <p class="text-[11px] text-neutral-500 leading-normal">
+                Direct connection. Bypasses the knowledge base selection screen and starts the chat session immediately with the welcome message and input field ready.
+              </p>
+            </div>
+
+            <!-- Multi KB Settings Panel -->
+            <div id="multiKbContainer" class="space-y-2 p-3 bg-neutral-50/80 rounded-lg border border-neutral-200/80">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-semibold text-neutral-700">Multi-KB Options List</label>
+                <code class="text-[10px] font-mono text-neutral-500 bg-neutral-200/60 px-1 rounded">options.kb_options</code>
+              </div>
+              <div class="space-y-1.5 text-xs font-mono">
+                <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded border border-neutral-200 shadow-2xs">
+                  <span class="font-medium text-neutral-800">Online Knowledge Base</span>
+                  <span class="text-[11px] text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded font-mono">ID: 746</span>
+                </div>
+                <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded border border-neutral-200 shadow-2xs">
+                  <span class="font-medium text-neutral-800">Field Operations &amp; WASH</span>
+                  <span class="text-[11px] text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded font-mono">ID: 812</span>
+                </div>
+              </div>
+              <p class="text-[11px] text-neutral-500 leading-normal">
+                Presents the user with interactive radio buttons to choose their knowledge base first, then enables "Start Chat".
+              </p>
             </div>
           </div>
         </div>
@@ -341,9 +453,9 @@
               </div>
               <!-- Tab Controls -->
               <div class="flex items-center space-x-1" role="tablist">
-                <button class="px-2.5 py-1 text-xs font-mono rounded bg-neutral-800 text-white font-medium" type="button">consumption_snippet.js</button>
-                <button class="px-2.5 py-1 text-xs font-mono rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50" type="button">index.html</button>
-                <button class="px-2.5 py-1 text-xs font-mono rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50" type="button">React (Hook)</button>
+                <button id="tabMultiKb" class="px-2.5 py-1 text-xs font-mono rounded bg-neutral-800 text-white font-medium transition-colors" type="button">Multi-KB (kb_options)</button>
+                <button id="tabSingleKb" class="px-2.5 py-1 text-xs font-mono rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50 transition-colors" type="button">Single KB (kb_id)</button>
+                <button id="tabHtmlScript" class="px-2.5 py-1 text-xs font-mono rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50 transition-colors" type="button">HTML Script Tag</button>
               </div>
             </div>
             <!-- Status Indicator & Copy Action -->
@@ -363,24 +475,7 @@
           </div>
           <!-- Code View Area -->
           <div class="p-4 sm:p-5 overflow-x-auto text-[13px] font-mono leading-relaxed select-all">
-            <pre class="text-neutral-300"><code><span class="tok-com">// Host Web Application Integration</span>
-<span class="tok-kw">import</span> { <span class="tok-fn">initChat</span> } <span class="tok-kw">from</span> <span class="tok-str">"akvo-rag-js"</span>;
-<span class="tok-kw">import</span> <span class="tok-str">"akvo-rag-js/dist/akvo-rag.css"</span>;
-
-<span class="tok-kw">const</span> <span class="tok-prop">chat</span> = <span class="tok-fn">initChat</span>({
-  <span class="tok-prop">title</span>: <span class="tok-str" id="codePropTitle">"Akvo Assistant"</span>,
-  <span class="tok-prop">primaryColor</span>: <span class="tok-str" id="codePropColor">"#007A78"</span>,
-  <span class="tok-prop">showLauncher</span>: <span class="tok-bool" id="codePropShowLauncher">true</span>,
-  <span class="tok-prop">startMinimized</span>: <span class="tok-bool" id="codePropStartMinimized">true</span>,
-  <span class="tok-prop">launcherIcon</span>: <span class="tok-bool" id="codePropLauncherIcon">null</span>,
-  <span class="tok-prop">headerIcon</span>: <span class="tok-bool" id="codePropHeaderIcon">null</span>,
-  <span class="tok-prop">kb_options</span>: [
-    {
-      <span class="tok-prop">"kb_id"</span>: <span class="tok-num">746</span>,
-      <span class="tok-prop">"label"</span>: <span class="tok-str">"Online Knowledge Base"</span>
-    }
-  ]
-});</code></pre>
+            <pre class="text-neutral-300"><code id="codeSnippetPre"></code></pre>
           </div>
           <div class="px-4 py-2 bg-[#0E0E10] border-t border-neutral-800 text-[11px] font-mono text-neutral-500 flex justify-between">
             <span>Bundle cost: ~12.4 kB gzipped</span>
@@ -451,9 +546,20 @@
         primaryColor: "#007A78",
         showLauncher: true,
         startMinimized: true,
+        width: "360px",
+        height: "500px",
+        position: "bottom-right",
+        borderRadius: "8px",
+        launcherSize: "56px",
         launcherIconType: "bubble",
         headerIconType: "none",
-        kb_options: [{ "kb_id": 746, "label": "Online Knowledge Base" }]
+        kbMode: "multi", // "multi" or "single"
+        kb_id: 746,
+        kb_options: [
+          { "kb_id": 746, "label": "Online Knowledge Base" },
+          { "kb_id": 812, "label": "Field Operations & WASH" }
+        ],
+        activeTab: "multi" // "multi", "single", or "html"
       };
 
       const ICONS = {
@@ -475,12 +581,10 @@
       const hexTextInput = document.getElementById('hexTextInput');
       const swatches = document.querySelectorAll('.theme-swatch');
 
-      const codePropColor = document.getElementById('codePropColor');
-      const codePropTitle = document.getElementById('codePropTitle');
-      const codePropShowLauncher = document.getElementById('codePropShowLauncher');
-      const codePropStartMinimized = document.getElementById('codePropStartMinimized');
-      const codePropLauncherIcon = document.getElementById('codePropLauncherIcon');
-      const codePropHeaderIcon = document.getElementById('codePropHeaderIcon');
+      const tabMultiKb = document.getElementById('tabMultiKb');
+      const tabSingleKb = document.getElementById('tabSingleKb');
+      const tabHtmlScript = document.getElementById('tabHtmlScript');
+      const codeSnippetPre = document.getElementById('codeSnippetPre');
 
       const metricTokenHex = document.getElementById('metricTokenHex');
       const metricColorDot = document.getElementById('metricColorDot');
@@ -490,7 +594,19 @@
 
       const inputHeaderTitle = document.getElementById('inputHeaderTitle');
       const selectLauncherIcon = document.getElementById('selectLauncherIcon');
+      const selectLauncherSize = document.getElementById('selectLauncherSize');
       const selectHeaderAvatar = document.getElementById('selectHeaderAvatar');
+      const btnPosRight = document.getElementById('btnPosRight');
+      const btnPosLeft = document.getElementById('btnPosLeft');
+      const selectWidth = document.getElementById('selectWidth');
+      const selectHeight = document.getElementById('selectHeight');
+      const selectRadius = document.getElementById('selectRadius');
+
+      const btnKbModeSingle = document.getElementById('btnKbModeSingle');
+      const btnKbModeMulti = document.getElementById('btnKbModeMulti');
+      const singleKbContainer = document.getElementById('singleKbContainer');
+      const multiKbContainer = document.getElementById('multiKbContainer');
+      const inputSingleKbId = document.getElementById('inputSingleKbId');
 
       const btnApplyConfig = document.getElementById('btnApplyConfig');
       const btnTriggerOpen = document.getElementById('btnTriggerOpen');
@@ -514,40 +630,109 @@
       }
 
       function resolveOptions() {
-        return {
+        const opts = {
           title: config.title,
           primaryColor: config.primaryColor,
           showLauncher: config.showLauncher,
           startMinimized: config.startMinimized,
+          width: config.width,
+          height: config.height,
+          position: config.position,
+          borderRadius: config.borderRadius,
+          launcherSize: config.launcherSize,
           launcherIcon: ICONS.launcher[config.launcherIconType] || null,
-          headerIcon: ICONS.header[config.headerIconType] || null,
-          kb_options: config.kb_options
+          headerIcon: ICONS.header[config.headerIconType] || null
         };
+
+        if (config.kbMode === "single") {
+          opts.kb_id = config.kb_id;
+        } else {
+          opts.kb_options = config.kb_options;
+        }
+
+        return opts;
       }
 
       function updateCodeSnippet(opts) {
-        if (codePropTitle) codePropTitle.textContent = `"${opts.title}"`;
-        if (codePropColor) codePropColor.textContent = `"${opts.primaryColor}"`;
-        if (codePropShowLauncher) codePropShowLauncher.textContent = opts.showLauncher ? 'true' : 'false';
-        if (codePropStartMinimized) codePropStartMinimized.textContent = opts.startMinimized ? 'true' : 'false';
-        if (codePropLauncherIcon) {
-          if (!opts.launcherIcon) {
-            codePropLauncherIcon.textContent = 'null';
-          } else if (opts.launcherIcon.startsWith('<svg')) {
-            codePropLauncherIcon.textContent = '"<svg ... />"';
-          } else {
-            codePropLauncherIcon.textContent = `"${opts.launcherIcon}"`;
-          }
+        if (!codeSnippetPre) return;
+
+        let codeHtml = "";
+        const iconStr = opts.launcherIcon
+          ? (opts.launcherIcon.startsWith('<svg') ? '"<svg ... />"' : `"${opts.launcherIcon}"`)
+          : 'null';
+        const headerIconStr = opts.headerIcon
+          ? (opts.headerIcon.startsWith('<svg') ? '"<svg ... />"' : `"${opts.headerIcon}"`)
+          : 'null';
+
+        if (config.activeTab === "single") {
+          codeHtml = `<span class="tok-com">// 1. Single Knowledge Base Direct Integration</span>
+<span class="tok-kw">import</span> { <span class="tok-fn">initChat</span> } <span class="tok-kw">from</span> <span class="tok-str">"akvo-rag-js"</span>;
+<span class="tok-kw">import</span> <span class="tok-str">"akvo-rag-js/dist/akvo-rag.css"</span>;
+
+<span class="tok-kw">const</span> <span class="tok-prop">chat</span> = <span class="tok-fn">initChat</span>({
+  <span class="tok-prop">kb_id</span>: <span class="tok-num">${config.kb_id}</span>, <span class="tok-com">// Direct session bypasses selection picker</span>
+  <span class="tok-prop">title</span>: <span class="tok-str">"${opts.title}"</span>,
+  <span class="tok-prop">primaryColor</span>: <span class="tok-str">"${opts.primaryColor}"</span>,
+  <span class="tok-prop">showLauncher</span>: <span class="tok-bool">${opts.showLauncher}</span>,
+  <span class="tok-prop">startMinimized</span>: <span class="tok-bool">${opts.startMinimized}</span>,
+  <span class="tok-prop">width</span>: <span class="tok-str">"${opts.width}"</span>,
+  <span class="tok-prop">height</span>: <span class="tok-str">"${opts.height}"</span>,
+  <span class="tok-prop">position</span>: <span class="tok-str">"${opts.position}"</span>,
+  <span class="tok-prop">borderRadius</span>: <span class="tok-str">"${opts.borderRadius}"</span>,
+  <span class="tok-prop">launcherSize</span>: <span class="tok-str">"${opts.launcherSize}"</span>,
+  <span class="tok-prop">launcherIcon</span>: <span class="tok-bool">${iconStr}</span>,
+  <span class="tok-prop">headerIcon</span>: <span class="tok-bool">${headerIconStr}</span>
+});`;
+        } else if (config.activeTab === "multi") {
+          codeHtml = `<span class="tok-com">// 2. Multi-Knowledge Base Options Picker Integration</span>
+<span class="tok-kw">import</span> { <span class="tok-fn">initChat</span> } <span class="tok-kw">from</span> <span class="tok-str">"akvo-rag-js"</span>;
+<span class="tok-kw">import</span> <span class="tok-str">"akvo-rag-js/dist/akvo-rag.css"</span>;
+
+<span class="tok-kw">const</span> <span class="tok-prop">chat</span> = <span class="tok-fn">initChat</span>({
+  <span class="tok-prop">title</span>: <span class="tok-str">"${opts.title}"</span>,
+  <span class="tok-prop">primaryColor</span>: <span class="tok-str">"${opts.primaryColor}"</span>,
+  <span class="tok-prop">showLauncher</span>: <span class="tok-bool">${opts.showLauncher}</span>,
+  <span class="tok-prop">startMinimized</span>: <span class="tok-bool">${opts.startMinimized}</span>,
+  <span class="tok-prop">width</span>: <span class="tok-str">"${opts.width}"</span>,
+  <span class="tok-prop">height</span>: <span class="tok-str">"${opts.height}"</span>,
+  <span class="tok-prop">position</span>: <span class="tok-str">"${opts.position}"</span>,
+  <span class="tok-prop">borderRadius</span>: <span class="tok-str">"${opts.borderRadius}"</span>,
+  <span class="tok-prop">launcherSize</span>: <span class="tok-str">"${opts.launcherSize}"</span>,
+  <span class="tok-prop">launcherIcon</span>: <span class="tok-bool">${iconStr}</span>,
+  <span class="tok-prop">headerIcon</span>: <span class="tok-bool">${headerIconStr}</span>,
+  <span class="tok-prop">kb_options</span>: [
+    {
+      <span class="tok-prop">"kb_id"</span>: <span class="tok-num">746</span>,
+      <span class="tok-prop">"label"</span>: <span class="tok-str">"Online Knowledge Base"</span>
+    },
+    {
+      <span class="tok-prop">"kb_id"</span>: <span class="tok-num">812</span>,
+      <span class="tok-prop">"label"</span>: <span class="tok-str">"Field Operations &amp; WASH"</span>
+    }
+  ]
+});`;
+        } else {
+          codeHtml = `<span class="tok-com">&lt;!-- 3. Vanilla HTML / CDN Script Tag Integration --&gt;</span>
+<span class="tok-tag">&lt;link</span> <span class="tok-attr">rel</span>=<span class="tok-str">"stylesheet"</span> <span class="tok-attr">href</span>=<span class="tok-str">"https://unpkg.com/akvo-rag-js/dist/akvo-rag.css"</span><span class="tok-tag">&gt;</span>
+<span class="tok-tag">&lt;script</span> <span class="tok-attr">src</span>=<span class="tok-str">"https://unpkg.com/akvo-rag-js/dist/akvo-rag.js"</span><span class="tok-tag">&gt;&lt;/script&gt;</span>
+
+<span class="tok-tag">&lt;script&gt;</span>
+  <span class="tok-prop">document</span>.<span class="tok-fn">addEventListener</span>(<span class="tok-str">'DOMContentLoaded'</span>, <span class="tok-kw">function</span> () {
+    <span class="tok-fn">AkvoRagChatbox</span>.<span class="tok-fn">initChat</span>({
+      ${config.kbMode === 'single' ? `<span class="tok-prop">kb_id</span>: <span class="tok-num">${config.kb_id}</span>,` : `<span class="tok-prop">kb_options</span>: [
+        { <span class="tok-prop">"kb_id"</span>: <span class="tok-num">746</span>, <span class="tok-prop">"label"</span>: <span class="tok-str">"Online Knowledge Base"</span> },
+        { <span class="tok-prop">"kb_id"</span>: <span class="tok-num">812</span>, <span class="tok-prop">"label"</span>: <span class="tok-str">"Field Operations &amp; WASH"</span> }
+      ],`}
+      <span class="tok-prop">title</span>: <span class="tok-str">"${opts.title}"</span>,
+      <span class="tok-prop">primaryColor</span>: <span class="tok-str">"${opts.primaryColor}"</span>,
+      <span class="tok-prop">showLauncher</span>: <span class="tok-bool">${opts.showLauncher}</span>,
+      <span class="tok-prop">startMinimized</span>: <span class="tok-bool">${opts.startMinimized}</span>
+    });
+  });
+<span class="tok-tag">&lt;/script&gt;</span>`;
         }
-        if (codePropHeaderIcon) {
-          if (!opts.headerIcon) {
-            codePropHeaderIcon.textContent = 'null';
-          } else if (opts.headerIcon.startsWith('<svg')) {
-            codePropHeaderIcon.textContent = '"<svg ... />"';
-          } else {
-            codePropHeaderIcon.textContent = `"${opts.headerIcon}"`;
-          }
-        }
+
+        codeSnippetPre.innerHTML = codeHtml;
       }
 
       function updateTelemetry() {
@@ -573,8 +758,96 @@
           if (chatbox) {
             const isVisible = window.getComputedStyle(chatbox).display !== 'none';
             if (isVisible) {
-              metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span> flex (Active)`;
-              metricChatbox.className = "text-sm font-semibold font-mono text-emerald-700 mt-1";
+              if (chatbox.classList.contains('minimized')) {
+                metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></span> minimized (Titlebar 40px)`;
+                metricChatbox.className = "text-sm font-semibold font-mono text-amber-700 mt-1";
+              } else {
+                metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span> flex (Active)`;
+                metricChatbox.className = "text-sm font-semibold font-mono text-emerald-700 mt-1";
+              }
+            } else {
+              metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400 inline-block mr-1"></span> none (Collapsed)`;
+              metricChatbox.className = "text-sm font-semibold font-mono text-neutral-600 mt-1";
+            }
+          } else {
+            metricChatbox.textContent = 'Unmounted';
+            metricChatbox.className = "text-sm font-semibold font-mono text-neutral-400 mt-1";
+          }
+        }
+
+        if (metricTokenHex) {
+          metricTokenHex.textContent = config.primaryColor;
+        }
+        if (metricColorDot) {
+          metricColorDot.style.backgroundColor = config.primaryColor;
+        }
+      }
+
+      function setTab(tab) {
+        config.activeTab = tab;
+        const activeClass = "px-2.5 py-1 text-xs font-mono rounded bg-neutral-800 text-white font-medium transition-colors";
+        const inactiveClass = "px-2.5 py-1 text-xs font-mono rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50 transition-colors";
+
+        if (tabMultiKb) tabMultiKb.className = tab === "multi" ? activeClass : inactiveClass;
+        if (tabSingleKb) tabSingleKb.className = tab === "single" ? activeClass : inactiveClass;
+        if (tabHtmlScript) tabHtmlScript.className = tab === "html" ? activeClass : inactiveClass;
+
+        updateCodeSnippet(resolveOptions());
+      }
+
+      function setKbMode(mode, remount = true) {
+        config.kbMode = mode;
+        const activeBtnClass = "px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5 font-sans";
+        const inactiveBtnClass = "px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5 font-sans";
+
+        if (mode === "single") {
+          if (btnKbModeSingle) btnKbModeSingle.className = activeBtnClass;
+          if (btnKbModeMulti) btnKbModeMulti.className = inactiveBtnClass;
+          if (singleKbContainer) singleKbContainer.classList.remove('hidden');
+          if (multiKbContainer) multiKbContainer.classList.add('hidden');
+        } else {
+          if (btnKbModeMulti) btnKbModeMulti.className = activeBtnClass;
+          if (btnKbModeSingle) btnKbModeSingle.className = inactiveBtnClass;
+          if (multiKbContainer) multiKbContainer.classList.remove('hidden');
+          if (singleKbContainer) singleKbContainer.classList.add('hidden');
+        }
+
+        if (remount) {
+          mount();
+        }
+        logEvent(`kb_mode:${mode}`);
+      }
+
+      function updateTelemetry() {
+        const launcher = document.getElementById('akvo-rag-launcher');
+        const chatbox = document.getElementById('akvo-rag');
+
+        if (metricLauncher) {
+          if (!config.showLauncher) {
+            metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400"></span> Disabled (Inline Embed)`;
+          } else if (launcher) {
+            const isVisible = window.getComputedStyle(launcher).display !== 'none';
+            if (isVisible) {
+              metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Visible (56px FAB)`;
+            } else {
+              metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Hidden (Chat Open)`;
+            }
+          } else {
+            metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400"></span> Pending Init...`;
+          }
+        }
+
+        if (metricChatbox) {
+          if (chatbox) {
+            const isVisible = window.getComputedStyle(chatbox).display !== 'none';
+            if (isVisible) {
+              if (chatbox.classList.contains('minimized')) {
+                metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></span> minimized (Titlebar 40px)`;
+                metricChatbox.className = "text-sm font-semibold font-mono text-amber-700 mt-1";
+              } else {
+                metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span> flex (Active)`;
+                metricChatbox.className = "text-sm font-semibold font-mono text-emerald-700 mt-1";
+              }
             } else {
               metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400 inline-block mr-1"></span> none (Collapsed)`;
               metricChatbox.className = "text-sm font-semibold font-mono text-neutral-600 mt-1";
@@ -709,6 +982,15 @@
         logEvent(`icon:launcher_${config.launcherIconType}`);
       });
 
+      // Launcher Size Dropdown
+      if (selectLauncherSize) {
+        selectLauncherSize.addEventListener('change', (e) => {
+          config.launcherSize = e.target.value;
+          mount();
+          logEvent(`launcher_size:${config.launcherSize}`);
+        });
+      }
+
       // Header Avatar Dropdown
       selectHeaderAvatar.addEventListener('change', (e) => {
         config.headerIconType = e.target.value;
@@ -732,6 +1014,96 @@
           updateTelemetry();
         }
       });
+
+      // Position Switcher Listeners
+      if (btnPosRight && btnPosLeft) {
+        btnPosRight.addEventListener('click', () => {
+          config.position = 'bottom-right';
+          btnPosRight.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1';
+          btnPosLeft.className = 'px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1';
+          mount();
+          logEvent("pos:bottom-right");
+        });
+
+        btnPosLeft.addEventListener('click', () => {
+          config.position = 'bottom-left';
+          btnPosLeft.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1';
+          btnPosRight.className = 'px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1';
+          mount();
+          logEvent("pos:bottom-left");
+        });
+      }
+
+      // Sizing Selectors
+      if (selectWidth) {
+        selectWidth.addEventListener('change', (e) => {
+          config.width = e.target.value;
+          mount();
+          logEvent(`width:${config.width}`);
+        });
+      }
+
+      if (selectHeight) {
+        selectHeight.addEventListener('change', (e) => {
+          config.height = e.target.value;
+          mount();
+          logEvent(`height:${config.height}`);
+        });
+      }
+
+      if (selectRadius) {
+        selectRadius.addEventListener('change', (e) => {
+          config.borderRadius = e.target.value;
+          mount();
+          logEvent(`radius:${config.borderRadius}`);
+        });
+      }
+
+      // Knowledge Base Mode Listeners
+      if (btnKbModeSingle && btnKbModeMulti) {
+        btnKbModeSingle.addEventListener('click', () => {
+          setKbMode("single");
+          setTab("single");
+        });
+
+        btnKbModeMulti.addEventListener('click', () => {
+          setKbMode("multi");
+          setTab("multi");
+        });
+      }
+
+      if (inputSingleKbId) {
+        inputSingleKbId.addEventListener('change', (e) => {
+          const val = parseInt(e.target.value, 10);
+          if (!isNaN(val) && val > 0) {
+            config.kb_id = val;
+            if (config.kbMode === "single") {
+              mount();
+            }
+          }
+        });
+      }
+
+      // Code Tab Controls
+      if (tabMultiKb) {
+        tabMultiKb.addEventListener('click', () => {
+          setTab("multi");
+          setKbMode("multi");
+        });
+      }
+
+      if (tabSingleKb) {
+        tabSingleKb.addEventListener('click', () => {
+          setTab("single");
+          setKbMode("single");
+        });
+      }
+
+      if (tabHtmlScript) {
+        tabHtmlScript.addEventListener('click', () => {
+          setTab("html");
+        });
+      }
 
       // Display Mode Toggle
       btnDisplayFab.addEventListener('click', () => {
@@ -791,12 +1163,27 @@
           config.primaryColor = "#007A78";
           config.showLauncher = true;
           config.startMinimized = true;
+          config.width = "360px";
+          config.height = "500px";
+          config.position = "bottom-right";
+          config.borderRadius = "8px";
+          config.launcherSize = "56px";
           config.launcherIconType = "bubble";
           config.headerIconType = "none";
+          config.kbMode = "multi";
+          config.kb_id = 746;
+          config.activeTab = "multi";
 
           inputHeaderTitle.value = config.title;
           selectLauncherIcon.value = "bubble";
           selectHeaderAvatar.value = "none";
+          if (inputSingleKbId) inputSingleKbId.value = "746";
+          if (selectLauncherSize) selectLauncherSize.value = "56px";
+          if (selectWidth) selectWidth.value = "360px";
+          if (selectHeight) selectHeight.value = "500px";
+          if (selectRadius) selectRadius.value = "8px";
+          if (btnPosRight) btnPosRight.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1';
+          if (btnPosLeft) btnPosLeft.className = 'px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1';
           btnDisplayFab.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5';
           btnDisplayEmbedded.className = 'px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5';
           btnMountMinTrue.className = 'px-3 py-1.5 text-xs font-mono font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5';
@@ -804,6 +1191,8 @@
           if (startStateContainer) startStateContainer.style.display = 'block';
           if (launcherIconContainer) launcherIconContainer.style.display = 'block';
 
+          setKbMode("multi", false);
+          setTab("multi");
           applyThemeColor("#007A78");
           logEvent("config:reset_defaults");
         });
@@ -812,7 +1201,61 @@
       // Copy Code Snippet
       copyCodeBtn.addEventListener('click', () => {
         const opts = resolveOptions();
-        const codeText = `import { initChat } from "akvo-rag-js";\nimport "akvo-rag-js/dist/akvo-rag.css";\n\nconst chat = initChat(${JSON.stringify(opts, null, 2)});`;
+        let codeText = "";
+        if (config.activeTab === "single") {
+          codeText = `// 1. Single Knowledge Base Direct Integration
+import { initChat } from "akvo-rag-js";
+import "akvo-rag-js/dist/akvo-rag.css";
+
+const chat = initChat({
+  kb_id: ${config.kb_id}, // Direct session bypasses selection picker
+  title: "${opts.title}",
+  primaryColor: "${opts.primaryColor}",
+  showLauncher: ${opts.showLauncher},
+  startMinimized: ${opts.startMinimized},
+  width: "${opts.width}",
+  height: "${opts.height}",
+  position: "${opts.position}",
+  borderRadius: "${opts.borderRadius}",
+  launcherSize: "${opts.launcherSize}"
+});`;
+        } else if (config.activeTab === "multi") {
+          codeText = `// 2. Multi-Knowledge Base Options Picker Integration
+import { initChat } from "akvo-rag-js";
+import "akvo-rag-js/dist/akvo-rag.css";
+
+const chat = initChat({
+  title: "${opts.title}",
+  primaryColor: "${opts.primaryColor}",
+  showLauncher: ${opts.showLauncher},
+  startMinimized: ${opts.startMinimized},
+  width: "${opts.width}",
+  height: "${opts.height}",
+  position: "${opts.position}",
+  borderRadius: "${opts.borderRadius}",
+  launcherSize: "${opts.launcherSize}",
+  kb_options: [
+    { "kb_id": 746, "label": "Online Knowledge Base" },
+    { "kb_id": 812, "label": "Field Operations & WASH" }
+  ]
+});`;
+        } else {
+          codeText = `<!-- 3. Vanilla HTML / CDN Script Tag Integration -->\n` +
+            `<link rel="stylesheet" href="https://unpkg.com/akvo-rag-js/dist/akvo-rag.css">\n` +
+            `<script src="https://unpkg.com/akvo-rag-js/dist/akvo-rag.js"><` + `/script>\n\n` +
+            `<script>\n` +
+            `  document.addEventListener('DOMContentLoaded', function () {\n` +
+            `    AkvoRagChatbox.initChat({\n` +
+            `      ${config.kbMode === 'single' ? `kb_id: ${config.kb_id},` : `kb_options: [\n        { "kb_id": 746, "label": "Online Knowledge Base" },\n        { "kb_id": 812, "label": "Field Operations & WASH" }\n      ],`}\n` +
+            `      title: "${opts.title}",\n` +
+            `      primaryColor: "${opts.primaryColor}",\n` +
+            `      showLauncher: ${opts.showLauncher},\n` +
+            `      startMinimized: ${opts.startMinimized}\n` +
+            `    });\n` +
+            `  });\n` +
+            `<` + `/script>`;
+        }
+
         navigator.clipboard.writeText(codeText).then(() => {
           copyBtnLabel.textContent = 'Copied!';
           setTimeout(() => {
@@ -841,7 +1284,7 @@
 
       // Reactively update telemetry when widget elements are clicked
       document.addEventListener('click', (e) => {
-        if (e.target.closest('#akvo-rag-launcher') || e.target.closest('#akvo-rag-close-btn')) {
+        if (e.target.closest('#akvo-rag-launcher') || e.target.closest('#akvo-rag-close-btn') || e.target.closest('#akvo-rag-header')) {
           setTimeout(updateTelemetry, 50);
         }
       });

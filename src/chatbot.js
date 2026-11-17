@@ -23,7 +23,7 @@ export class AkvoRagChatbox {
     this.isMinimized =
       this.options.startMinimized !== undefined
         ? Boolean(this.options.startMinimized)
-        : true;
+        : this.showLauncher;
     this.wsConnection = null;
     this.currentAssistantMsgEl = null;
     this.isLoading = false;
@@ -49,7 +49,11 @@ export class AkvoRagChatbox {
     this.launcher = document.getElementById("akvo-rag-launcher");
 
     if (this.container) {
-      if (this.showLauncher && this.isMinimized) {
+      this._applyCustomStyles(this.container, false);
+      if (this.launcher) {
+        this._applyCustomStyles(this.launcher, true);
+      }
+      if (this.isMinimized) {
         this.close();
       } else {
         this.open();
@@ -65,6 +69,12 @@ export class AkvoRagChatbox {
 
     this._createUI();
     this._bindEvents();
+
+    if (this.isMinimized) {
+      this.close();
+    } else {
+      this.open();
+    }
 
     if (this.options.kb_id) {
       this._connect();
@@ -111,9 +121,8 @@ export class AkvoRagChatbox {
       if (this.showLauncher) {
         if (this.container.style) this.container.style.display = "none";
       } else {
-        this.container.classList?.toggle("minimized");
+        this.container.classList?.add("minimized");
       }
-      this.container.classList?.add("minimized");
     }
     if (this.launcher) {
       if (this.launcher.style) this.launcher.style.display = "flex";
@@ -139,6 +148,103 @@ export class AkvoRagChatbox {
     const safeNamed =
       /^(?:teal|blue|green|red|purple|indigo|slate|gray|black|white|transparent)$/i;
     return safeNamed.test(trimmed);
+  }
+
+  _toCssDimension(value) {
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+      return `${value}px`;
+    }
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (/^\d+(\.\d+)?$/.test(trimmed)) {
+        return `${trimmed}px`;
+      }
+      if (/^\d+(\.\d+)?(px|rem|em|vh|vw|%)$/i.test(trimmed)) {
+        return trimmed;
+      }
+    }
+    return null;
+  }
+
+  _toSafeZIndex(value) {
+    if (
+      typeof value === "number" &&
+      Number.isInteger(value) &&
+      value >= 0 &&
+      value <= 2147483647
+    ) {
+      return value;
+    }
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (/^\d+$/.test(trimmed)) {
+        const parsed = parseInt(trimmed, 10);
+        if (!isNaN(parsed) && parsed >= 0 && parsed <= 2147483647) {
+          return parsed;
+        }
+      }
+    }
+    return null;
+  }
+
+  _applyCustomStyles(element, isLauncher = false) {
+    if (!element || !element.style) return;
+
+    // 1. Primary color
+    if (
+      this._isValidCssColor(this.options.primaryColor) &&
+      typeof element.style.setProperty === "function"
+    ) {
+      element.style.setProperty(
+        "--akvo-primary",
+        this.options.primaryColor.trim(),
+      );
+    }
+
+    // 2. Position (bottom-left or bottom-right)
+    const pos = String(this.options.position || "").trim().toLowerCase();
+    if (pos === "bottom-left") {
+      element.classList?.add("akvo-position-left");
+    }
+
+    // 3. Z-Index
+    const safeZIndex = this._toSafeZIndex(this.options.zIndex);
+    if (safeZIndex !== null && typeof element.style.setProperty === "function") {
+      const zVal = isLauncher ? Math.max(0, safeZIndex - 1) : safeZIndex;
+      element.style.setProperty("--akvo-z-index", String(zVal));
+      element.style.zIndex = String(zVal);
+    }
+
+    // 4. Dimensions & Radius (Container vs Launcher)
+    if (isLauncher && typeof element.style.setProperty === "function") {
+      const launcherSizeVal = this._toCssDimension(this.options.launcherSize);
+      const launcherWidthVal =
+        this._toCssDimension(this.options.launcherWidth) || launcherSizeVal;
+      const launcherHeightVal =
+        this._toCssDimension(this.options.launcherHeight) || launcherSizeVal;
+
+      if (launcherWidthVal) {
+        element.style.setProperty("--akvo-launcher-width", launcherWidthVal);
+      }
+      if (launcherHeightVal) {
+        element.style.setProperty("--akvo-launcher-height", launcherHeightVal);
+      }
+    } else if (!isLauncher && typeof element.style.setProperty === "function") {
+      const widthVal = this._toCssDimension(this.options.width);
+      if (widthVal) {
+        element.style.setProperty("--akvo-width", widthVal);
+      }
+
+      const heightVal = this._toCssDimension(this.options.height);
+      if (heightVal) {
+        element.style.setProperty("--akvo-height", heightVal);
+      }
+
+      const radiusVal = this._toCssDimension(this.options.borderRadius);
+      if (radiusVal) {
+        element.style.setProperty("--akvo-border-radius", radiusVal);
+      }
+    }
   }
 
   _sanitizeHtml(content, options) {
@@ -205,16 +311,9 @@ export class AkvoRagChatbox {
       defaultIcon,
     );
 
+    this._applyCustomStyles(this.launcher, true);
+
     if (this.launcher.style) {
-      if (
-        this._isValidCssColor(this.options.primaryColor) &&
-        typeof this.launcher.style.setProperty === "function"
-      ) {
-        this.launcher.style.setProperty(
-          "--akvo-primary",
-          this.options.primaryColor.trim(),
-        );
-      }
       this.launcher.style.display = this.isMinimized ? "flex" : "none";
     }
 
@@ -227,16 +326,9 @@ export class AkvoRagChatbox {
     this.container = document.createElement("div");
     this.container.id = "akvo-rag";
 
+    this._applyCustomStyles(this.container, false);
+
     if (this.container.style) {
-      if (
-        this._isValidCssColor(this.options.primaryColor) &&
-        typeof this.container.style.setProperty === "function"
-      ) {
-        this.container.style.setProperty(
-          "--akvo-primary",
-          this.options.primaryColor.trim(),
-        );
-      }
       this.container.style.display =
         this.showLauncher && this.isMinimized ? "none" : "flex";
     }
@@ -321,14 +413,22 @@ export class AkvoRagChatbox {
         if (this.showLauncher) {
           this.close();
         } else {
-          this.container?.classList?.toggle("minimized");
+          if (this.container?.classList?.contains("minimized")) {
+            this.open();
+          } else {
+            this.close();
+          }
         }
       });
     }
 
     if (header) {
       header.addEventListener("click", () => {
-        if (this.isMinimized) {
+        if (!this.showLauncher) {
+          if (this.container?.classList?.contains("minimized")) {
+            this.open();
+          }
+        } else if (this.isMinimized) {
           this.open();
         }
       });

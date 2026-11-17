@@ -420,19 +420,76 @@ test("Legacy Mode - showLauncher: false does not mount launcher button", async (
   assert.strictEqual(bot.launcher, null, "Launcher button should not be created");
   assert.ok(bot.container, "Chatbox container should exist");
   assert.strictEqual(bot.container.style.display, "flex", "Chatbox should be visible by default");
+  assert.strictEqual(bot.isMinimized, false, "Initial state should not be minimized");
 
-  // Clicking close button toggles minimized class on container in legacy mode
+  // 1. Clicking close button minimizes container in legacy mode
   const closeBtn = bot.container.querySelector("#akvo-rag-close-btn");
+  const header = bot.container.querySelector("#akvo-rag-header");
   assert.ok(closeBtn, "Close button must exist");
+  assert.ok(header, "Header must exist");
+
   closeBtn.click();
   assert.ok(
     bot.container.classList.contains("minimized"),
     "Container should have minimized class in legacy mode"
   );
+  assert.strictEqual(bot.isMinimized, true, "State should be minimized");
+
+  // 2. Clicking close button again toggles/expands container
+  closeBtn.click();
+  assert.strictEqual(
+    bot.container.classList.contains("minimized"),
+    false,
+    "Container should no longer have minimized class after toggle"
+  );
+  assert.strictEqual(bot.isMinimized, false, "State should not be minimized");
+
+  // 3. Minimize again, then clicking header expands container
+  closeBtn.click();
+  assert.ok(bot.container.classList.contains("minimized"), "Minimized again");
+  assert.strictEqual(bot.isMinimized, true);
+
+  header.click();
+  assert.strictEqual(
+    bot.container.classList.contains("minimized"),
+    false,
+    "Clicking header when minimized expands container"
+  );
+  assert.strictEqual(bot.isMinimized, false);
+
+  // 4. Programmatic minimize and open
+  bot.minimize();
+  assert.ok(bot.container.classList.contains("minimized"), "Programmatic minimize sets class");
+  assert.strictEqual(bot.isMinimized, true);
+
+  bot.open();
+  assert.strictEqual(bot.container.classList.contains("minimized"), false, "Programmatic open clears class");
+  assert.strictEqual(bot.isMinimized, false);
 
   bot.destroy();
   assert.strictEqual(bot.container, null, "Container cleared on destroy");
   assert.strictEqual(bot.launcher, null, "Launcher remains null on destroy");
+});
+
+test("Legacy Mode - startMinimized: true mounts with minimized class", async () => {
+  setupMockDOM();
+  const { AkvoRagChatbox } = await import("../../src/chatbot.js");
+  const bot = new AkvoRagChatbox({ showLauncher: false, startMinimized: true });
+
+  assert.strictEqual(bot.launcher, null);
+  assert.ok(bot.container);
+  assert.ok(
+    bot.container.classList.contains("minimized"),
+    "Legacy mode with startMinimized: true mounts with minimized class"
+  );
+  assert.strictEqual(bot.isMinimized, true);
+
+  // Expanding via open
+  bot.open();
+  assert.strictEqual(bot.container.classList.contains("minimized"), false);
+  assert.strictEqual(bot.isMinimized, false);
+
+  bot.destroy();
 });
 
 test("Theming - Validates primaryColor format safely", async () => {
@@ -457,4 +514,135 @@ test("Theming - Validates primaryColor format safely", async () => {
     "Malicious primaryColor must not be applied"
   );
   botInvalid.destroy();
+});
+
+test("UI Sizing - Width and Height applied via custom properties and style", async () => {
+  setupMockDOM();
+  const { AkvoRagChatbox } = await import("../../src/chatbot.js");
+
+  // 1. Numeric values
+  const botNumeric = new AkvoRagChatbox({ width: 420, height: 580 });
+  assert.strictEqual(
+    botNumeric.container.style.getPropertyValue("--akvo-width"),
+    "420px"
+  );
+  assert.strictEqual(
+    botNumeric.container.style.getPropertyValue("--akvo-height"),
+    "580px"
+  );
+  botNumeric.destroy();
+
+  // 2. Unit strings
+  const botString = new AkvoRagChatbox({ width: "25rem", height: "80vh" });
+  assert.strictEqual(
+    botString.container.style.getPropertyValue("--akvo-width"),
+    "25rem"
+  );
+  assert.strictEqual(
+    botString.container.style.getPropertyValue("--akvo-height"),
+    "80vh"
+  );
+  botString.destroy();
+
+  // 3. Malicious injection strings rejected
+  const botMalicious = new AkvoRagChatbox({
+    width: "400px; evil: true;",
+    height: "calc(100vh + evil)",
+  });
+  assert.strictEqual(
+    botMalicious.container.style.getPropertyValue("--akvo-width"),
+    ""
+  );
+  assert.strictEqual(
+    botMalicious.container.style.getPropertyValue("--akvo-height"),
+    ""
+  );
+  botMalicious.destroy();
+});
+
+test("UI Styling - Border Radius and Z-Index applied safely", async () => {
+  setupMockDOM();
+  const { AkvoRagChatbox } = await import("../../src/chatbot.js");
+
+  const bot = new AkvoRagChatbox({
+    borderRadius: 16,
+    zIndex: 100000,
+  });
+
+  assert.strictEqual(
+    bot.container.style.getPropertyValue("--akvo-border-radius"),
+    "16px"
+  );
+  assert.strictEqual(
+    bot.container.style.getPropertyValue("--akvo-z-index"),
+    "100000"
+  );
+  assert.strictEqual(
+    bot.launcher.style.getPropertyValue("--akvo-z-index"),
+    "99999",
+    "Launcher z-index should be zIndex - 1"
+  );
+
+  bot.destroy();
+});
+
+test("UI Positioning - Position bottom-left toggles akvo-position-left class", async () => {
+  setupMockDOM();
+  const { AkvoRagChatbox } = await import("../../src/chatbot.js");
+
+  // Bottom Left
+  const botLeft = new AkvoRagChatbox({ position: "bottom-left" });
+  assert.ok(
+    botLeft.container.classList.contains("akvo-position-left"),
+    "Container should have akvo-position-left class"
+  );
+  assert.ok(
+    botLeft.launcher.classList.contains("akvo-position-left"),
+    "Launcher should have akvo-position-left class"
+  );
+  botLeft.destroy();
+
+  // Default Bottom Right (no akvo-position-left class)
+  const botRight = new AkvoRagChatbox({ position: "bottom-right" });
+  assert.strictEqual(
+    botRight.container.classList.contains("akvo-position-left"),
+    false
+  );
+  assert.strictEqual(
+    botRight.launcher.classList.contains("akvo-position-left"),
+    false
+  );
+  botRight.destroy();
+});
+
+test("UI Sizing - Launcher size and dimensions applied via custom properties", async () => {
+  setupMockDOM();
+  const { AkvoRagChatbox } = await import("../../src/chatbot.js");
+
+  // 1. Numeric launcherSize (circular)
+  const botSize = new AkvoRagChatbox({ launcherSize: 64 });
+  assert.strictEqual(
+    botSize.launcher.style.getPropertyValue("--akvo-launcher-width"),
+    "64px"
+  );
+  assert.strictEqual(
+    botSize.launcher.style.getPropertyValue("--akvo-launcher-height"),
+    "64px"
+  );
+  botSize.destroy();
+
+  // 2. Separate launcherWidth and launcherHeight
+  const botCustom = new AkvoRagChatbox({
+    launcherWidth: "72px",
+    launcherHeight: "48px",
+  });
+  assert.strictEqual(
+    botCustom.launcher.style.getPropertyValue("--akvo-launcher-width"),
+    "72px"
+  );
+  assert.strictEqual(
+    botCustom.launcher.style.getPropertyValue("--akvo-launcher-height"),
+    "48px"
+  );
+  botCustom.destroy();
 });

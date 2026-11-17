@@ -100,15 +100,26 @@ initChat({
 
 ## ⚙️ `initChat` Parameters
 
-The `initChat` function accepts a configuration object to customize the chat widget behavior:
+The `initChat` function accepts a configuration object to customize the chat widget behavior, appearance, and dimensions:
 
-| Parameter    | Type                                      | Required | Description                                                   |
-| ------------ | ----------------------------------------- | -------- | ------------------------------------------------------------- |
-| `title`      | `string`                                  | ✅ Yes    | The title displayed at the top of the chat window.            |
-| `kb_id`      | `number`                                  | ❌ No     | The initial Knowledge Base ID to use (if pre-selected).       |
-| `wsURL`      | `string`                                  | ✅ Yes    | WebSocket endpoint URL for real-time chat communication.      |
-| `kb_options` | `Array<{ kb_id: number, label: string }>` | ❌ No     | List of available KBs for the user to select before chatting. |
-| `autoReconnect`| `boolean`                               | ❌ No     | Defaults to `true`. Uses exponential backoff (ADR-005).      |
+| Parameter        | Type                                      | Required | Default            | Description                                                        |
+| ---------------- | ----------------------------------------- | -------- | ------------------ | ------------------------------------------------------------------ |
+| `title`          | `string`                                  | ✅ Yes    | `"Chatbot"`        | The title displayed in the chat header.                            |
+| `wsURL`          | `string`                                  | ✅ Yes    | —                  | WebSocket endpoint URL for real-time chat communication.           |
+| `kb_id`          | `number`                                  | ❌ No     | `null`             | Initial Knowledge Base ID to query directly.                       |
+| `kb_options`     | `Array<{ kb_id: number, label: string }>` | ❌ No     | `[]`               | Knowledge Base choices for the user before starting chat.          |
+| `primaryColor`   | `string`                                  | ❌ No     | `"#007A78"`        | Primary brand color (`#hex`, `rgb`, `hsl`) cascading via CSS var.  |
+| `showLauncher`   | `boolean`                                 | ❌ No     | `true`             | `true`: Floating 56×56px launcher button; `false`: embedded box.   |
+| `startMinimized` | `boolean`                                 | ❌ No     | `true`             | Whether the widget initializes minimized or expanded.             |
+| `width`          | `number \| string`                        | ❌ No     | `"360px"`          | Widget width (`400`, `"420px"`, `"25rem"`). Clamped on mobile.    |
+| `height`         | `number \| string`                        | ❌ No     | `"500px"`          | Widget height (`560`, `"600px"`, `"80vh"`). Clamped on mobile.   |
+| `position`       | `"bottom-right" \| "bottom-left"`         | ❌ No     | `"bottom-right"`   | Viewport corner anchor for both launcher and chat window.          |
+| `borderRadius`   | `number \| string`                        | ❌ No     | `"8px"`            | Corner radius (`8`, `"12px"`, `"16px"`).                           |
+| `launcherSize`   | `number \| string`                        | ❌ No     | `"56px"`           | Floating launcher button size (`48`, `"56px"`, `"64px"`).          |
+| `zIndex`         | `number`                                  | ❌ No     | `99999`            | Stacking index (launcher automatically takes `zIndex - 1`).        |
+| `launcherIcon`   | `string`                                  | ❌ No     | Default comments   | Custom SVG markup, image URL, or FontAwesome class string.         |
+| `headerIcon`     | `string`                                  | ❌ No     | `null`             | Avatar or icon rendered adjacent to the header title.             |
+| `autoReconnect`  | `boolean`                                 | ❌ No     | `true`             | Reconnection with exponential backoff on drop (ADR-005).           |
 
 ### 🔧 Component Lifecycle (`AkvoRagChatbox`)
 

@@ -2,25 +2,834 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Chatbot Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>akvo-rag-js SDK Workbench</title>
     <link rel="stylesheet" href="/akvo-rag.css" />
     <script src="/akvo-rag.js"></script>
+    <style>
+      :root {
+        --surface-ground: #f8fafc;
+        --surface-panel: #ffffff;
+        --surface-subtle: #f1f5f9;
+        --surface-highlight: #e2e8f0;
+        --border-subtle: #e2e8f0;
+        --border-default: #cbd5e1;
+        --border-accent: #007A78;
+        --text-headline: #0f172a;
+        --text-body: #334155;
+        --text-muted: #64748b;
+        --text-dim: #94a3b8;
+        --brand-teal: #007A78;
+        --brand-akvo: #007bff;
+        --brand-emerald: #059669;
+        --brand-amber: #d97706;
+        --brand-slate: #475569;
+        --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--surface-ground);
+        color: var(--text-body);
+        font-family: var(--font-sans);
+        line-height: 1.5;
+        padding: 40px 24px;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .workbench-container {
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      /* Top Navigation / Metadata Header */
+      .workbench-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+      }
+
+      .title-group h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-headline);
+        letter-spacing: -0.02em;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .title-group p {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        margin-top: 4px;
+      }
+
+      .meta-tags {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tag {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid var(--border-subtle);
+        color: var(--text-muted);
+        background: #ffffff;
+      }
+
+      .tag-accent {
+        color: #007A78;
+        border-color: rgba(0, 122, 120, 0.25);
+        background: rgba(0, 122, 120, 0.08);
+      }
+
+      /* Two Column Split Workbench */
+      .workbench-grid {
+        display: grid;
+        grid-template-columns: 440px 1fr;
+        gap: 24px;
+        align-items: start;
+      }
+
+      @media (max-width: 960px) {
+        .workbench-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel {
+        background: var(--surface-panel);
+        border: 1px solid var(--border-subtle);
+        border-radius: 10px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 14px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .panel-header h2 {
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-headline);
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 0.725rem;
+        color: #059669;
+        font-weight: 600;
+      }
+
+      .status-indicator {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 4px rgba(16, 185, 129, 0.5);
+      }
+
+      /* Field Controls */
+      .field {
+        margin-bottom: 20px;
+      }
+
+      .field-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #475569;
+        margin-bottom: 8px;
+      }
+
+      .field-label code {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        color: #64748b;
+        text-transform: none;
+      }
+
+      /* Segmented Toggle Control */
+      .segmented {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #f1f5f9;
+        padding: 3px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        gap: 3px;
+      }
+
+      .segmented button {
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-family: var(--font-sans);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        padding: 7px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 120ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .segmented button:hover {
+        color: var(--text-headline);
+      }
+
+      .segmented button.active {
+        background: #ffffff;
+        color: #0f172a;
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .segmented button:active {
+        transform: scale(0.98);
+      }
+
+      /* Swatches & Color Picker */
+      .swatches-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 120ms ease;
+        position: relative;
+      }
+
+      .swatch:hover {
+        transform: translateY(-1px);
+      }
+
+      .swatch.active {
+        border-color: #0f172a;
+        box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #0f172a;
+      }
+
+      .swatch:active {
+        transform: scale(0.95);
+      }
+
+      .custom-color-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+      }
+
+      input[type="color"] {
+        -webkit-appearance: none;
+        border: 1px solid #cbd5e1;
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        cursor: pointer;
+        background: none;
+        padding: 0;
+      }
+
+      input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+
+      input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 4px;
+      }
+
+      /* Text Inputs & Selects */
+      input[type="text"], select {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #0f172a;
+        font-family: var(--font-sans);
+        font-size: 0.875rem;
+        padding: 8px 12px;
+        border-radius: 6px;
+        outline: none;
+        transition: border-color 120ms ease, box-shadow 120ms ease;
+      }
+
+      input[type="text"]:focus, select:focus {
+        border-color: var(--brand-teal);
+        box-shadow: 0 0 0 3px rgba(0, 122, 120, 0.12);
+      }
+
+      select {
+        cursor: pointer;
+      }
+
+      .field-hint {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 5px;
+        line-height: 1.4;
+      }
+
+      /* Action Buttons */
+      .actions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border-subtle);
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        font-family: var(--font-sans);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 100ms cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid transparent;
+      }
+
+      .btn-brand {
+        background: var(--brand-teal);
+        color: #ffffff;
+        grid-column: span 2;
+      }
+
+      .btn-brand:hover {
+        filter: brightness(0.92);
+      }
+
+      .btn-brand:active {
+        transform: scale(0.98);
+        filter: brightness(0.88);
+      }
+
+      .btn-ghost {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #1e293b;
+      }
+
+      .btn-ghost:hover {
+        background: #e2e8f0;
+      }
+
+      .btn-ghost:active {
+        transform: scale(0.98);
+      }
+
+      /* Code Snippet Box */
+      .code-container {
+        position: relative;
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: #1e293b;
+        border-bottom: 1px solid #334155;
+        font-family: var(--font-mono);
+        font-size: 0.725rem;
+        color: #94a3b8;
+      }
+
+      .btn-copy {
+        background: #334155;
+        border: 1px solid #475569;
+        color: #f8fafc;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        padding: 3px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 100ms ease;
+      }
+
+      .btn-copy:hover {
+        background: #475569;
+      }
+
+      .btn-copy:active {
+        transform: scale(0.96);
+      }
+
+      pre.code-block {
+        margin: 0;
+        padding: 14px 16px;
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        color: #f8fafc;
+        line-height: 1.55;
+        overflow-x: auto;
+      }
+
+      /* Runtime Inspector Details */
+      .inspector-card {
+        margin-top: 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .inspector-card h3 {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #475569;
+        margin-bottom: 8px;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .metric-cell {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 8px 10px;
+      }
+
+      .metric-label {
+        font-size: 0.7rem;
+        color: #64748b;
+        font-weight: 500;
+      }
+
+      .metric-val {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-top: 2px;
+      }
+        transform: scale(0.96);
+      }
+
+      pre.code-block {
+        margin: 0;
+        padding: 14px 16px;
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        color: #e2e8f0;
+        line-height: 1.55;
+        overflow-x: auto;
+      }
+
+      /* Runtime Inspector Details */
+      .inspector-card {
+        margin-top: 16px;
+        background: var(--surface-subtle);
+        border: 1px solid var(--border-subtle);
+        border-radius: 6px;
+        padding: 14px;
+      }
+
+      .inspector-card h3 {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .metric-cell {
+        background: var(--surface-ground);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        padding: 8px;
+      }
+
+      .metric-label {
+        font-size: 0.7rem;
+        color: var(--text-dim);
+      }
+
+      .metric-val {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--text-headline);
+        margin-top: 2px;
+      }
+    </style>
   </head>
   <body>
+    <div class="workbench-container">
+      <!-- Header -->
+      <header class="workbench-header">
+        <div class="title-group">
+          <h1>akvo-rag-js <span style="font-weight: 400; color: var(--text-dim);">/</span> Workbench</h1>
+          <p>Interactive integration harness for floating launcher, dynamic CSS custom property theming, and custom icon rendering.</p>
+        </div>
+        <div class="meta-tags">
+          <span class="tag tag-accent">v1.2.4</span>
+          <span class="tag">UMD + ESM</span>
+          <span class="tag">Node 18+</span>
+        </div>
+      </header>
+
+      <!-- Split View -->
+      <div class="workbench-grid">
+        <!-- Configuration Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Configuration Inspector</h2>
+            <div class="status-pill">
+              <span class="status-indicator"></span>
+              <span id="runtimeStatus">Mounted (Active)</span>
+            </div>
+          </div>
+
+          <!-- Display Mode -->
+          <div class="field">
+            <div class="field-label">
+              <span>Display Mode</span>
+              <code>options.showLauncher</code>
+            </div>
+            <div class="segmented" id="modeControl">
+              <button type="button" class="active" data-val="true">Circular FAB (Modern)</button>
+              <button type="button" data-val="false">Embedded Box (Legacy)</button>
+            </div>
+            <div class="field-hint">Circular FAB renders a 56x56px button at bottom-right. Embedded Box mounts the 360x500 box directly.</div>
+          </div>
+
+          <!-- Start State -->
+          <div class="field" id="startStateField">
+            <div class="field-label">
+              <span>Initial Mount State</span>
+              <code>options.startMinimized</code>
+            </div>
+            <div class="segmented" id="startStateControl">
+              <button type="button" class="active" data-val="true">startMinimized: true</button>
+              <button type="button" data-val="false">startMinimized: false</button>
+            </div>
+            <div class="field-hint">When true, the chatbox starts collapsed into the floating launcher icon.</div>
+          </div>
+
+          <!-- Color Token -->
+          <div class="field">
+            <div class="field-label">
+              <span>Theme Token</span>
+              <code>--akvo-primary</code>
+            </div>
+            <div class="swatches-row">
+              <button type="button" class="swatch active" style="background: #007A78;" data-color="#007A78" title="Teal"></button>
+              <button type="button" class="swatch" style="background: #007bff;" data-color="#007bff" title="Akvo Blue"></button>
+              <button type="button" class="swatch" style="background: #059669;" data-color="#059669" title="Emerald"></button>
+              <button type="button" class="swatch" style="background: #d97706;" data-color="#d97706" title="Amber"></button>
+              <button type="button" class="swatch" style="background: #475569;" data-color="#475569" title="Slate"></button>
+              <div class="custom-color-wrap">
+                <input type="color" id="colorPicker" value="#007A78" />
+                <input type="text" id="colorText" value="#007A78" style="width: 82px; font-family: var(--font-mono); font-size: 0.775rem; padding: 5px 8px;" />
+              </div>
+            </div>
+            <div class="field-hint">Harmonizes the launcher bubble, chat header, send button, and citation links.</div>
+          </div>
+
+          <!-- Launcher Icon -->
+          <div class="field" id="launcherIconField">
+            <div class="field-label">
+              <span>Launcher Icon</span>
+              <code>options.launcherIcon</code>
+            </div>
+            <select id="launcherIconSelect">
+              <option value="default">Default Comment Bubble</option>
+              <option value="svg-sparkle">Custom SVG String (Sparkle AI)</option>
+              <option value="avatar-img">Image URL (message-circle.svg)</option>
+              <option value="fa-life-ring">FontAwesome Class (fa fa-life-ring)</option>
+            </select>
+            <div class="field-hint">Supports inline SVG (DOMPurified), HTTP/HTTPS/data URLs, or CSS classes.</div>
+          </div>
+
+          <!-- Header Icon & Title -->
+          <div class="field">
+            <div class="field-label">
+              <span>Chat Header Title</span>
+              <code>options.title</code>
+            </div>
+            <input type="text" id="titleInput" value="Akvo Assistant" />
+          </div>
+
+          <div class="field">
+            <div class="field-label">
+              <span>Header Avatar Icon</span>
+              <code>options.headerIcon</code>
+            </div>
+            <select id="headerIconSelect">
+              <option value="logo">Logo Icon (URL)</option>
+              <option value="svg">SVG Bot Avatar</option>
+              <option value="none">None (Title only)</option>
+            </select>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="actions-grid">
+            <button type="button" class="btn btn-brand" id="reapplyBtn">Apply Configuration</button>
+            <button type="button" class="btn btn-ghost" onclick="window.chatInstance?.open()">Trigger Open</button>
+            <button type="button" class="btn btn-ghost" onclick="window.chatInstance?.close()">Trigger Minimize</button>
+          </div>
+        </div>
+
+        <!-- Integration Code Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Integration Output</h2>
+            <span class="tag">Ready to deploy</span>
+          </div>
+
+          <div class="code-container">
+            <div class="code-header">
+              <span>consumption_snippet.js</span>
+              <button type="button" class="btn-copy" id="copySnippetBtn">Copy</button>
+            </div>
+            <pre class="code-block"><code id="codeOutput"></code></pre>
+          </div>
+
+          <!-- Runtime Inspector Metrics -->
+          <div class="inspector-card">
+            <h3>DOM State & Diagnostic Metrics</h3>
+            <div class="metrics-grid">
+              <div class="metric-cell">
+                <div class="metric-label">Launcher Element</div>
+                <div class="metric-val" id="metricLauncher">#akvo-rag-launcher</div>
+              </div>
+              <div class="metric-cell">
+                <div class="metric-label">Chatbox Display</div>
+                <div class="metric-val" id="metricDisplay">display: none</div>
+              </div>
+              <div class="metric-cell">
+                <div class="metric-label">Token Inheritance</div>
+                <div class="metric-val" id="metricToken">#007A78</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
-      console.log(
-        AkvoRAG.initChat({
-          title: "Chat from Local",
-          //wsURL: "ws://localhost:81/ws/chat",
-          wsURL: "wss://akvo-rag.akvotest.org/ws/chat",
-          // kb_id: 38,
+      const PRESETS = {
+        svgSparkle: `<svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`,
+        svgBot: `<svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M12 2a2 2 0 0 1 2 2v1h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h1V4a2 2 0 0 1 2-2zm-3 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm6 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-6 5a1 1 0 0 0 0 2h6a1 1 0 1 0 0-2H9z"/></svg>`,
+        imgAvatar: "https://raw.githubusercontent.com/feathericons/feather/master/icons/message-circle.svg",
+        headerLogo: "https://raw.githubusercontent.com/feathericons/feather/master/icons/help-circle.svg"
+      };
+
+      let config = {
+        showLauncher: true,
+        startMinimized: true,
+        primaryColor: "#007A78",
+        title: "Akvo Assistant",
+        launcherIconType: "default",
+        headerIconType: "logo"
+      };
+
+      function resolveOptions() {
+        let launcherIcon = null;
+        if (config.launcherIconType === "svg-sparkle") launcherIcon = PRESETS.svgSparkle;
+        else if (config.launcherIconType === "avatar-img") launcherIcon = PRESETS.imgAvatar;
+        else if (config.launcherIconType === "fa-life-ring") launcherIcon = "fa fa-life-ring";
+
+        let headerIcon = null;
+        if (config.headerIconType === "logo") headerIcon = PRESETS.headerLogo;
+        else if (config.headerIconType === "svg") headerIcon = PRESETS.svgBot;
+
+        return {
+          title: config.title,
+          primaryColor: config.primaryColor,
+          showLauncher: config.showLauncher,
+          startMinimized: config.startMinimized,
+          launcherIcon: launcherIcon,
+          headerIcon: headerIcon,
           kb_options: [
-            // { kb_id: 34, label: "UNEP Prod" },
-            // { kb_id: 116, label: "[Local] MCP Implementation" },
             { kb_id: 746, label: "Online MCP Implementation" },
-          ],
-        }),
-      );
+          ]
+        };
+      }
+
+      function updateCodeBlock(opts) {
+        const cleanOpts = { ...opts };
+        if (cleanOpts.launcherIcon && cleanOpts.launcherIcon.startsWith("<svg")) {
+          cleanOpts.launcherIcon = "<svg viewBox='0 0 24 24'>...</svg>";
+        }
+        if (cleanOpts.headerIcon && cleanOpts.headerIcon.startsWith("<svg")) {
+          cleanOpts.headerIcon = "<svg viewBox='0 0 24 24'>...</svg>";
+        }
+
+        const snippet = `// Host Web Application Integration
+import { initChat } from "akvo-rag-js";
+import "akvo-rag-js/dist/akvo-rag.css";
+
+const chat = initChat(${JSON.stringify(cleanOpts, null, 2)});`;
+
+        document.getElementById("codeOutput").textContent = snippet;
+      }
+
+      function updateDiagnostics(opts) {
+        const launcherEl = document.getElementById("akvo-rag-launcher");
+        const chatboxEl = document.getElementById("akvo-rag");
+
+        document.getElementById("metricLauncher").textContent = opts.showLauncher
+          ? (launcherEl ? "Visible (56px)" : "Pending")
+          : "Disabled (null)";
+        
+        document.getElementById("metricDisplay").textContent = chatboxEl
+          ? (chatboxEl.style.display || "default")
+          : "Unmounted";
+
+        document.getElementById("metricToken").textContent = opts.primaryColor || "#007A78";
+      }
+
+      function mount() {
+        if (window.chatInstance) {
+          window.chatInstance.destroy();
+          window.chatInstance = null;
+        }
+
+        const opts = resolveOptions();
+        updateCodeBlock(opts);
+        window.chatInstance = AkvoRAG.initChat(opts);
+
+        setTimeout(() => updateDiagnostics(opts), 50);
+      }
+
+      // Event Handlers
+      document.querySelectorAll("#modeControl button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#modeControl button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          config.showLauncher = btn.getAttribute("data-val") === "true";
+          document.getElementById("startStateField").style.display = config.showLauncher ? "block" : "none";
+          document.getElementById("launcherIconField").style.display = config.showLauncher ? "block" : "none";
+          mount();
+        });
+      });
+
+      document.querySelectorAll("#startStateControl button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#startStateControl button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          config.startMinimized = btn.getAttribute("data-val") === "true";
+          mount();
+        });
+      });
+
+      document.querySelectorAll(".swatch").forEach(swatch => {
+        swatch.addEventListener("click", () => {
+          document.querySelectorAll(".swatch").forEach(s => s.classList.remove("active"));
+          swatch.classList.add("active");
+          const c = swatch.getAttribute("data-color");
+          config.primaryColor = c;
+          document.getElementById("colorPicker").value = c;
+          document.getElementById("colorText").value = c;
+          mount();
+        });
+      });
+
+      document.getElementById("colorPicker").addEventListener("input", (e) => {
+        const c = e.target.value;
+        config.primaryColor = c;
+        document.getElementById("colorText").value = c;
+        document.querySelectorAll(".swatch").forEach(s => s.classList.remove("active"));
+        mount();
+      });
+
+      document.getElementById("colorText").addEventListener("change", (e) => {
+        const c = e.target.value.trim();
+        config.primaryColor = c;
+        document.getElementById("colorPicker").value = c;
+        mount();
+      });
+
+      document.getElementById("launcherIconSelect").addEventListener("change", (e) => {
+        config.launcherIconType = e.target.value;
+        mount();
+      });
+
+      document.getElementById("headerIconSelect").addEventListener("change", (e) => {
+        config.headerIconType = e.target.value;
+        mount();
+      });
+
+      document.getElementById("titleInput").addEventListener("input", (e) => {
+        config.title = e.target.value;
+      });
+
+      document.getElementById("reapplyBtn").addEventListener("click", () => {
+        mount();
+      });
+
+      document.getElementById("copySnippetBtn").addEventListener("click", () => {
+        const text = document.getElementById("codeOutput").textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById("copySnippetBtn");
+          btn.textContent = "Copied!";
+          setTimeout(() => { btn.textContent = "Copy"; }, 1800);
+        });
+      });
+
+      // Initial Mount
+      mount();
     </script>
   </body>
 </html>

@@ -1,55 +1,28 @@
 ---
-description: Scale-Adaptive BMAD workflow for small bugs, minor refactors, and fast-track tickets
+description: BMAD v6 Scale-Adaptive Fastpath — 2-step Quick-Spec + Ship flow for small features, bugfixes, and refactors
 ---
 
-# BMAD Fastpath Workflow ⚡
+# BMAD v6 Fastpath (Quick-Spec + Ship) ⚡
 
-**CRITICAL INSTRUCTION**
-This workflow is ONLY for minor tasks. Do NOT use this for large features or architectural overhauls.
-If the task introduces new paradigms, dependencies, or broad impacts, switch to `/bmad-orchestrator.md`.
+## Purpose
+For minor tickets, bugfixes (`hotfix/*`, `bugfix/*`), or small refactors, bypass the full 9-phase lifecycle. BMAD v6 introduces the **Scale-Adaptive Quick-Spec + Ship** flow.
 
-## Role
+---
 
-You are the BMAD Orchestrator executing the Fastpath. This streamlined pipeline bypasses the heavy PM and Analyst phases.
+## 2-Step Execution Flow
 
-## Pipeline Steps
+### Step 1: Quick-Spec (Technical Design & Task Checklist)
+- **Agents Involved**: `bmad-architect` (Winston) + `bmad-sm` (Bob) [Model: `flash`]
+1. **Analyze Issue**: Identify root cause or requirement.
+2. **Determine Footprint**: List exact files to modify and test files to create.
+3. **Generate Checklist**: Write a compact, actionable checklist directly into `task.md` with explicit criteria.
+- **Gate**: User approves the Quick-Spec.
 
-### Step 1: Architect (Technical Design)
-**Agent**: bmad-architect
-**Goal**: Rapid technical footprint
-1. Load `bmad-architect`
-2. Analyze the bug or requested change.
-3. Identify precisely which files to change (using Document Sharding).
-4. Outline the exact implementation steps.
-**Gate**: User approves the technical footprint.
+---
 
-### Step 2: Plan (Story Creation)
-**Agent**: bmad-sm
-**Goal**: Dev-ready requirements
-1. Load `bmad-sm`
-2. Create or update a targeted user story in `agent_docs/stories/`.
-3. List explicit UAC and TAC.
-**Gate**: Story meets INVEST criteria for the small scope.
-
-### Step 3: Implement (TDD Build)
-**Agent**: bmad-dev
-**Goal**: Write the fix securely
-1. Load `bmad-dev`
-2. Follow Red-Green-Refactor to implement the story.
-**Gate**: All tests pass.
-
-### Step 4: Verify (Tester)
-**Agent**: bmad-tester
-**Goal**: Quality assurance
-1. Load `bmad-tester`
-2. Run relevant tests locally or review the dev tests to ensure no regressions.
-**Gate**: Quality gates clear.
-
-### Step 5: Document (Writer)
-**Agent**: bmad-writer
-**Goal**: Changelog and commit
-1. Load `bmad-writer`
-2. Update the README or changelog if applicable.
-
-## Completion
-Once completed, hand back control to the user.
+### Step 2: Build, Verify & Ship
+- **Agents Involved**: `bmad-dev` (Amelia) + `bmad-tester` (Murat) + `bmad-writer` (Paige)
+1. **TDD Implementation**: Spawn `bmad-dev` (Amelia) to implement fix with a failing test first.
+2. **Verification (TEA)**: Spawn `bmad-tester` (Murat) to run automated test commands and confirm zero regressions.
+3. **Doc Sync & Commit**: Spawn `bmad-writer` (Paige) to update README/docs if needed, followed by user confirmation for `git commit`.
+- **Gate**: All automated tests green, user approves commit.

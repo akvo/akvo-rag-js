@@ -1,0 +1,95 @@
+# ============================================================================
+# Antigravity Workspace Configuration (.agent/config.yaml)
+# Tailored for akvo-rag-js (Client-Side JavaScript / Webpack / SCSS Widget)
+# ============================================================================
+
+skills:
+  # Explicitly allow only what this web/widget tech stack needs
+  allowlist:
+    - modern-web-guidance
+    - debugging-protocol
+    - troubleshooting
+    - debug-optimize-lcp
+    - chrome-devtools
+    - a11y-debugging
+    - memory-leak-debugging
+    - playwright-testing
+    - responsive-layout-engine
+    - frontend-design
+    - context7
+    - 9router
+    - bmad-dev
+    - bmad-architect
+    - bmad-tester
+    - bmad-reviewer
+    - bmad-ux
+    - bmad-writer
+    - bmad-sm
+    - bmad-pm
+    - bmad-analyst
+    - pr-review-toolkit
+    - security-guidance
+    - task-time-tracker
+
+  # Completely block heavy domain categories that bloat token context
+  blocklist:
+    # Mobile & Native Frameworks
+    - "flutter-*"
+    - "dart-*"
+    - "xcode-*"
+    - "android-*"
+
+    # Biological, Medical & Scientific Databases
+    - "*-database"
+    - "alphafold-*"
+    - "alphagenome-*"
+    - "protein-*"
+    - "literature-search-*"
+    - "science-skills-*"
+    - "scienceskillscommon"
+    - "pymol"
+    - "chembl-*"
+    - "cheminformatics-*"
+    - "clinical-*"
+    - "clinvar-*"
+    - "dbsnp-*"
+    - "embl-*"
+    - "encode-*"
+    - "ensembl-*"
+    - "foldseek-*"
+    - "gnomad-*"
+    - "gtex-*"
+    - "human-protein-*"
+    - "interpro-*"
+    - "jaspar-*"
+    - "ncbi-*"
+    - "openfda-*"
+    - "opentargets-*"
+    - "pdb-*"
+    - "pubchem-*"
+    - "pubmed-*"
+    - "quickgo-*"
+    - "reactome-*"
+    - "string-*"
+    - "ucsc-*"
+    - "unibind-*"
+    - "uniprot-*"
+    - "rdkit-*"
+
+    # Deep GCP Infrastructure & Data Pipelines
+    - "gcp-*"
+    - "bigquery-*"
+    - "dataform-*"
+    - "dbt-*"
+    - "firebase-*"
+    - "bigtable-*"
+    - "alloydb-*"
+    - "cloudsql-*"
+    - "spanner-*"
+    - "spark-*"
+    - "schema-mapping"
+    - "data-autocleaning"
+
+    # Python Specific Tooling
+    - "managing-python-dependencies"
+    - "uv"

@@ -18,12 +18,39 @@ Every commit MUST follow this format:
 > [!IMPORTANT]
 > If you are about to commit and do not have an issue number, you MUST ask the user to confirm the issue number before proceeding. Never invent an issue number.
 
+### Akvo Branch Naming Standard
+Every feature branch MUST be linked to an issue number (following Akvo Developer Guidelines):
+- **Format**: `feature/<issue_number>-<issue_description>`
+- **Examples**: `feature/13-backend-test-setup`, `feature/363-precommit-config`
+
+### Git Rebase Mandate (`git pull --rebase`)
+- **Always** use `git pull --rebase` instead of `git merge` or merge commits when syncing your branch with `origin/main` to keep a clean, linear commit history.
+
+### Batch Staging Safeguards & No Blind `git add -A`
+- **NEVER** run blind blanket staging commands like `git add -A` or `git add .` on repository roots.
+- **Always** stage explicitly declared touchpoint files: `git add <file1> <file2>`.
+- Review `git status` before staging to verify that no accidental editor temp files, credential caches, or unrelated files are included.
+
+### AI Scratchpad & Artifact Isolation
+- Agent scratchpad files (e.g. `scratch/`, `.system_generated/`, temporary test harnesses, and draft notes) MUST be isolated and never committed to application source trees.
+
+
+### Peer PR Review & Changes Requested Standard
+When assigned to review another engineer's PR:
+1. **Interactive Audit**: Run `/bmad-peer-review <PR_NUMBER>` to perform multi-vector inspection across security, performance, DRY, scope containment, and contract parity.
+2. **Review Calibration**: Calibrate review items with human oversight before posting to avoid nit-picking and maintain high signal-to-noise.
+3. **Structured GitHub Submission**:
+   - Use `gh pr review <PR_NUMBER> --request-changes --body "..."` when Critical `[SEC]`/`[DATA]` or Major `[ARCH]`/`[PERF]`/`[SCOPE]` issues are present.
+   - Use `gh pr review <PR_NUMBER> --comment --body "..."` for non-blocking inquiries.
+   - Use `gh pr review <PR_NUMBER> --approve --body "..."` when all quality gates and test coverage pass.
+
 ### Pull Request Strategy
 
 When creating a PR:
 1. **Title Format**: `[#issue_number] <Clear group/feature name> - <Short Description>`
 2. **Safety Audit**: If applicable, attach or link the `safety-audit-issue-[issue_number].md` file.
 3. **QA Guide**: If applicable, reference the `qa-guide-issue-[issue_number].md`.
+
 
 ### Components
 
@@ -49,6 +76,22 @@ When creating a PR:
 - `[#1] feat(api): add FastAPI endpoint for user profile`
 - `[#12] fix(auth): resolve login timeout`
 - `[#45] docs: update README with setup instructions`
+
+### Mandatory User Confirmation
+
+> [!CAUTION]
+> **NEVER** perform `git commit` or `git push` automatically. You MUST ask for and receive explicit confirmation from the user before executing these commands.
+>
+> **Protocol**:
+1. **Doc Alignment Check**: Verify that the corresponding `docs/lld/{feature}_lld.md`, `docs/prd/{initiative}_prd.md`, `docs/architecture_map.md`, and the implementation are perfectly aligned. If there are discrepancies, update the docs or implementation as needed.
+2. **Task Status Check**: Verify that `task.md` is fully updated — all tasks marked `[x]` with actual time noted.
+3. **User Confirmation**: Present the alignment and sprint status to the user and ask: "Is the documentation aligned and the sprint plan updated?"
+4. **Atomic Commit Strategy**: Analyze the changed files and logical updates. Determine if the changes should be split into multiple atomic commits. Propose a commit split plan to the user.
+5. **Commit Preparation**: Prepare the commit message(s) and show them to the user along with the list of files for each commit.
+6. **Final Approval**: Ask: "Should I proceed with the proposed commit(s) and push?"
+7. Only execute the commands if the user says "Yes", "Proceed", or equivalent for the alignment, the sprint, the split plan, and the final commit(s).
+>
+> This rule is absolute and overrides any stack-specific documentation that might suggest pushing as a final step.
 
 ### Related Rules
 - Repo Structure @repo-structure.md

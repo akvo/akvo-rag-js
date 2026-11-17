@@ -16,12 +16,28 @@ description: When creating a new stack directory or adding rules/skills/workflow
    └── workflows/
    ```
 
+### Dockerization & Infrastructure Strategy
+
+Every stack created from zero MUST adhere to the standard Dockerization and infrastructure guidelines:
+1. **Docker Wrapper Script (`dc.sh`)**: Every stack must include a `./dc.sh` bash script in its root as a standardized wrapper for `docker compose` commands (e.g., `./dc.sh up -d`, `./dc.sh exec [service] [command]`). All commands referenced in `.agent` workflows and rules must use this wrapper.
+2. **Compose Configurations (`compose.yml`)**:
+   - The stack must utilize `compose.yml` (the modern standard replacing `docker-compose.yml`) for local development orchestration.
+   - **Registry Resilience**: Base images should pin immutable tags and reference official or secondary mirrors to prevent single-point-of-failure during delisting.
+   - **Portable Healthchecks**: All services MUST declare native container healthchecks (`test: ["CMD-SHELL", "..."]`, `interval: 10s`, `timeout: 5s`, `retries: 5`) to allow downstream services to use `condition: service_healthy`.
+3. **Client-Server Dependency Topology**:
+   - When services depend on external engines (e.g., Qdrant, PostgreSQL, Redis), the client library SDK version (e.g. `qdrant-client==1.13.0`) MUST be verified in lockstep with the containerized server version (`qdrant/qdrant:v1.13.0`) to prevent protocol/serialization crashes.
+4. **Database Isolation & Migration Reversibility**:
+   - In modular or multi-service stacks sharing a database engine, each service must isolate its migrations (e.g. dedicated schema or distinct `alembic_version` / `flyway_schema_history` table names).
+   - Every migration MUST include a verified, fully reversible rollback step (`down` revision).
+
+
 ### Required Rules (Minimum)
 
 Every stack MUST include at minimum:
 
 | Rule | Trigger | Purpose |
 |------|---------|---------|
+| `professional-team-sop.md` | `always_on` | Core TDD/DRY/LLD professional standards |
 | `rule-priority.md` | — | Conflict resolution hierarchy |
 | `security-mandate.md` | `always_on` | Security principles adapted for the stack |
 | `docker-commands.md` | `always_on` | Docker/container execution commands |

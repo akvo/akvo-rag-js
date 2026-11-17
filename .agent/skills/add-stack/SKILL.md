@@ -15,7 +15,7 @@ Guide for adding a new fullstack tech stack skeleton to the my-antigravity-pilot
 
 Before creating files, research:
 - The stack's conventions and idioms (check official documentation)
-- Docker/container setup for the stack
+- Docker/container setup for the stack (adhering to the @stack-creation.md standard: utilizing `compose.yml` for dev/prod orchestration and a `./dc.sh` wrapper script)
 - Testing frameworks and conventions
 - Security best practices specific to the stack
 - Skill discovery resources:

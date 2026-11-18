@@ -82,3 +82,40 @@ test("Chatbot Class Pattern - Destroy cleanup", async (t) => {
     "Container reference should be cleared",
   );
 });
+
+test("WebSocket - supports both wsURL and wsUrl options", async () => {
+  const { connectWebSocket } = await import("../../src/lib/websocket.js");
+
+  let connectedUrl = null;
+  const originalWs = globalThis.WebSocket;
+  globalThis.WebSocket = class MockWS {
+    static OPEN = 1;
+    constructor(url) {
+      connectedUrl = url;
+      this.readyState = MockWS.OPEN;
+    }
+    send() {}
+    close() {}
+  };
+
+  try {
+    // 1. wsURL (uppercase)
+    const conn1 = connectWebSocket({ wsURL: "wss://akvo-rag.akvotest.org/ws/chat" });
+    assert.strictEqual(connectedUrl, "wss://akvo-rag.akvotest.org/ws/chat");
+    conn1.close();
+
+    // 2. wsUrl (camelCase)
+    const conn2 = connectWebSocket({ wsUrl: "ws://localhost:81/ws/chat" });
+    assert.strictEqual(connectedUrl, "ws://localhost:81/ws/chat");
+    conn2.close();
+
+    // 3. No URL passed
+    connectedUrl = null;
+    const conn3 = connectWebSocket({});
+    assert.strictEqual(connectedUrl, null);
+    assert.strictEqual(conn3.socket, null);
+    assert.doesNotThrow(() => conn3.close());
+  } finally {
+    globalThis.WebSocket = originalWs;
+  }
+});

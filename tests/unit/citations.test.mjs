@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert";
-import { replaceCitations } from "../../src/utils/citations-popover.js";
+import { replaceCitations, removeAllPopovers } from "../../src/utils/citations-popover.js";
 
 test("replaceCitations should handle large citation counts and missing data", async (t) => {
   // Mock element with getter/setter for innerHTML to simulate behavior
@@ -68,4 +68,22 @@ test("replaceCitations should handle large citation counts and missing data", as
     !html.includes("[citation:99]"),
     "Hallucinated Citation 99 should be stripped",
   );
+});
+
+test("removeAllPopovers removes all .citation-popover elements", () => {
+  let removedCount = 0;
+  const mockPopovers = [
+    { remove: () => { removedCount++; } },
+    { remove: () => { removedCount++; } }
+  ];
+
+  global.document = {
+    querySelectorAll: (selector) => {
+      if (selector === ".citation-popover") return mockPopovers;
+      return [];
+    }
+  };
+
+  removeAllPopovers();
+  assert.strictEqual(removedCount, 2, "Both popovers should be removed");
 });

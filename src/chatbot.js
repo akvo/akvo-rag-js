@@ -4,7 +4,10 @@ import {
   appendMessageToBody,
   updateStreamingAssistantMessage,
 } from "./utils/chat-renderer.js";
-import { replaceCitations } from "./utils/citations-popover.js";
+import {
+  replaceCitations,
+  removeAllPopovers,
+} from "./utils/citations-popover.js";
 import { getOrCreateVisitorId } from "./utils/uuid.js";
 
 const CHAT_HISTORY_SLICE = -10;
@@ -96,6 +99,7 @@ export class AkvoRagChatbox {
       this.launcher.remove();
       this.launcher = null;
     }
+    removeAllPopovers();
   }
 
   /**
@@ -322,6 +326,21 @@ export class AkvoRagChatbox {
     }
   }
 
+  _renderInputArea() {
+    return `
+      <input
+        type="text"
+        id="akvo-rag-input"
+        placeholder="Type a message..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+      <button id="akvo-rag-send-btn">Send</button>
+    `;
+  }
+
   _createUI() {
     this.container = document.createElement("div");
     this.container.id = "akvo-rag";
@@ -379,18 +398,7 @@ export class AkvoRagChatbox {
                 Start Chat
               </button>
             `
-            : `
-              <input
-                type="text"
-                id="akvo-rag-input"
-                placeholder="Type a message..."
-                autocomplete="off"
-                autocorrect="off"
-                autocapitalize="off"
-                spellcheck="false"
-              />
-              <button id="akvo-rag-send-btn">Send</button>
-            `
+            : this._renderInputArea()
         }
       </div>
     `;
@@ -469,10 +477,23 @@ export class AkvoRagChatbox {
         this.isLoading = false;
         this._updateSendButtonState();
       },
+      onMaxReconnect: () => {
+        this.isLoading = false;
+        this._updateSendButtonState();
+        appendMessageToBody(
+          "system",
+          "Connection to the chat server lost. Please check your network and refresh the page.",
+        );
+      },
     };
 
     this.wsConnection = connectWebSocket(
-      { ...this.options, autoReconnect: true, visitorId: this.visitorId },
+      {
+        ...this.options,
+        autoReconnect: true,
+        visitorId: this.visitorId,
+        onMaxReconnect: socketCallback.onMaxReconnect,
+      },
       this._onMessage,
       socketCallback,
     );
@@ -492,18 +513,7 @@ export class AkvoRagChatbox {
     const inputContainer = this.container.querySelector(
       "#akvo-rag-input-container",
     );
-    inputContainer.innerHTML = `
-      <input
-        type="text"
-        id="akvo-rag-input"
-        placeholder="Type a message..."
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-      />
-      <button id="akvo-rag-send-btn">Send</button>
-    `;
+    inputContainer.innerHTML = this._renderInputArea();
 
     this._connect();
 
@@ -588,9 +598,9 @@ export class AkvoRagChatbox {
       }
       updateStreamingAssistantMessage(data.content, this.currentAssistantMsgEl);
     } else if (data.type === "end") {
-      const el = document.querySelector(
-        `#akvo-msg-assistant-${this.messageCounter}`,
-      );
+      const el =
+        this.currentAssistantMsgEl ||
+        document.querySelector(`#akvo-msg-assistant-${this.messageCounter}`);
       if (el) {
         replaceCitations(el, this.citations);
         if (el?.rawText) {

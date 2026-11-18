@@ -368,9 +368,24 @@
             </div>
           </div>
 
-          <!-- Control Group 7: Knowledge Base Configuration -->
+          <!-- Control Group 7: Backend Connection & Knowledge Base -->
           <div class="space-y-4 pt-5" data-purpose="kb-configuration-group">
             <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700">RAG Backend Connection</label>
+              <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">options.wsURL</code>
+            </div>
+            <!-- Quick Endpoint Presets -->
+            <div class="grid grid-cols-2 p-1 bg-neutral-100/90 border border-neutral-200/80 rounded-lg gap-1">
+              <button class="px-2.5 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5 font-sans" id="btnWsOnline" type="button">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online RAG
+              </button>
+              <button class="px-2.5 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5 font-sans" id="btnWsLocal" type="button">
+                <span class="w-2 h-2 rounded-full bg-neutral-400"></span> Localhost:81
+              </button>
+            </div>
+            <input class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-3 text-neutral-900 focus:border-neutral-900" id="inputWsUrl" type="text" value="wss://akvo-rag.akvotest.org/ws/chat" />
+
+            <div class="flex items-center justify-between pt-2">
               <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700">Knowledge Base Setup</label>
               <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">kb_id / kb_options</code>
             </div>
@@ -390,9 +405,9 @@
                 <label class="text-[11px] font-semibold text-neutral-700" for="inputSingleKbId">Single KB ID (Direct Session)</label>
                 <code class="text-[10px] font-mono text-neutral-500 bg-neutral-200/60 px-1 rounded">options.kb_id</code>
               </div>
-              <input class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-3 text-neutral-900 focus:border-neutral-900" id="inputSingleKbId" type="number" value="746" />
+              <input class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-3 text-neutral-900 focus:border-neutral-900" id="inputSingleKbId" type="number" value="750" />
               <p class="text-[11px] text-neutral-500 leading-normal">
-                Direct connection. Bypasses the knowledge base selection screen and starts the chat session immediately with the welcome message and input field ready.
+                Direct connection. Bypasses the knowledge base selection screen and connects immediately with the welcome message and input field ready.
               </p>
             </div>
 
@@ -404,12 +419,8 @@
               </div>
               <div class="space-y-1.5 text-xs font-mono">
                 <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded border border-neutral-200 shadow-2xs">
-                  <span class="font-medium text-neutral-800">Online Knowledge Base</span>
-                  <span class="text-[11px] text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded font-mono">ID: 746</span>
-                </div>
-                <div class="flex items-center justify-between bg-white px-2.5 py-1.5 rounded border border-neutral-200 shadow-2xs">
-                  <span class="font-medium text-neutral-800">Field Operations &amp; WASH</span>
-                  <span class="text-[11px] text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded font-mono">ID: 812</span>
+                  <span class="font-medium text-neutral-800">Critical Thinking</span>
+                  <span class="text-[11px] text-neutral-500 bg-neutral-100 px-1.5 py-0.5 rounded font-mono">ID: 750</span>
                 </div>
               </div>
               <p class="text-[11px] text-neutral-500 leading-normal">
@@ -542,6 +553,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       // Configuration State
       const config = {
+        wsURL: "wss://akvo-rag.akvotest.org/ws/chat",
         title: "Akvo Assistant",
         primaryColor: "#007A78",
         showLauncher: true,
@@ -554,10 +566,9 @@
         launcherIconType: "bubble",
         headerIconType: "none",
         kbMode: "multi", // "multi" or "single"
-        kb_id: 746,
+        kb_id: 750,
         kb_options: [
-          { "kb_id": 746, "label": "Online Knowledge Base" },
-          { "kb_id": 812, "label": "Field Operations & WASH" }
+          { "kb_id": 750, "label": "Critical Thinking" }
         ],
         activeTab: "multi" // "multi", "single", or "html"
       };
@@ -577,6 +588,10 @@
       };
 
       // UI References
+      const btnWsOnline = document.getElementById('btnWsOnline');
+      const btnWsLocal = document.getElementById('btnWsLocal');
+      const inputWsUrl = document.getElementById('inputWsUrl');
+
       const nativeColorInput = document.getElementById('nativeColorInput');
       const hexTextInput = document.getElementById('hexTextInput');
       const swatches = document.querySelectorAll('.theme-swatch');
@@ -631,6 +646,7 @@
 
       function resolveOptions() {
         const opts = {
+          wsURL: config.wsURL,
           title: config.title,
           primaryColor: config.primaryColor,
           showLauncher: config.showLauncher,
@@ -670,6 +686,7 @@
 <span class="tok-kw">import</span> <span class="tok-str">"akvo-rag-js/dist/akvo-rag.css"</span>;
 
 <span class="tok-kw">const</span> <span class="tok-prop">chat</span> = <span class="tok-fn">initChat</span>({
+  <span class="tok-prop">wsURL</span>: <span class="tok-str">"${opts.wsURL}"</span>,
   <span class="tok-prop">kb_id</span>: <span class="tok-num">${config.kb_id}</span>, <span class="tok-com">// Direct session bypasses selection picker</span>
   <span class="tok-prop">title</span>: <span class="tok-str">"${opts.title}"</span>,
   <span class="tok-prop">primaryColor</span>: <span class="tok-str">"${opts.primaryColor}"</span>,
@@ -689,6 +706,7 @@
 <span class="tok-kw">import</span> <span class="tok-str">"akvo-rag-js/dist/akvo-rag.css"</span>;
 
 <span class="tok-kw">const</span> <span class="tok-prop">chat</span> = <span class="tok-fn">initChat</span>({
+  <span class="tok-prop">wsURL</span>: <span class="tok-str">"${opts.wsURL}"</span>,
   <span class="tok-prop">title</span>: <span class="tok-str">"${opts.title}"</span>,
   <span class="tok-prop">primaryColor</span>: <span class="tok-str">"${opts.primaryColor}"</span>,
   <span class="tok-prop">showLauncher</span>: <span class="tok-bool">${opts.showLauncher}</span>,
@@ -702,12 +720,8 @@
   <span class="tok-prop">headerIcon</span>: <span class="tok-bool">${headerIconStr}</span>,
   <span class="tok-prop">kb_options</span>: [
     {
-      <span class="tok-prop">"kb_id"</span>: <span class="tok-num">746</span>,
-      <span class="tok-prop">"label"</span>: <span class="tok-str">"Online Knowledge Base"</span>
-    },
-    {
-      <span class="tok-prop">"kb_id"</span>: <span class="tok-num">812</span>,
-      <span class="tok-prop">"label"</span>: <span class="tok-str">"Field Operations &amp; WASH"</span>
+      <span class="tok-prop">"kb_id"</span>: <span class="tok-num">750</span>,
+      <span class="tok-prop">"label"</span>: <span class="tok-str">"Critical Thinking"</span>
     }
   ]
 });`;
@@ -719,9 +733,9 @@
 <span class="tok-tag">&lt;script&gt;</span>
   <span class="tok-prop">document</span>.<span class="tok-fn">addEventListener</span>(<span class="tok-str">'DOMContentLoaded'</span>, <span class="tok-kw">function</span> () {
     <span class="tok-fn">AkvoRagChatbox</span>.<span class="tok-fn">initChat</span>({
+      <span class="tok-prop">wsURL</span>: <span class="tok-str">"${opts.wsURL}"</span>,
       ${config.kbMode === 'single' ? `<span class="tok-prop">kb_id</span>: <span class="tok-num">${config.kb_id}</span>,` : `<span class="tok-prop">kb_options</span>: [
-        { <span class="tok-prop">"kb_id"</span>: <span class="tok-num">746</span>, <span class="tok-prop">"label"</span>: <span class="tok-str">"Online Knowledge Base"</span> },
-        { <span class="tok-prop">"kb_id"</span>: <span class="tok-num">812</span>, <span class="tok-prop">"label"</span>: <span class="tok-str">"Field Operations &amp; WASH"</span> }
+        { <span class="tok-prop">"kb_id"</span>: <span class="tok-num">750</span>, <span class="tok-prop">"label"</span>: <span class="tok-str">"Critical Thinking"</span> }
       ],`}
       <span class="tok-prop">title</span>: <span class="tok-str">"${opts.title}"</span>,
       <span class="tok-prop">primaryColor</span>: <span class="tok-str">"${opts.primaryColor}"</span>,
@@ -816,54 +830,6 @@
           mount();
         }
         logEvent(`kb_mode:${mode}`);
-      }
-
-      function updateTelemetry() {
-        const launcher = document.getElementById('akvo-rag-launcher');
-        const chatbox = document.getElementById('akvo-rag');
-
-        if (metricLauncher) {
-          if (!config.showLauncher) {
-            metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400"></span> Disabled (Inline Embed)`;
-          } else if (launcher) {
-            const isVisible = window.getComputedStyle(launcher).display !== 'none';
-            if (isVisible) {
-              metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Visible (56px FAB)`;
-            } else {
-              metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> Hidden (Chat Open)`;
-            }
-          } else {
-            metricLauncher.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400"></span> Pending Init...`;
-          }
-        }
-
-        if (metricChatbox) {
-          if (chatbox) {
-            const isVisible = window.getComputedStyle(chatbox).display !== 'none';
-            if (isVisible) {
-              if (chatbox.classList.contains('minimized')) {
-                metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 inline-block mr-1"></span> minimized (Titlebar 40px)`;
-                metricChatbox.className = "text-sm font-semibold font-mono text-amber-700 mt-1";
-              } else {
-                metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span> flex (Active)`;
-                metricChatbox.className = "text-sm font-semibold font-mono text-emerald-700 mt-1";
-              }
-            } else {
-              metricChatbox.innerHTML = `<span class="w-2 h-2 rounded-full bg-neutral-400 inline-block mr-1"></span> none (Collapsed)`;
-              metricChatbox.className = "text-sm font-semibold font-mono text-neutral-600 mt-1";
-            }
-          } else {
-            metricChatbox.textContent = 'Unmounted';
-            metricChatbox.className = "text-sm font-semibold font-mono text-neutral-400 mt-1";
-          }
-        }
-
-        if (metricTokenHex) {
-          metricTokenHex.textContent = config.primaryColor;
-        }
-        if (metricColorDot) {
-          metricColorDot.style.backgroundColor = config.primaryColor;
-        }
       }
 
       function mount() {
@@ -1105,6 +1071,49 @@
         });
       }
 
+      // WebSocket URL & Presets
+      if (btnWsOnline && btnWsLocal && inputWsUrl) {
+        const activeWsClass = "px-2.5 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5 font-sans";
+        const inactiveWsClass = "px-2.5 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5 font-sans";
+
+        btnWsOnline.addEventListener('click', () => {
+          config.wsURL = "wss://akvo-rag.akvotest.org/ws/chat";
+          inputWsUrl.value = config.wsURL;
+          btnWsOnline.className = activeWsClass;
+          btnWsLocal.className = inactiveWsClass;
+          mount();
+          logEvent("ws:online_akvotest");
+        });
+
+        btnWsLocal.addEventListener('click', () => {
+          config.wsURL = "ws://localhost:81/ws/chat";
+          inputWsUrl.value = config.wsURL;
+          btnWsLocal.className = activeWsClass;
+          btnWsOnline.className = inactiveWsClass;
+          mount();
+          logEvent("ws:localhost_81");
+        });
+
+        inputWsUrl.addEventListener('change', (e) => {
+          const val = e.target.value.trim();
+          if (val) {
+            config.wsURL = val;
+            if (val.includes("akvotest.org")) {
+              btnWsOnline.className = activeWsClass;
+              btnWsLocal.className = inactiveWsClass;
+            } else if (val.includes("localhost")) {
+              btnWsLocal.className = activeWsClass;
+              btnWsOnline.className = inactiveWsClass;
+            } else {
+              btnWsOnline.className = inactiveWsClass;
+              btnWsLocal.className = inactiveWsClass;
+            }
+            mount();
+            logEvent("ws:custom_url");
+          }
+        });
+      }
+
       // Display Mode Toggle
       btnDisplayFab.addEventListener('click', () => {
         config.showLauncher = true;
@@ -1159,6 +1168,7 @@
       // Reset Defaults
       if (btnResetConfig) {
         btnResetConfig.addEventListener('click', () => {
+          config.wsURL = "wss://akvo-rag.akvotest.org/ws/chat";
           config.title = "Akvo Assistant";
           config.primaryColor = "#007A78";
           config.showLauncher = true;
@@ -1171,13 +1181,20 @@
           config.launcherIconType = "bubble";
           config.headerIconType = "none";
           config.kbMode = "multi";
-          config.kb_id = 746;
+          config.kb_id = 750;
+          config.kb_options = [
+            { "kb_id": 750, "label": "Critical Thinking" }
+          ];
           config.activeTab = "multi";
+
+          if (inputWsUrl) inputWsUrl.value = config.wsURL;
+          if (btnWsOnline) btnWsOnline.className = "px-2.5 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5 font-sans";
+          if (btnWsLocal) btnWsLocal.className = "px-2.5 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1.5 font-sans";
 
           inputHeaderTitle.value = config.title;
           selectLauncherIcon.value = "bubble";
           selectHeaderAvatar.value = "none";
-          if (inputSingleKbId) inputSingleKbId.value = "746";
+          if (inputSingleKbId) inputSingleKbId.value = "750";
           if (selectLauncherSize) selectLauncherSize.value = "56px";
           if (selectWidth) selectWidth.value = "360px";
           if (selectHeight) selectHeight.value = "500px";
@@ -1208,6 +1225,7 @@ import { initChat } from "akvo-rag-js";
 import "akvo-rag-js/dist/akvo-rag.css";
 
 const chat = initChat({
+  wsURL: "${opts.wsURL}",
   kb_id: ${config.kb_id}, // Direct session bypasses selection picker
   title: "${opts.title}",
   primaryColor: "${opts.primaryColor}",
@@ -1225,6 +1243,7 @@ import { initChat } from "akvo-rag-js";
 import "akvo-rag-js/dist/akvo-rag.css";
 
 const chat = initChat({
+  wsURL: "${opts.wsURL}",
   title: "${opts.title}",
   primaryColor: "${opts.primaryColor}",
   showLauncher: ${opts.showLauncher},
@@ -1235,8 +1254,7 @@ const chat = initChat({
   borderRadius: "${opts.borderRadius}",
   launcherSize: "${opts.launcherSize}",
   kb_options: [
-    { "kb_id": 746, "label": "Online Knowledge Base" },
-    { "kb_id": 812, "label": "Field Operations & WASH" }
+    { "kb_id": 750, "label": "Critical Thinking" }
   ]
 });`;
         } else {
@@ -1246,7 +1264,8 @@ const chat = initChat({
             `<script>\n` +
             `  document.addEventListener('DOMContentLoaded', function () {\n` +
             `    AkvoRagChatbox.initChat({\n` +
-            `      ${config.kbMode === 'single' ? `kb_id: ${config.kb_id},` : `kb_options: [\n        { "kb_id": 746, "label": "Online Knowledge Base" },\n        { "kb_id": 812, "label": "Field Operations & WASH" }\n      ],`}\n` +
+            `      wsURL: "${opts.wsURL}",\n` +
+            `      ${config.kbMode === 'single' ? `kb_id: ${config.kb_id},` : `kb_options: [\n        { "kb_id": 750, "label": "Critical Thinking" }\n      ],`}\n` +
             `      title: "${opts.title}",\n` +
             `      primaryColor: "${opts.primaryColor}",\n` +
             `      showLauncher: ${opts.showLauncher},\n` +

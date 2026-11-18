@@ -203,13 +203,25 @@
 
     .akvo-msg-user {
       text-align: right;
-      background-color: color.adjust(v.$primary-color, $lightness: 40%);
-      color: black;
+      background-color: var(--akvo-primary, v.$primary-color);
+      color: #ffffff;
       padding: 8px 12px;
       border-radius: 12px;
       margin: 10px 0;
       max-width: 80%;
       margin-left: auto;
+      word-break: break-word;
+
+      p {
+        margin: 0;
+        color: #ffffff;
+        line-height: 1.4;
+      }
+
+      a {
+        color: #ffffff;
+        text-decoration: underline;
+      }
     }
 
     .akvo-msg-assistant {
@@ -408,7 +420,7 @@
 
       input[type="radio"] {
         margin-right: 10px;
-        accent-color: v.$primary-color; // modern radio style
+        accent-color: var(--akvo-primary, v.$primary-color); // modern radio style
         transform: scale(1.1);
         cursor: pointer;
       }

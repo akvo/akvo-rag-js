@@ -1,3 +1,11 @@
+import DOMPurify from "dompurify";
+
+export function removeAllPopovers() {
+  if (typeof document !== "undefined" && typeof document.querySelectorAll === "function") {
+    document.querySelectorAll(".citation-popover").forEach((el) => el.remove());
+  }
+}
+
 export function replaceCitations(el, citations) {
   if (!el || !citations?.length) return;
 
@@ -63,18 +71,19 @@ export function replaceCitations(el, citations) {
 
 function showPopover(event) {
   // Remove existing popovers
-  document.querySelectorAll(".citation-popover").forEach((el) => el.remove());
+  removeAllPopovers();
 
   const node = event.target;
 
   const popover = document.createElement("div");
   popover.className = "citation-popover";
-  popover.innerHTML = `
+  const rawPopoverHtml = `
     <div class="arrow"></div>
-    <div><strong>${node.dataset.title}</strong></div>
-    <div><small>Source: ${node.dataset.source}, Page: ${node.dataset.page}</small></div>
-    <p>${node.dataset.text}</p>
+    <div><strong>${node.dataset.title || ""}</strong></div>
+    <div><small>Source: ${node.dataset.source || ""}, Page: ${node.dataset.page || ""}</small></div>
+    <p>${node.dataset.text || ""}</p>
   `;
+  popover.innerHTML = DOMPurify.sanitize(rawPopoverHtml);
   document.body.appendChild(popover);
 
   const popoverWidth = popover.offsetWidth;

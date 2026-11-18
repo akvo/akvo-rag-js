@@ -27,10 +27,12 @@ So that the widget is unobtrusive, matches our portal design, and expands smooth
    - All rendered SVG/HTML is sanitized with DOMPurify.
 4. **Theming, Sizing & Positioning**:
    - Supports `options.primaryColor` via `--akvo-primary` CSS custom property.
-   - Header, launcher, send button, and citation links adapt to `--akvo-primary`.
+   - Header, launcher, send button, citation links, markdown headers/quotes, and user message bubbles (`.akvo-msg-user`) adapt to `--akvo-primary`.
    - Supports `width` and `height` dimensions (`number` or `string` with unit) cascading via `--akvo-width` and `--akvo-height`.
    - Supports `position: "bottom-left"` and `"bottom-right"` (default).
    - Supports `borderRadius` (`number` or `string` with unit) and `zIndex`.
    - Supports `launcherSize`, `launcherWidth`, and `launcherHeight` for fine-grained button dimension control.
-5. **DOM Lifecycle**:
+5. **DOM Lifecycle & Backend Flexibility**:
    - Calling `destroy()` cleans up `#akvo-rag-launcher`, `#akvo-rag`, and removes all attached event listeners.
+   - WebSocket client defensibly supports both `wsURL` and `wsUrl` options.
+   - Workbench defaults to Online RAG endpoint with knowledge base `750: Critical Thinking`.

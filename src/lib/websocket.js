@@ -4,11 +4,17 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
   let socket = null;
   let reconnectAttempts = 0;
   const maxReconnectAttempts = 10;
+  const wsEndpoint = options.wsURL || options.wsUrl;
 
   // Helper to create the WebSocket and set handlers
   function createSocket() {
-    console.log(`[WebSocket] Connecting to: ${options.wsURL}`);
-    socket = new WebSocket(options.wsURL);
+    if (!wsEndpoint) {
+      console.warn("[WebSocket] No wsURL provided in options.");
+      return;
+    }
+
+    console.log(`[WebSocket] Connecting to: ${wsEndpoint}`);
+    socket = new WebSocket(wsEndpoint);
 
     socket.onopen = () => {
       console.log("[WebSocket] Connected");
@@ -81,7 +87,7 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
 
     socket.onclose = (event) => {
       console.warn(
-        `[WebSocket] Closed (URL: ${options.wsURL}): code=${event.code} reason=${event.reason || "no reason provided"}`,
+        `[WebSocket] Closed (URL: ${wsEndpoint}): code=${event.code} reason=${event.reason || "no reason provided"}`,
       );
 
       if (options.autoReconnect && event.code !== 1000) {
@@ -117,7 +123,7 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
     };
 
     socket.onerror = (event) => {
-      console.error(`[WebSocket] Error (URL: ${options.wsURL}):`, event);
+      console.error(`[WebSocket] Error (URL: ${wsEndpoint}):`, event);
       if (options.onError) options.onError(event);
     };
   }
@@ -130,7 +136,9 @@ export function connectWebSocket(options, onMessage, callbacks = {}) {
     },
     close() {
       options.autoReconnect = false; // stop auto reconnect on manual close
-      socket.close(1000, "Client closed connection");
+      if (socket) {
+        socket.close(1000, "Client closed connection");
+      }
     },
   };
 }

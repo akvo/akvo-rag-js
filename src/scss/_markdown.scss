@@ -11,7 +11,7 @@
     h6 {
       margin-top: 1.5em;
       margin-bottom: 0.5em;
-      color: v.$primary-color;
+      color: var(--akvo-primary, v.$primary-color);
     }
 
     p {
@@ -94,7 +94,7 @@
     }
 
     blockquote {
-      border-left: 4px solid v.$primary-color;
+      border-left: 4px solid var(--akvo-primary, v.$primary-color);
       margin: 10px 0;
       padding: 8px 16px;
       background-color: #fff;
@@ -109,7 +109,7 @@
     }
 
     a {
-      color: v.$primary-color;
+      color: var(--akvo-primary, v.$primary-color);
       text-decoration: underline;
 
       &:hover {

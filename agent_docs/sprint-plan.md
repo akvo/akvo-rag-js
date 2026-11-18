@@ -11,6 +11,7 @@ Improve system stability, performance, and maintainability by remediating issues
 - [x] [STORY-015: Documentation Audit](./stories/STORY-015-doc-audit.md) (Pri: Low, Est: 1h, Actual: 0.5h)
 - [x] [Issue #12: Prevent Hallucinated Citations](./stories/issue-12-hallucinated-citations.md) (Pri: Medium, Est: 1h, Actual: 1.0h)
 - [x] [Issue #14: WebSocket Stability & Cleanup](./stories/issue-14-websocket-cleanup.md) (Pri: High, Est: 1h, Actual: 1.5h)
+- [x] [Issue #16 / STORY-017: Floating Launcher & Custom UI Theming](./stories/STORY-017-launcher-custom-ui.md) (Pri: High, Est: 4h, Actual: 2.0h)
 
 ## Sprint Summary
 | Metric | Value |

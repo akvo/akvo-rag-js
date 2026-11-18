@@ -17,7 +17,7 @@
 }
 
 .citation {
-  color: v.$primary-color;
+  color: var(--akvo-primary, v.$primary-color);
 }
 
 .citation-popover {
@@ -114,23 +114,38 @@
 }
 
 #akvo-rag {
+  --akvo-primary: #{v.$primary-color};
+  --akvo-width: #{v.$chatbot-width};
+  --akvo-height: #{v.$chatbot-height};
+  --akvo-border-radius: #{v.$border-radius};
+  --akvo-offset-bottom: 20px;
+  --akvo-offset-side: 20px;
+  --akvo-z-index: 99999;
+
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: v.$chatbot-width;
-  height: v.$chatbot-height;
+  bottom: var(--akvo-offset-bottom, 20px);
+  right: var(--akvo-offset-side, 20px);
+  width: var(--akvo-width, v.$chatbot-width);
+  height: var(--akvo-height, v.$chatbot-height);
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 48px);
   background-color: v.$background-color;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: v.$border-radius;
-  z-index: 99999;
+  border-radius: var(--akvo-border-radius, v.$border-radius);
+  z-index: var(--akvo-z-index, 99999);
   display: flex;
   flex-direction: column;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
   transition: all 0.3s ease;
 
+  &.akvo-position-left {
+    right: auto;
+    left: var(--akvo-offset-side, 20px);
+  }
+
   &-header {
-    background-color: v.$primary-color;
+    background-color: var(--akvo-primary, v.$primary-color);
     color: white;
     padding: 12px 16px;
     font-size: 16px;
@@ -140,6 +155,36 @@
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
+
+    .akvo-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .akvo-header-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+      }
+
+      img.akvo-icon-img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: contain;
+      }
+
+      i.fa {
+        margin-right: 0;
+        font-size: 18px;
+      }
+    }
 
     i.fa {
       margin-right: 8px;
@@ -158,13 +203,25 @@
 
     .akvo-msg-user {
       text-align: right;
-      background-color: color.adjust(v.$primary-color, $lightness: 40%);
-      color: black;
+      background-color: var(--akvo-primary, v.$primary-color);
+      color: #ffffff;
       padding: 8px 12px;
       border-radius: 12px;
       margin: 10px 0;
       max-width: 80%;
       margin-left: auto;
+      word-break: break-word;
+
+      p {
+        margin: 0;
+        color: #ffffff;
+        line-height: 1.4;
+      }
+
+      a {
+        color: #ffffff;
+        text-decoration: underline;
+      }
     }
 
     .akvo-msg-assistant {
@@ -204,15 +261,15 @@
     button {
       margin-left: 8px;
       padding: 8px 16px;
-      background-color: v.$primary-color;
+      background-color: var(--akvo-primary, v.$primary-color);
       color: white;
       border: none;
       border-radius: 20px;
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      transition: background-color 0.2s ease, filter 0.2s ease;
 
       &:hover {
-        background-color: color.scale(v.$primary-color, $lightness: -10%);
+        filter: brightness(0.9);
       }
     }
   }
@@ -227,18 +284,21 @@
   }
 
   &.minimized {
-    width: calc(v.$chatbot-width - 40px); /* Slightly smaller */
-    height: 40px;
-    border-radius: 4px;
+    width: calc(var(--akvo-width, #{v.$chatbot-width}) - 40px) !important; /* Slightly smaller */
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+    border-radius: 4px !important;
 
     #akvo-rag-body,
     #akvo-rag-input-container {
-      display: none;
+      display: none !important;
     }
 
     #akvo-rag-header {
       font-size: 14px;
-      padding: 8px;
+      padding: 8px 12px;
+      height: 40px;
     }
   }
 
@@ -360,7 +420,7 @@
 
       input[type="radio"] {
         margin-right: 10px;
-        accent-color: v.$primary-color; // modern radio style
+        accent-color: var(--akvo-primary, v.$primary-color); // modern radio style
         transform: scale(1.1);
         cursor: pointer;
       }
@@ -390,17 +450,17 @@
   .akvo-start-chat-btn {
     width: 100%;
     padding: 8px 16px;
-    background-color: v.$primary-color;
+    background-color: var(--akvo-primary, v.$primary-color);
     color: #ffffff;
     border: none;
     border-radius: 20px;
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, filter 0.2s ease;
 
-    &:hover {
-      background-color: color.scale(v.$primary-color, $lightness: -10%);
+    &:hover:not(:disabled) {
+      filter: brightness(0.9);
     }
 
     &:disabled {
@@ -409,5 +469,68 @@
       cursor: not-allowed;
       opacity: 0.6;
     }
+  }
+}
+
+#akvo-rag-launcher {
+  --akvo-primary: #{v.$primary-color};
+  --akvo-offset-bottom: 24px;
+  --akvo-offset-side: 24px;
+  --akvo-z-index: 99998;
+  --akvo-launcher-size: 56px;
+  --akvo-launcher-width: var(--akvo-launcher-size, 56px);
+  --akvo-launcher-height: var(--akvo-launcher-size, 56px);
+
+  position: fixed;
+  bottom: var(--akvo-offset-bottom, 24px);
+  right: var(--akvo-offset-side, 24px);
+  width: var(--akvo-launcher-width, 56px);
+  height: var(--akvo-launcher-height, 56px);
+  border-radius: 50%;
+  background-color: var(--akvo-primary, v.$primary-color);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  z-index: var(--akvo-z-index, 99998);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+  &.akvo-position-left {
+    right: auto;
+    left: var(--akvo-offset-side, 24px);
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    filter: brightness(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 50%;
+    height: 50%;
+    max-width: 32px;
+    max-height: 32px;
+    fill: currentColor;
+  }
+
+  img.akvo-icon-img {
+    width: 60%;
+    height: 60%;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+
+  i.fa {
+    font-size: calc(var(--akvo-launcher-height, 56px) * 0.45);
+    color: white;
   }
 }

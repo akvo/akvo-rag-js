@@ -366,6 +366,24 @@
                 <option value="16px">16px (Pill / Soft)</option>
               </select>
             </div>
+
+            <!-- Draggable & Persistence Options -->
+            <div class="pt-2 border-t border-neutral-100 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-medium text-neutral-700">Draggable Launcher & Header</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="checkDraggable" checked class="sr-only peer">
+                  <div class="w-8 h-4 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#007A78]"></div>
+                </label>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-medium text-neutral-700">Persist Position (localStorage)</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="checkPersist" checked class="sr-only peer">
+                  <div class="w-8 h-4 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#007A78]"></div>
+                </label>
+              </div>
+            </div>
           </div>
 
           <!-- Control Group 7: Backend Connection & Knowledge Base -->
@@ -563,6 +581,8 @@
         position: "bottom-right",
         borderRadius: "8px",
         launcherSize: "56px",
+        draggable: true,
+        persistPosition: true,
         launcherIconType: "bubble",
         headerIconType: "none",
         kbMode: "multi", // "multi" or "single"
@@ -616,6 +636,8 @@
       const selectWidth = document.getElementById('selectWidth');
       const selectHeight = document.getElementById('selectHeight');
       const selectRadius = document.getElementById('selectRadius');
+      const checkDraggable = document.getElementById('checkDraggable');
+      const checkPersist = document.getElementById('checkPersist');
 
       const btnKbModeSingle = document.getElementById('btnKbModeSingle');
       const btnKbModeMulti = document.getElementById('btnKbModeMulti');
@@ -656,6 +678,8 @@
           position: config.position,
           borderRadius: config.borderRadius,
           launcherSize: config.launcherSize,
+          draggable: config.draggable,
+          persistPosition: config.persistPosition,
           launcherIcon: ICONS.launcher[config.launcherIconType] || null,
           headerIcon: ICONS.header[config.headerIconType] || null
         };
@@ -697,6 +721,8 @@
   <span class="tok-prop">position</span>: <span class="tok-str">"${opts.position}"</span>,
   <span class="tok-prop">borderRadius</span>: <span class="tok-str">"${opts.borderRadius}"</span>,
   <span class="tok-prop">launcherSize</span>: <span class="tok-str">"${opts.launcherSize}"</span>,
+  <span class="tok-prop">draggable</span>: <span class="tok-bool">${opts.draggable}</span>,
+  <span class="tok-prop">persistPosition</span>: <span class="tok-bool">${opts.persistPosition}</span>,
   <span class="tok-prop">launcherIcon</span>: <span class="tok-bool">${iconStr}</span>,
   <span class="tok-prop">headerIcon</span>: <span class="tok-bool">${headerIconStr}</span>
 });`;
@@ -716,6 +742,8 @@
   <span class="tok-prop">position</span>: <span class="tok-str">"${opts.position}"</span>,
   <span class="tok-prop">borderRadius</span>: <span class="tok-str">"${opts.borderRadius}"</span>,
   <span class="tok-prop">launcherSize</span>: <span class="tok-str">"${opts.launcherSize}"</span>,
+  <span class="tok-prop">draggable</span>: <span class="tok-bool">${opts.draggable}</span>,
+  <span class="tok-prop">persistPosition</span>: <span class="tok-bool">${opts.persistPosition}</span>,
   <span class="tok-prop">launcherIcon</span>: <span class="tok-bool">${iconStr}</span>,
   <span class="tok-prop">headerIcon</span>: <span class="tok-bool">${headerIconStr}</span>,
   <span class="tok-prop">kb_options</span>: [
@@ -1022,6 +1050,22 @@
           config.borderRadius = e.target.value;
           mount();
           logEvent(`radius:${config.borderRadius}`);
+        });
+      }
+
+      if (checkDraggable) {
+        checkDraggable.addEventListener('change', (e) => {
+          config.draggable = e.target.checked;
+          mount();
+          logEvent(`draggable:${config.draggable}`);
+        });
+      }
+
+      if (checkPersist) {
+        checkPersist.addEventListener('change', (e) => {
+          config.persistPosition = e.target.checked;
+          mount();
+          logEvent(`persist:${config.persistPosition}`);
         });
       }
 

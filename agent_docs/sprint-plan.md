@@ -1,4 +1,14 @@
-# Sprint Plan: Sprint 2 (Bug Remediation)
+# Sprint Plan: Sprint 3 (Widget Enhancements & Ergonomics)
+
+## Goal
+Modernize the chatbot widget interaction model with draggable positioning, quadrant anchoring, persistence, and auto-expanding multiline text input.
+
+## Stories
+- [ ] [Issue #18 / STORY-018: Draggable Launcher/Window & Auto-Expanding Multiline Input](./stories/STORY-018-draggable-multiline.md) (Pri: High, Est: 4.25h, Actual: -)
+
+---
+
+# Sprint History: Sprint 2 (Bug Remediation & Launcher)
 
 ## Goal
 Improve system stability, performance, and maintainability by remediating issues identified during the comprehensive bug audit.

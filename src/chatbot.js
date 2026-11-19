@@ -18,7 +18,28 @@ const DEFAULT_WELCOME_MESSAGE = "Hello! How can I help you today?";
  */
 export class AkvoRagChatbox {
   constructor(options = {}) {
-    this.options = options;
+    this.options = {
+      draggable: true,
+      persistPosition: true,
+      storageKey: "akvo_rag_pos",
+      dragThreshold: 6,
+      ...options,
+    };
+    if (options.draggable !== undefined) {
+      this.options.draggable = Boolean(options.draggable);
+    }
+    if (options.persistPosition !== undefined) {
+      this.options.persistPosition = Boolean(options.persistPosition);
+    }
+    if (options.dragThreshold !== undefined) {
+      const parsedThresh = Number(options.dragThreshold);
+      this.options.dragThreshold =
+        Number.isFinite(parsedThresh) && parsedThresh >= 0 ? parsedThresh : 6;
+    }
+    if (typeof options.storageKey === "string" && options.storageKey.trim()) {
+      this.options.storageKey = options.storageKey.trim();
+    }
+
     this.showLauncher =
       this.options.showLauncher !== undefined
         ? Boolean(this.options.showLauncher)
@@ -36,6 +57,9 @@ export class AkvoRagChatbox {
     this.visitorId = getOrCreateVisitorId();
     this.container = null;
     this.launcher = null;
+    this.currentPosition = null;
+    this._activeDragCleanup = [];
+    this._suppressNextClick = false;
 
     this._onMessage = this._onMessage.bind(this);
     this._handleSend = this._handleSend.bind(this);
@@ -48,6 +72,11 @@ export class AkvoRagChatbox {
    * Initializes the widget UI and connection.
    */
   init() {
+    const savedPos = this._loadSavedPosition();
+    if (savedPos) {
+      this.currentPosition = savedPos;
+    }
+
     this.container = document.getElementById("akvo-rag");
     this.launcher = document.getElementById("akvo-rag-launcher");
 
@@ -55,6 +84,9 @@ export class AkvoRagChatbox {
       this._applyCustomStyles(this.container, false);
       if (this.launcher) {
         this._applyCustomStyles(this.launcher, true);
+        if (this.currentPosition) {
+          this._applyPosition(this.launcher, this.currentPosition);
+        }
       }
       if (this.isMinimized) {
         this.close();
@@ -85,12 +117,269 @@ export class AkvoRagChatbox {
   }
 
   /**
+   * Loads persisted widget coordinates from localStorage.
+   */
+  _loadSavedPosition() {
+    if (!this.options.persistPosition) return null;
+    try {
+      if (typeof globalThis.localStorage?.getItem === "function") {
+        const raw = globalThis.localStorage.getItem(this.options.storageKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (
+            parsed &&
+            typeof parsed.left === "number" &&
+            Number.isFinite(parsed.left) &&
+            typeof parsed.top === "number" &&
+            Number.isFinite(parsed.top)
+          ) {
+            return { left: parsed.left, top: parsed.top };
+          }
+        }
+      }
+    } catch {
+      // LocalStorage access or parse error
+    }
+    return null;
+  }
+
+  /**
+   * Persists widget coordinates to localStorage.
+   */
+  _savePosition(pos) {
+    if (!pos || typeof pos.left !== "number" || typeof pos.top !== "number") {
+      return;
+    }
+    this.currentPosition = { left: pos.left, top: pos.top };
+    if (!this.options.persistPosition) return;
+    try {
+      if (typeof globalThis.localStorage?.setItem === "function") {
+        globalThis.localStorage.setItem(
+          this.options.storageKey,
+          JSON.stringify(this.currentPosition),
+        );
+      }
+    } catch {
+      // LocalStorage quota or access error
+    }
+  }
+
+  /**
+   * Applies left/top coordinates to an element, resetting bottom/right.
+   */
+  _applyPosition(element, pos) {
+    if (!element || !element.style || !pos) return;
+    element.style.left = `${pos.left}px`;
+    element.style.top = `${pos.top}px`;
+    element.style.bottom = "auto";
+    element.style.right = "auto";
+  }
+
+  /**
+   * Anchors the chat window relative to the launcher based on screen quadrant.
+   */
+  _anchorWindowToLauncher() {
+    if (!this.container || !this.currentPosition) return;
+
+    const L_left = this.currentPosition.left;
+    const L_top = this.currentPosition.top;
+
+    const L_rect =
+      typeof this.launcher?.getBoundingClientRect === "function"
+        ? this.launcher.getBoundingClientRect()
+        : { width: 56, height: 56 };
+    const L_width = L_rect.width || 56;
+    const L_height = L_rect.height || 56;
+
+    const W_rect =
+      typeof this.container.getBoundingClientRect === "function"
+        ? this.container.getBoundingClientRect()
+        : { width: 360, height: 500 };
+    const W_width = W_rect.width || parseFloat(this.options.width) || 360;
+    const W_height = W_rect.height || parseFloat(this.options.height) || 500;
+
+    const winW = globalThis.window?.innerWidth || 1024;
+    const winH = globalThis.window?.innerHeight || 768;
+
+    // Horizontal anchoring
+    let W_left = 0;
+    if (L_left > winW / 2) {
+      W_left = L_left + L_width - W_width;
+    } else {
+      W_left = L_left;
+    }
+
+    // Vertical anchoring
+    let W_top = 0;
+    if (L_top > winH / 2) {
+      W_top = L_top + L_height - W_height;
+    } else {
+      W_top = L_top;
+    }
+
+    // Viewport boundary clamping
+    const maxLeft = Math.max(0, winW - W_width);
+    const maxTop = Math.max(0, winH - W_height);
+    W_left = Math.max(0, Math.min(W_left, maxLeft));
+    W_top = Math.max(0, Math.min(W_top, maxTop));
+
+    this._applyPosition(this.container, { left: W_left, top: W_top });
+  }
+
+  /**
+   * Sets up drag interactions on a handle element for moving a target element.
+   */
+  _makeDraggable(handleEl, targetEl, onDragEnd) {
+    if (!handleEl || !targetEl || !this.options.draggable) return;
+
+    let startPointerX = 0;
+    let startPointerY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
+    let isDragging = false;
+
+    const onPointerDown = (e) => {
+      // Ignore if initiating click inside close/minimize button
+      if (e.target && typeof e.target.closest === "function") {
+        if (
+          e.target.closest("#akvo-rag-close-btn") ||
+          e.target.closest(".akvo-rag-close-btn")
+        ) {
+          return;
+        }
+      } else if (e.target && e.target.id === "akvo-rag-close-btn") {
+        return;
+      }
+
+      if (e.type === "mousedown" && e.button !== undefined && e.button !== 0) {
+        return;
+      }
+
+      const pointer = e.touches ? e.touches[0] : e;
+      startPointerX = pointer.clientX;
+      startPointerY = pointer.clientY;
+
+      const rect =
+        typeof targetEl.getBoundingClientRect === "function"
+          ? targetEl.getBoundingClientRect()
+          : { left: 0, top: 0, width: 56, height: 56 };
+
+      const computedLeft = parseFloat(targetEl.style?.left);
+      const computedTop = parseFloat(targetEl.style?.top);
+      initialLeft = !isNaN(computedLeft) ? computedLeft : rect.left || 0;
+      initialTop = !isNaN(computedTop) ? computedTop : rect.top || 0;
+
+      isDragging = false;
+
+      const onPointerMove = (moveEvt) => {
+        const movePointer = moveEvt.touches ? moveEvt.touches[0] : moveEvt;
+        const deltaX = movePointer.clientX - startPointerX;
+        const deltaY = movePointer.clientY - startPointerY;
+        const distance = Math.hypot(deltaX, deltaY);
+
+        if (!isDragging && distance >= this.options.dragThreshold) {
+          isDragging = true;
+          this.isDragging = true;
+          targetEl.classList?.add("akvo-is-dragging");
+        }
+
+        if (isDragging) {
+          if (typeof moveEvt.preventDefault === "function") {
+            moveEvt.preventDefault();
+          }
+
+          const winW = globalThis.window?.innerWidth || 1024;
+          const winH = globalThis.window?.innerHeight || 768;
+          const targetW =
+            rect.width || parseFloat(targetEl.style?.width) || 56;
+          const targetH =
+            rect.height || parseFloat(targetEl.style?.height) || 56;
+
+          const maxLeft = Math.max(0, winW - targetW);
+          const maxTop = Math.max(0, winH - targetH);
+
+          const newLeft = Math.max(0, Math.min(initialLeft + deltaX, maxLeft));
+          const newTop = Math.max(0, Math.min(initialTop + deltaY, maxTop));
+
+          this._applyPosition(targetEl, { left: newLeft, top: newTop });
+        }
+      };
+
+      const onPointerUp = (upEvt) => {
+        const movePointer = upEvt.changedTouches
+          ? upEvt.changedTouches[0]
+          : upEvt;
+        const deltaX =
+          (movePointer?.clientX !== undefined
+            ? movePointer.clientX
+            : startPointerX) - startPointerX;
+        const deltaY =
+          (movePointer?.clientY !== undefined
+            ? movePointer.clientY
+            : startPointerY) - startPointerY;
+        const distance = Math.hypot(deltaX, deltaY);
+
+        const win = globalThis.window || globalThis;
+        win.removeEventListener?.("mousemove", onPointerMove);
+        win.removeEventListener?.("mouseup", onPointerUp);
+        win.removeEventListener?.("touchmove", onPointerMove);
+        win.removeEventListener?.("touchend", onPointerUp);
+
+        if (isDragging || distance >= this.options.dragThreshold) {
+          isDragging = false;
+          this.isDragging = false;
+          this._suppressNextClick = true;
+          targetEl.classList?.remove("akvo-is-dragging");
+
+          const finalLeft = parseFloat(targetEl.style?.left) || 0;
+          const finalTop = parseFloat(targetEl.style?.top) || 0;
+          const pos = { left: finalLeft, top: finalTop };
+
+          this._savePosition(pos);
+          if (typeof onDragEnd === "function") {
+            onDragEnd(pos);
+          }
+        }
+      };
+
+      const win = globalThis.window || globalThis;
+      win.addEventListener?.("mousemove", onPointerMove, { passive: false });
+      win.addEventListener?.("mouseup", onPointerUp);
+      win.addEventListener?.("touchmove", onPointerMove, { passive: false });
+      win.addEventListener?.("touchend", onPointerUp);
+
+      this._activeDragCleanup.push(() => {
+        win.removeEventListener?.("mousemove", onPointerMove);
+        win.removeEventListener?.("mouseup", onPointerUp);
+        win.removeEventListener?.("touchmove", onPointerMove);
+        win.removeEventListener?.("touchend", onPointerUp);
+      });
+    };
+
+    handleEl.addEventListener?.("mousedown", onPointerDown);
+    handleEl.addEventListener?.("touchstart", onPointerDown, { passive: true });
+
+    this._activeDragCleanup.push(() => {
+      handleEl.removeEventListener?.("mousedown", onPointerDown);
+      handleEl.removeEventListener?.("touchstart", onPointerDown);
+    });
+  }
+
+  /**
    * Destroys the widget, closing connections and removing DOM elements.
    */
   destroy() {
     if (this.wsConnection) {
       this.wsConnection.close();
     }
+    for (const cleanup of this._activeDragCleanup) {
+      try {
+        cleanup();
+      } catch {
+        // Safe unbind
+      }
+    }
+    this._activeDragCleanup = [];
     if (this.container) {
       this.container.remove();
       this.container = null;
@@ -107,6 +396,9 @@ export class AkvoRagChatbox {
    */
   open() {
     this.isMinimized = false;
+    if (this.currentPosition) {
+      this._anchorWindowToLauncher();
+    }
     if (this.container) {
       if (this.container.style) this.container.style.display = "flex";
       this.container.classList?.remove("minimized");
@@ -121,6 +413,9 @@ export class AkvoRagChatbox {
    */
   close() {
     this.isMinimized = true;
+    if (this.currentPosition && this.launcher) {
+      this._applyPosition(this.launcher, this.currentPosition);
+    }
     if (this.container) {
       if (this.showLauncher) {
         if (this.container.style) this.container.style.display = "none";
@@ -317,6 +612,10 @@ export class AkvoRagChatbox {
 
     this._applyCustomStyles(this.launcher, true);
 
+    if (this.currentPosition) {
+      this._applyPosition(this.launcher, this.currentPosition);
+    }
+
     if (this.launcher.style) {
       this.launcher.style.display = this.isMinimized ? "flex" : "none";
     }
@@ -324,19 +623,23 @@ export class AkvoRagChatbox {
     if (document.body && typeof document.body.appendChild === "function") {
       document.body.appendChild(this.launcher);
     }
+
+    this._makeDraggable(this.launcher, this.launcher, (pos) => {
+      this.currentPosition = pos;
+    });
   }
 
   _renderInputArea() {
     return `
-      <input
-        type="text"
+      <textarea
         id="akvo-rag-input"
+        rows="1"
         placeholder="Type a message..."
         autocomplete="off"
         autocorrect="off"
         autocapitalize="off"
         spellcheck="false"
-      />
+      ></textarea>
       <button id="akvo-rag-send-btn">Send</button>
     `;
   }
@@ -350,6 +653,10 @@ export class AkvoRagChatbox {
     if (this.container.style) {
       this.container.style.display =
         this.showLauncher && this.isMinimized ? "none" : "flex";
+    }
+
+    if (this.currentPosition && !this.isMinimized) {
+      this._anchorWindowToLauncher();
     }
 
     const headerIconHtml = this.options.headerIcon
@@ -403,6 +710,16 @@ export class AkvoRagChatbox {
       </div>
     `;
     document.body.appendChild(this.container);
+
+    const header = this.container.querySelector("#akvo-rag-header");
+    if (header) {
+      this._makeDraggable(header, this.container, (pos) => {
+        this.currentPosition = pos;
+        if (this.launcher) {
+          this._applyPosition(this.launcher, pos);
+        }
+      });
+    }
   }
 
   _bindEvents() {
@@ -411,6 +728,10 @@ export class AkvoRagChatbox {
 
     if (this.launcher && typeof this.launcher.addEventListener === "function") {
       this.launcher.addEventListener("click", () => {
+        if (this._suppressNextClick) {
+          this._suppressNextClick = false;
+          return;
+        }
         this.open();
       });
     }
@@ -432,6 +753,10 @@ export class AkvoRagChatbox {
 
     if (header) {
       header.addEventListener("click", () => {
+        if (this._suppressNextClick) {
+          this._suppressNextClick = false;
+          return;
+        }
         if (!this.showLauncher) {
           if (this.container?.classList?.contains("minimized")) {
             this.open();
@@ -458,14 +783,33 @@ export class AkvoRagChatbox {
     }
   }
 
+  _autoResizeInput(input) {
+    if (!input || !input.style) return;
+    input.style.height = "auto";
+    const scrollH =
+      typeof input.scrollHeight === "number" ? input.scrollHeight : 38;
+    const newHeight = Math.min(120, Math.max(38, scrollH));
+    input.style.height = `${newHeight}px`;
+  }
+
   _bindInputEvents() {
     const input = this.container.querySelector("#akvo-rag-input");
     const sendBtn = this.container.querySelector("#akvo-rag-send-btn");
 
     if (input && sendBtn) {
-      input.addEventListener("keypress", (e) => {
-        if (e.key === "Enter") this._handleSend();
+      input.addEventListener("input", () => {
+        this._autoResizeInput(input);
       });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          if (typeof e.preventDefault === "function") {
+            e.preventDefault();
+          }
+          this._handleSend();
+        }
+      });
+
       sendBtn.addEventListener("click", this._handleSend);
     }
   }
@@ -547,6 +891,9 @@ export class AkvoRagChatbox {
 
     appendMessageToBody("user", text);
     input.value = "";
+    if (input.style) {
+      input.style.height = "auto";
+    }
     this.currentAssistantMsgEl = null;
     this.isLoading = true;
     this._updateSendButtonState();

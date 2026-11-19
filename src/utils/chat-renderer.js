@@ -7,6 +7,23 @@ marked.setOptions({
   breaks: true,
 });
 
+function sanitizeHtml(content) {
+  if (typeof DOMPurify?.sanitize === "function") {
+    return DOMPurify.sanitize(content);
+  }
+  if (typeof DOMPurify === "function") {
+    try {
+      const instance = DOMPurify(globalThis.window || globalThis);
+      if (typeof instance?.sanitize === "function") {
+        return instance.sanitize(content);
+      }
+    } catch {
+      // fallback
+    }
+  }
+  return content;
+}
+
 export function appendMessageToBody(
   role,
   markdownText,
@@ -29,7 +46,7 @@ export function appendMessageToBody(
     `;
   } else {
     const rawHTML = marked.parse(markdownText || "");
-    const safeHTML = DOMPurify.sanitize(rawHTML);
+    const safeHTML = sanitizeHtml(rawHTML);
     msg.innerHTML = safeHTML;
   }
 

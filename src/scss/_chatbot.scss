@@ -144,6 +144,11 @@
     left: var(--akvo-offset-side, 20px);
   }
 
+  &.akvo-is-dragging {
+    transition: none !important;
+    user-select: none;
+  }
+
   &-header {
     background-color: var(--akvo-primary, v.$primary-color);
     color: white;
@@ -154,7 +159,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    cursor: pointer;
+    cursor: grab;
+    user-select: none;
+
+    &:active {
+      cursor: grabbing;
+    }
 
     .akvo-header-title {
       display: flex;
@@ -245,10 +255,32 @@
 
   &-input-container {
     display: flex;
+    align-items: flex-end;
     padding: 8px;
     border-top: 1px solid #ddd;
     background-color: #fff;
     flex-shrink: 0;
+
+    textarea {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 18px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      min-height: 38px;
+      max-height: 120px;
+      line-height: 1.4;
+      overflow-y: auto;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s ease;
+
+      &:focus {
+        border-color: var(--akvo-primary, v.$primary-color);
+      }
+    }
 
     input {
       flex: 1;
@@ -256,10 +288,17 @@
       border: 1px solid #ccc;
       border-radius: 20px;
       font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+
+      &:focus {
+        border-color: var(--akvo-primary, v.$primary-color);
+      }
     }
 
     button {
       margin-left: 8px;
+      margin-bottom: 2px;
       padding: 8px 16px;
       background-color: var(--akvo-primary, v.$primary-color);
       color: white;
@@ -494,10 +533,16 @@
   align-items: center;
   justify-content: center;
   border: none;
-  cursor: pointer;
+  cursor: grab;
+  user-select: none;
   outline: none;
   z-index: var(--akvo-z-index, 99998);
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+  &.akvo-is-dragging {
+    cursor: grabbing;
+    transition: none !important;
+  }
 
   &.akvo-position-left {
     right: auto;
@@ -511,6 +556,7 @@
   }
 
   &:active {
+    cursor: grabbing;
     transform: scale(0.95);
   }
 

@@ -386,6 +386,56 @@
             </div>
           </div>
 
+          <!-- Control Group: Session History & Citations -->
+          <div class="space-y-3 pt-5" data-purpose="history-citations-group">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold uppercase tracking-wider text-neutral-700">History & Citations</label>
+              <code class="text-[11px] font-mono text-neutral-400 bg-neutral-100 px-1.5 py-0.5 rounded">history / citations</code>
+            </div>
+
+            <!-- Persist History Toggle -->
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-medium text-neutral-700 block">Persist History</span>
+                <span class="text-[10px] text-neutral-400">Preserve chat transcript across page reloads</span>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="checkPersistHistory" checked class="sr-only peer">
+                <div class="w-8 h-4 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#007A78]"></div>
+              </label>
+            </div>
+
+            <!-- User ID Scoping (Multi-user Isolation) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] font-medium text-neutral-600" for="inputUserId">User ID (Isolation Scope)</label>
+                <code class="text-[10px] font-mono text-neutral-400">options.userId</code>
+              </div>
+              <input class="w-full text-xs font-mono rounded-lg border-neutral-300 py-1.5 px-3 text-neutral-900 focus:border-neutral-900" id="inputUserId" type="text" placeholder="e.g. user_alpha (leave empty for visitorId)" value="" />
+              <p class="text-[10px] text-neutral-400 mt-1">Different user IDs maintain completely segregated chat transcripts.</p>
+            </div>
+
+            <!-- Show Citations Toggle -->
+            <div class="flex items-center justify-between pt-1">
+              <div>
+                <span class="text-[11px] font-medium text-neutral-700 block">Show Citations</span>
+                <span class="text-[10px] text-neutral-400">Render superscript source popovers</span>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="checkShowCitations" checked class="sr-only peer">
+                <div class="w-8 h-4 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#007A78]"></div>
+              </label>
+            </div>
+
+            <!-- Clear History Action Button -->
+            <div class="pt-2">
+              <button class="w-full py-1.5 px-3 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors flex items-center justify-center gap-1.5" id="btnClearHistory" type="button">
+                <svg class="w-3.5 h-3.5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"></path></svg>
+                Clear Current Session History
+              </button>
+            </div>
+          </div>
+
           <!-- Control Group 7: Backend Connection & Knowledge Base -->
           <div class="space-y-4 pt-5" data-purpose="kb-configuration-group">
             <div class="flex items-center justify-between">
@@ -583,6 +633,9 @@
         launcherSize: "56px",
         draggable: true,
         persistPosition: true,
+        persistHistory: true,
+        showCitations: true,
+        userId: "",
         launcherIconType: "bubble",
         headerIconType: "none",
         kbMode: "multi", // "multi" or "single"
@@ -638,6 +691,10 @@
       const selectRadius = document.getElementById('selectRadius');
       const checkDraggable = document.getElementById('checkDraggable');
       const checkPersist = document.getElementById('checkPersist');
+      const checkPersistHistory = document.getElementById('checkPersistHistory');
+      const inputUserId = document.getElementById('inputUserId');
+      const checkShowCitations = document.getElementById('checkShowCitations');
+      const btnClearHistory = document.getElementById('btnClearHistory');
 
       const btnKbModeSingle = document.getElementById('btnKbModeSingle');
       const btnKbModeMulti = document.getElementById('btnKbModeMulti');
@@ -680,9 +737,15 @@
           launcherSize: config.launcherSize,
           draggable: config.draggable,
           persistPosition: config.persistPosition,
+          persistHistory: config.persistHistory,
+          showCitations: config.showCitations,
           launcherIcon: ICONS.launcher[config.launcherIconType] || null,
           headerIcon: ICONS.header[config.headerIconType] || null
         };
+
+        if (config.userId) {
+          opts.userId = config.userId;
+        }
 
         if (config.kbMode === "single") {
           opts.kb_id = config.kb_id;
@@ -723,6 +786,8 @@
   <span class="tok-prop">launcherSize</span>: <span class="tok-str">"${opts.launcherSize}"</span>,
   <span class="tok-prop">draggable</span>: <span class="tok-bool">${opts.draggable}</span>,
   <span class="tok-prop">persistPosition</span>: <span class="tok-bool">${opts.persistPosition}</span>,
+  <span class="tok-prop">persistHistory</span>: <span class="tok-bool">${opts.persistHistory}</span>,
+  <span class="tok-prop">showCitations</span>: <span class="tok-bool">${opts.showCitations}</span>,${opts.userId ? `\n  <span class="tok-prop">userId</span>: <span class="tok-str">"${opts.userId}"</span>,` : ''}
   <span class="tok-prop">launcherIcon</span>: <span class="tok-bool">${iconStr}</span>,
   <span class="tok-prop">headerIcon</span>: <span class="tok-bool">${headerIconStr}</span>
 });`;
@@ -744,6 +809,8 @@
   <span class="tok-prop">launcherSize</span>: <span class="tok-str">"${opts.launcherSize}"</span>,
   <span class="tok-prop">draggable</span>: <span class="tok-bool">${opts.draggable}</span>,
   <span class="tok-prop">persistPosition</span>: <span class="tok-bool">${opts.persistPosition}</span>,
+  <span class="tok-prop">persistHistory</span>: <span class="tok-bool">${opts.persistHistory}</span>,
+  <span class="tok-prop">showCitations</span>: <span class="tok-bool">${opts.showCitations}</span>,${opts.userId ? `\n  <span class="tok-prop">userId</span>: <span class="tok-str">"${opts.userId}"</span>,` : ''}
   <span class="tok-prop">launcherIcon</span>: <span class="tok-bool">${iconStr}</span>,
   <span class="tok-prop">headerIcon</span>: <span class="tok-bool">${headerIconStr}</span>,
   <span class="tok-prop">kb_options</span>: [
@@ -768,7 +835,9 @@
       <span class="tok-prop">title</span>: <span class="tok-str">"${opts.title}"</span>,
       <span class="tok-prop">primaryColor</span>: <span class="tok-str">"${opts.primaryColor}"</span>,
       <span class="tok-prop">showLauncher</span>: <span class="tok-bool">${opts.showLauncher}</span>,
-      <span class="tok-prop">startMinimized</span>: <span class="tok-bool">${opts.startMinimized}</span>
+      <span class="tok-prop">startMinimized</span>: <span class="tok-bool">${opts.startMinimized}</span>,
+      <span class="tok-prop">persistHistory</span>: <span class="tok-bool">${opts.persistHistory}</span>,
+      <span class="tok-prop">showCitations</span>: <span class="tok-bool">${opts.showCitations}</span>${opts.userId ? `,\n      <span class="tok-prop">userId</span>: <span class="tok-str">"${opts.userId}"</span>` : ''}
     });
   });
 <span class="tok-tag">&lt;/script&gt;</span>`;
@@ -1069,6 +1138,39 @@
         });
       }
 
+      if (checkPersistHistory) {
+        checkPersistHistory.addEventListener('change', (e) => {
+          config.persistHistory = e.target.checked;
+          mount();
+          logEvent(`persistHistory:${config.persistHistory}`);
+        });
+      }
+
+      if (inputUserId) {
+        inputUserId.addEventListener('change', (e) => {
+          config.userId = e.target.value.trim();
+          mount();
+          logEvent(`userId:${config.userId || "anon"}`);
+        });
+      }
+
+      if (checkShowCitations) {
+        checkShowCitations.addEventListener('change', (e) => {
+          config.showCitations = e.target.checked;
+          mount();
+          logEvent(`showCitations:${config.showCitations}`);
+        });
+      }
+
+      if (btnClearHistory) {
+        btnClearHistory.addEventListener('click', () => {
+          if (window.chatInstance && typeof window.chatInstance.clearHistory === 'function') {
+            window.chatInstance.clearHistory();
+            logEvent("history:cleared");
+          }
+        });
+      }
+
       // Knowledge Base Mode Listeners
       if (btnKbModeSingle && btnKbModeMulti) {
         btnKbModeSingle.addEventListener('click', () => {
@@ -1230,6 +1332,9 @@
             { "kb_id": 750, "label": "Critical Thinking" }
           ];
           config.activeTab = "multi";
+          config.persistHistory = true;
+          config.showCitations = true;
+          config.userId = "";
 
           if (inputWsUrl) inputWsUrl.value = config.wsURL;
           if (btnWsOnline) btnWsOnline.className = "px-2.5 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5 font-sans";
@@ -1243,6 +1348,9 @@
           if (selectWidth) selectWidth.value = "360px";
           if (selectHeight) selectHeight.value = "500px";
           if (selectRadius) selectRadius.value = "8px";
+          if (checkPersistHistory) checkPersistHistory.checked = true;
+          if (checkShowCitations) checkShowCitations.checked = true;
+          if (inputUserId) inputUserId.value = "";
           if (btnPosRight) btnPosRight.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1';
           if (btnPosLeft) btnPosLeft.className = 'px-3 py-1.5 text-xs font-medium rounded-md text-neutral-600 hover:text-neutral-900 transition-all flex items-center justify-center gap-1';
           btnDisplayFab.className = 'px-3 py-1.5 text-xs font-medium rounded-md transition-all shadow-xs bg-white text-neutral-900 border border-black/5 flex items-center justify-center gap-1.5';

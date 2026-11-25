@@ -1,10 +1,37 @@
-# Sprint Plan: Sprint 3 (Widget Enhancements & Ergonomics)
+# Sprint Plan: Sprint 4 (Context Persistence & Citation Control)
+
+## Goal
+Enable cross-page chat history persistence across route changes/page reloads and introduce configurable citation suppression for conversational widget styling.
+
+## Stories
+- [x] [Issue #20 / STORY-019: Cross-Page Chat History Persistence & Citation Display Toggle](./stories/STORY-019-session-history-citation-toggle.md) (Pri: High, Est: 3.5h, Actual: 1.67h)
+
+## Sprint Summary
+| Metric | Value |
+|--------|-------|
+| **Total Estimated Time** | 3.5h |
+| **Total Actual Time (Active)** | **1.67h** (Assistant Aided) |
+| **Stories Completed** | 1 / 1 |
+| **Status** | **100% Complete** |
+
+---
+
+# Sprint History: Sprint 3 (Widget Enhancements & Ergonomics)
 
 ## Goal
 Modernize the chatbot widget interaction model with draggable positioning, quadrant anchoring, persistence, and auto-expanding multiline text input.
 
 ## Stories
-- [ ] [Issue #18 / STORY-018: Draggable Launcher/Window & Auto-Expanding Multiline Input](./stories/STORY-018-draggable-multiline.md) (Pri: High, Est: 4.25h, Actual: -)
+- [x] [Issue #18 / STORY-018: Draggable Launcher/Window & Auto-Expanding Multiline Input](./stories/STORY-018-draggable-multiline.md) (Pri: High, Est: 4.25h, Actual: 1.1h)
+
+## Sprint Summary
+| Metric | Value |
+|--------|-------|
+| **Total Estimated Time** | 4.25h |
+| **Total Actual Time (Active)** | **1.1h** (Assistant Aided) |
+| **Stories Completed** | 1 / 1 |
+| **Release Tag** | **v1.4.0** |
+| **Status** | **100% Complete** |
 
 ---
 
@@ -33,7 +60,6 @@ Improve system stability, performance, and maintainability by remediating issues
 
 ---
 
-
 # Sprint History: Sprint 1 (Complete)
 
 ## Goal
@@ -42,7 +68,3 @@ Improve the chat widget response quality by fixing formatting issues and impleme
 ## Summary
 - **Total Actual Time (Active)**: **4.0h** (Assistant Aided)
 - **Status**: **100% Complete**
-
-## Risks & Blockers
-- None identified.
-

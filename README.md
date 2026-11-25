@@ -4,6 +4,10 @@ An embeddable chatbot widget for Akvo RAG.
 
 - **Premium Markdown Rendering**: Supports GitHub Flavored Markdown (GFM), tables, code blocks, and lists with isolated, premium styling.
 - **Optimized Streaming UX**: Intelligent text cleaning to prevent mid-word spacing issues during real-time streaming.
+- **Cross-Page Chat History Persistence**: Dialogue history automatically rehydrates across route changes and browser refreshes with sliding-window capacity.
+- **Strict Multi-User Isolation**: Built-in composite keying (`userId`/`visitorId` + `kb_id`) ensures zero history leakage across different users or shared devices.
+- **Configurable Citation Control**: Toggle source citation popovers and badges on or off (`showCitations`) with clean token suppression.
+- **Draggable Positioning & Persistence**: Smooth draggable launcher and header with quadrant anchoring and coordinate persistence (ADR-006).
 - **Embeddable & Flexible**: Embed directly into HTML with `<script>` or use as an NPM module.
 - **Knowledge Base Selection**: Supports multiple KB selections with a clear "Start Chat" workflow.
 - **Isolated Styling**: Scoped CSS (`#akvo-rag`) using SCSS to prevent style collisions with host sites.
@@ -102,33 +106,76 @@ initChat({
 
 The `initChat` function accepts a configuration object to customize the chat widget behavior, appearance, and dimensions:
 
-| Parameter        | Type                                      | Required | Default            | Description                                                        |
-| ---------------- | ----------------------------------------- | -------- | ------------------ | ------------------------------------------------------------------ |
-| `title`          | `string`                                  | ✅ Yes    | `"Chatbot"`        | The title displayed in the chat header.                            |
-| `wsURL`          | `string`                                  | ✅ Yes    | —                  | WebSocket endpoint URL for real-time chat communication.           |
-| `kb_id`          | `number`                                  | ❌ No     | `null`             | Initial Knowledge Base ID to query directly.                       |
-| `kb_options`     | `Array<{ kb_id: number, label: string }>` | ❌ No     | `[]`               | Knowledge Base choices for the user before starting chat.          |
-| `primaryColor`   | `string`                                  | ❌ No     | `"#007A78"`        | Primary brand color (`#hex`, `rgb`, `hsl`) cascading via CSS var.  |
-| `showLauncher`   | `boolean`                                 | ❌ No     | `true`             | `true`: Floating 56×56px launcher button; `false`: embedded box.   |
-| `startMinimized` | `boolean`                                 | ❌ No     | `true`             | Whether the widget initializes minimized or expanded.             |
-| `width`          | `number \| string`                        | ❌ No     | `"360px"`          | Widget width (`400`, `"420px"`, `"25rem"`). Clamped on mobile.    |
-| `height`         | `number \| string`                        | ❌ No     | `"500px"`          | Widget height (`560`, `"600px"`, `"80vh"`). Clamped on mobile.   |
-| `position`       | `"bottom-right" \| "bottom-left"`         | ❌ No     | `"bottom-right"`   | Viewport corner anchor for both launcher and chat window.          |
-| `borderRadius`   | `number \| string`                        | ❌ No     | `"8px"`            | Corner radius (`8`, `"12px"`, `"16px"`).                           |
-| `launcherSize`   | `number \| string`                        | ❌ No     | `"56px"`           | Floating launcher button size (`48`, `"56px"`, `"64px"`).          |
-| `zIndex`         | `number`                                  | ❌ No     | `99999`            | Stacking index (launcher automatically takes `zIndex - 1`).        |
-| `launcherIcon`   | `string`                                  | ❌ No     | Default comments   | Custom SVG markup, image URL, or FontAwesome class string.         |
-| `headerIcon`     | `string`                                  | ❌ No     | `null`             | Avatar or icon rendered adjacent to the header title.             |
-| `autoReconnect`  | `boolean`                                 | ❌ No     | `true`             | Reconnection with exponential backoff on drop (ADR-005).           |
+| Parameter            | Type                                      | Required | Default              | Description                                                        |
+| -------------------- | ----------------------------------------- | -------- | -------------------- | ------------------------------------------------------------------ |
+| `title`              | `string`                                  | ✅ Yes    | `"Chatbot"`          | The title displayed in the chat header.                            |
+| `wsURL`              | `string`                                  | ✅ Yes    | —                    | WebSocket endpoint URL for real-time chat communication.           |
+| `kb_id`              | `number`                                  | ❌ No     | `null`               | Initial Knowledge Base ID to query directly.                       |
+| `kb_options`         | `Array<{ kb_id: number, label: string }>` | ❌ No     | `[]`                 | Knowledge Base choices for the user before starting chat.          |
+| `persistHistory`     | `boolean`                                 | ❌ No     | `true`               | Preserve conversation transcript across page refreshes / routes.   |
+| `userId`             | `string`                                  | ❌ No     | `null`               | Unique user ID for multi-user isolation on shared devices.         |
+| `historyStorageType` | `"session" \| "local"`                    | ❌ No     | `"session"`          | Storage backend (`sessionStorage` clears on tab close).            |
+| `historyStorageKey`  | `string`                                  | ❌ No     | `"akvo_rag_history"` | Base storage key for chat history persistence.                     |
+| `maxHistoryMessages` | `number`                                  | ❌ No     | `20`                 | Maximum conversation turns retained in sliding window history.     |
+| `showCitations`      | `boolean`                                 | ❌ No     | `true`               | `true`: Render superscript citation popovers; `false`: strip tags. |
+| `draggable`          | `boolean`                                 | ❌ No     | `true`               | Enable draggable positioning for launcher and chat window header.  |
+| `persistPosition`    | `boolean`                                 | ❌ No     | `true`               | Persist widget coordinates across reloads in `localStorage`.       |
+| `dragThreshold`      | `number`                                  | ❌ No     | `6`                  | Pixel distance threshold before a click becomes a drag.            |
+| `primaryColor`       | `string`                                  | ❌ No     | `"#007A78"`          | Primary brand color (`#hex`, `rgb`, `hsl`) cascading via CSS var.  |
+| `showLauncher`       | `boolean`                                 | ❌ No     | `true`               | `true`: Floating 56×56px launcher button; `false`: embedded box.   |
+| `startMinimized`     | `boolean`                                 | ❌ No     | `true`               | Whether the widget initializes minimized or expanded.             |
+| `width`              | `number \| string`                        | ❌ No     | `"360px"`            | Widget width (`400`, `"420px"`, `"25rem"`). Clamped on mobile.    |
+| `height`             | `number \| string`                        | ❌ No     | `"500px"`            | Widget height (`560`, `"600px"`, `"80vh"`). Clamped on mobile.   |
+| `position`           | `"bottom-right" \| "bottom-left"`         | ❌ No     | `"bottom-right"`     | Viewport corner anchor for both launcher and chat window.          |
+| `borderRadius`       | `number \| string`                        | ❌ No     | `"8px"`              | Corner radius (`8`, `"12px"`, `"16px"`).                           |
+| `launcherSize`       | `number \| string`                        | ❌ No     | `"56px"`             | Floating launcher button size (`48`, `"56px"`, `"64px"`).          |
+| `zIndex`             | `number`                                  | ❌ No     | `99999`              | Stacking index (launcher automatically takes `zIndex - 1`).        |
+| `launcherIcon`       | `string`                                  | ❌ No     | Default comments     | Custom SVG markup, image URL, or FontAwesome class string.         |
+| `headerIcon`         | `string`                                  | ❌ No     | `null`               | Avatar or icon rendered adjacent to the header title.             |
+| `autoReconnect`      | `boolean`                                 | ❌ No     | `true`               | Reconnection with exponential backoff on drop (ADR-005).           |
+
+---
+
+### 💬 Session History & Multi-User Isolation
+
+The widget automatically persists dialogue turns across route changes, SPA navigations, and browser refreshes:
+
+```javascript
+const chat = initChat({
+  wsURL: "wss://akvo-rag.akvotest.org/ws/chat",
+  kb_id: 750,
+  persistHistory: true,       // On/off toggle (defaults to true)
+  userId: currentUser?.id,    // Scopes storage to this user (prevents cross-user leaks)
+  showCitations: false,       // Suppress [citation:X] badges for clean conversational look
+});
+```
+
+#### How User ID Scoping Works:
+1. **Anonymous Visitors (Default)**: If `userId` is omitted, the widget automatically generates a private UUID saved in `localStorage["akvo-visitor-id"]`. Each device maintains its own isolated transcript.
+2. **Logged-In Users**: When your application passes `userId: "alice"`, history is stored under `akvo_rag_history_alice_750`. If Bob logs in on the same browser with `userId: "bob"`, he will **never see Alice's history**.
+3. **Programmatic Controls**:
+   - `chat.clearHistory()`: Purges saved messages from storage for the active user/KB and resets the chat UI.
+   - `chat.getHistory()`: Returns a deep copy of the current in-memory message history.
+
+---
 
 ### 🔧 Component Lifecycle (`AkvoRagChatbox`)
 
-The `initChat` function returns an instance of `AkvoRagChatbox`. You can use it to manage the widget's lifecycle:
+The `initChat` function returns an instance of `AkvoRagChatbox`. You can use it to manage the widget's lifecycle and programmatic actions:
 
 ```javascript
 const chat = initChat({ ... });
 
-// To remove the widget and close connections:
+// Programmatic UI control:
+chat.open();       // Expand chat window
+chat.minimize();   // Collapse to launcher
+chat.close();      // Minimize chat window
+
+// History management:
+const messages = chat.getHistory();
+chat.clearHistory();
+
+// Clean up connections and DOM elements:
 chat.destroy();
 ```
 

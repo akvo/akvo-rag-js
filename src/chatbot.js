@@ -23,6 +23,11 @@ export class AkvoRagChatbox {
       persistPosition: true,
       storageKey: "akvo_rag_pos",
       dragThreshold: 6,
+      persistHistory: true,
+      historyStorageType: "session",
+      historyStorageKey: "akvo_rag_history",
+      maxHistoryMessages: 20,
+      showCitations: true,
       ...options,
     };
     if (options.draggable !== undefined) {
@@ -38,6 +43,36 @@ export class AkvoRagChatbox {
     }
     if (typeof options.storageKey === "string" && options.storageKey.trim()) {
       this.options.storageKey = options.storageKey.trim();
+    }
+    if (options.persistHistory !== undefined) {
+      this.options.persistHistory = Boolean(options.persistHistory);
+    }
+    if (
+      options.historyStorageType === "local" ||
+      options.historyStorageType === "session"
+    ) {
+      this.options.historyStorageType = options.historyStorageType;
+    } else {
+      this.options.historyStorageType = "session";
+    }
+    if (
+      typeof options.historyStorageKey === "string" &&
+      options.historyStorageKey.trim()
+    ) {
+      this.options.historyStorageKey = options.historyStorageKey.trim();
+    }
+    if (options.maxHistoryMessages !== undefined) {
+      const parsedMax = Number(options.maxHistoryMessages);
+      this.options.maxHistoryMessages =
+        Number.isFinite(parsedMax) && parsedMax > 0
+          ? Math.floor(parsedMax)
+          : 20;
+    }
+    if (options.showCitations !== undefined) {
+      this.options.showCitations = Boolean(options.showCitations);
+    }
+    if (options.userId !== undefined && options.userId !== null) {
+      this.options.userId = String(options.userId).trim();
     }
 
     this.showLauncher =
@@ -104,6 +139,7 @@ export class AkvoRagChatbox {
 
     this._createUI();
     this._bindEvents();
+    this._rehydrateHistory();
 
     if (this.isMinimized) {
       this.close();
@@ -114,6 +150,165 @@ export class AkvoRagChatbox {
     if (this.options.kb_id) {
       this._connect();
     }
+  }
+
+  /**
+   * Retrieves the chosen storage backend (sessionStorage or localStorage).
+   */
+  _getStorageBackend() {
+    try {
+      if (this.options.historyStorageType === "local") {
+        return typeof globalThis.localStorage?.getItem === "function"
+          ? globalThis.localStorage
+          : null;
+      }
+      return typeof globalThis.sessionStorage?.getItem === "function"
+        ? globalThis.sessionStorage
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Computes the isolated history storage key based on user scope, KB scope, and base key.
+   */
+  _getHistoryStorageKey() {
+    const userScope = String(
+      this.options.userId || this.visitorId || "anon",
+    ).trim();
+    const kbScope = String(this.options.kb_id || "default").trim();
+    const baseKey = String(
+      this.options.historyStorageKey || "akvo_rag_history",
+    ).trim();
+    return `${baseKey}_${userScope}_${kbScope}`;
+  }
+
+  /**
+   * Persists bounded chat history to storage.
+   */
+  _saveHistoryToStorage() {
+    if (!this.options.persistHistory) return;
+    const storage = this._getStorageBackend();
+    if (!storage) return;
+
+    try {
+      const key = this._getHistoryStorageKey();
+      const max = this.options.maxHistoryMessages || 20;
+      const historyToPersist = this.chatHistory.slice(-max);
+      storage.setItem(key, JSON.stringify(historyToPersist));
+    } catch {
+      // Storage quota or access error
+    }
+  }
+
+  /**
+   * Loads bounded chat history from storage.
+   */
+  _loadHistoryFromStorage() {
+    if (!this.options.persistHistory) return [];
+    const storage = this._getStorageBackend();
+    if (!storage) return [];
+
+    try {
+      const key = this._getHistoryStorageKey();
+      const raw = storage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const max = this.options.maxHistoryMessages || 20;
+          return parsed.slice(-max);
+        }
+      }
+    } catch {
+      // Parse or storage error
+    }
+    return [];
+  }
+
+  /**
+   * Rehydrates persisted messages into the chat DOM and memory.
+   */
+  _rehydrateHistory() {
+    if (!this.options.persistHistory) return;
+    const history = this._loadHistoryFromStorage();
+    if (!history.length) return;
+
+    this.chatHistory = [...history];
+
+    const body = this.container?.querySelector("#akvo-rag-body");
+    if (!body) return;
+
+    // Clear initial welcome message if real chat history exists
+    const welcomeMsg = body.querySelector(".akvo-msg-system");
+    if (welcomeMsg) {
+      welcomeMsg.remove();
+    }
+
+    history.forEach((msg) => {
+      if (!msg || !msg.role || !msg.content) return;
+      this.messageCounter++;
+      const el = appendMessageToBody(
+        msg.role,
+        msg.content,
+        false,
+        this.messageCounter,
+      );
+      if (msg.role === "assistant" && el) {
+        if (msg.citations && msg.citations.length) {
+          replaceCitations(el, msg.citations, this.options.showCitations);
+        } else {
+          replaceCitations(el, [], this.options.showCitations);
+        }
+      }
+    });
+  }
+
+  /**
+   * Clears in-memory chat history and deletes the storage item.
+   */
+  clearHistory() {
+    this.chatHistory = [];
+    const storage = this._getStorageBackend();
+    if (storage) {
+      try {
+        storage.removeItem(this._getHistoryStorageKey());
+      } catch {
+        // Storage access error
+      }
+    }
+
+    const body = this.container?.querySelector("#akvo-rag-body");
+    if (body) {
+      body.innerHTML =
+        !this.options.kb_id && this.options.kb_options?.length
+          ? `
+              <div id="akvo-kb-options" class="akvo-kb-options">
+                <p>Please select a knowledge base to continue:</p>
+                ${this.options.kb_options
+                  .map(
+                    (kb) => `
+                    <div class="kb-option">
+                      <input type="radio" id="kb-${kb.kb_id}" name="akvo-kb" value="${kb.kb_id}">
+                      <label for="kb-${kb.kb_id}">${kb.label}</label>
+                    </div>
+                  `,
+                  )
+                  .join("")}
+                <div class="akvo-kb-options-hint">
+                  After selecting, click "Start Chat" to begin.
+                </div>
+              </div>
+            `
+          : `<p class="akvo-msg-system">${DEFAULT_WELCOME_MESSAGE}</p>`;
+    }
+  }
+
+  /**
+   * Returns a deep copy of in-memory chat history.
+   */
+  getHistory() {
+    return JSON.parse(JSON.stringify(this.chatHistory));
   }
 
   /**
@@ -862,12 +1057,16 @@ export class AkvoRagChatbox {
     this._connect();
 
     const body = this.container.querySelector("#akvo-rag-body");
-    const msg = document.createElement("p");
-    msg.className = "akvo-msg-system";
-    msg.textContent = DEFAULT_WELCOME_MESSAGE;
-    body.appendChild(msg);
+    const loadedHistory = this._loadHistoryFromStorage();
+    if (!loadedHistory.length) {
+      const msg = document.createElement("p");
+      msg.className = "akvo-msg-system";
+      msg.textContent = DEFAULT_WELCOME_MESSAGE;
+      body.appendChild(msg);
+    }
 
     this._bindInputEvents();
+    this._rehydrateHistory();
   }
 
   _handleSend() {
@@ -879,6 +1078,7 @@ export class AkvoRagChatbox {
       return;
 
     this.chatHistory.push({ role: "user", content: text });
+    this._saveHistoryToStorage();
     const lastMessages = this.chatHistory.slice(CHAT_HISTORY_SLICE);
 
     this.wsConnection.socket.send(
@@ -949,12 +1149,17 @@ export class AkvoRagChatbox {
         this.currentAssistantMsgEl ||
         document.querySelector(`#akvo-msg-assistant-${this.messageCounter}`);
       if (el) {
-        replaceCitations(el, this.citations);
+        replaceCitations(el, this.citations, this.options.showCitations);
         if (el?.rawText) {
           this.chatHistory.push({
             role: "assistant",
             content: el.rawText,
+            citations:
+              this.citations && this.citations.length
+                ? [...this.citations]
+                : undefined,
           });
+          this._saveHistoryToStorage();
         }
       }
       this.isLoading = false;

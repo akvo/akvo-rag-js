@@ -6,11 +6,21 @@ export function removeAllPopovers() {
   }
 }
 
-export function replaceCitations(el, citations) {
-  if (!el || !citations?.length) return;
+export function replaceCitations(el, citations, showCitations = true) {
+  if (!el) return;
 
   // Ensure this runs after the element is fully rendered
   requestAnimationFrame(() => {
+    if (showCitations === false) {
+      el.innerHTML = el.innerHTML.replace(
+        /(?:\[|&#91;|&lbrack;)\s*citation:\s*\d+\s*(?:\]|&#93;|&rbrack;)/gi,
+        "",
+      );
+      return;
+    }
+
+    if (!citations?.length) return;
+
     let html = el.innerHTML;
 
     citations.forEach((c) => {
